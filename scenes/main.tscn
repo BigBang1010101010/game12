@@ -1,4 +1,4 @@
-[gd_scene load_steps=9 format=3]
+[gd_scene load_steps=10 format=3]
 
 [ext_resource type="Script" path="res://scripts/player.gd" id="1_player"]
 
@@ -8,7 +8,10 @@ size = Vector2(50, 50)
 [sub_resource type="BoxShape3D" id="BoxShape3D_1"]
 size = Vector3(50, 0.2, 50)
 
+[sub_resource type="ProceduralSkyMaterial" id="ProceduralSkyMaterial_1"]
+
 [sub_resource type="Sky" id="Sky_1"]
+sky_material = SubResource("ProceduralSkyMaterial_1")
 
 [sub_resource type="Environment" id="Environment_1"]
 background_mode = 2
@@ -58,5 +61,5 @@ material_override = SubResource("StandardMaterial3D_1")
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 2, 4)
 
 [node name="Camera3D" type="Camera3D" parent="Player/CameraRig"]
-transform = Transform3D(1, 0, 0, 0, 0.9659258, -0.258819, 0, 0.258819, 0.9659258, 0, 0, 0)
+transform = Transform3D(1, 0, 0, 0, 0.8660254, -0.5, 0, 0.5, 0.8660254, 0, 0, 0)
 current = true
