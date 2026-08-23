@@ -34,6 +34,7 @@ var character_model: Node3D
 @onready var camera_pitch: Node3D = $CameraYaw/CameraPitch
 
 func _ready() -> void:
+	add_to_group("player")
 	Input.mouse_mode = Input.MOUSE_MODE_CAPTURED
 	camera_pitch.rotation.x = PITCH_DEFAULT
 	call_deferred("_spawn_character_model")
