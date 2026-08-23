@@ -53,3 +53,10 @@ shape = SubResource("CapsuleShape3D_1")
 [node name="MeshInstance3D" type="MeshInstance3D" parent="Player"]
 mesh = SubResource("CapsuleMesh_1")
 material_override = SubResource("StandardMaterial3D_1")
+
+[node name="CameraRig" type="Node3D" parent="Player"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 2, 4)
+
+[node name="Camera3D" type="Camera3D" parent="Player/CameraRig"]
+transform = Transform3D(1, 0, 0, 0, 0.9659258, -0.258819, 0, 0.258819, 0.9659258, 0, 0, 0)
+current = true
