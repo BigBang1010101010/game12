@@ -1,0 +1,110 @@
+[gd_scene load_steps=6 format=3]
+
+[ext_resource type="Script" path="res://scripts/character_select.gd" id="1_select"]
+[ext_resource type="Texture2D" path="res://assets/characters/skins/character_01.png" id="2_skin01"]
+[ext_resource type="Texture2D" path="res://assets/characters/skins/character_02.png" id="3_skin02"]
+[ext_resource type="Texture2D" path="res://assets/characters/skins/character_03.png" id="4_skin03"]
+[ext_resource type="Texture2D" path="res://assets/characters/skins/character_04.png" id="5_skin04"]
+
+[node name="CharacterSelect" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_select")
+
+[node name="Background" type="ColorRect" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0.113725, 0.145098, 0.2, 1)
+
+[node name="CenterContainer" type="CenterContainer" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="VBoxContainer" type="VBoxContainer" parent="CenterContainer"]
+layout_mode = 2
+theme_override_constants/separation = 24
+alignment = 1
+
+[node name="Title" type="Label" parent="CenterContainer/VBoxContainer"]
+layout_mode = 2
+horizontal_alignment = 1
+theme_override_font_sizes/font_size = 32
+text = "Elige tu personaje"
+
+[node name="Characters" type="HBoxContainer" parent="CenterContainer/VBoxContainer"]
+layout_mode = 2
+theme_override_constants/separation = 32
+alignment = 1
+
+[node name="Character1" type="VBoxContainer" parent="CenterContainer/VBoxContainer/Characters"]
+layout_mode = 2
+
+[node name="Preview" type="TextureRect" parent="CenterContainer/VBoxContainer/Characters/Character1"]
+custom_minimum_size = Vector2(128, 128)
+layout_mode = 2
+texture = ExtResource("2_skin01")
+expand_mode = 1
+stretch_mode = 5
+
+[node name="SelectButton" type="Button" parent="CenterContainer/VBoxContainer/Characters/Character1"]
+layout_mode = 2
+text = "Personaje 1"
+
+[node name="Character2" type="VBoxContainer" parent="CenterContainer/VBoxContainer/Characters"]
+layout_mode = 2
+
+[node name="Preview" type="TextureRect" parent="CenterContainer/VBoxContainer/Characters/Character2"]
+custom_minimum_size = Vector2(128, 128)
+layout_mode = 2
+texture = ExtResource("3_skin02")
+expand_mode = 1
+stretch_mode = 5
+
+[node name="SelectButton" type="Button" parent="CenterContainer/VBoxContainer/Characters/Character2"]
+layout_mode = 2
+text = "Personaje 2"
+
+[node name="Character3" type="VBoxContainer" parent="CenterContainer/VBoxContainer/Characters"]
+layout_mode = 2
+
+[node name="Preview" type="TextureRect" parent="CenterContainer/VBoxContainer/Characters/Character3"]
+custom_minimum_size = Vector2(128, 128)
+layout_mode = 2
+texture = ExtResource("4_skin03")
+expand_mode = 1
+stretch_mode = 5
+
+[node name="SelectButton" type="Button" parent="CenterContainer/VBoxContainer/Characters/Character3"]
+layout_mode = 2
+text = "Personaje 3"
+
+[node name="Character4" type="VBoxContainer" parent="CenterContainer/VBoxContainer/Characters"]
+layout_mode = 2
+
+[node name="Preview" type="TextureRect" parent="CenterContainer/VBoxContainer/Characters/Character4"]
+custom_minimum_size = Vector2(128, 128)
+layout_mode = 2
+texture = ExtResource("5_skin04")
+expand_mode = 1
+stretch_mode = 5
+
+[node name="SelectButton" type="Button" parent="CenterContainer/VBoxContainer/Characters/Character4"]
+layout_mode = 2
+text = "Personaje 4"
+
+[connection signal="pressed" from="CenterContainer/VBoxContainer/Characters/Character1/SelectButton" to="." method="_on_character_button_pressed" binds=["res://assets/characters/skins/character_01.png"]]
+[connection signal="pressed" from="CenterContainer/VBoxContainer/Characters/Character2/SelectButton" to="." method="_on_character_button_pressed" binds=["res://assets/characters/skins/character_02.png"]]
+[connection signal="pressed" from="CenterContainer/VBoxContainer/Characters/Character3/SelectButton" to="." method="_on_character_button_pressed" binds=["res://assets/characters/skins/character_03.png"]]
+[connection signal="pressed" from="CenterContainer/VBoxContainer/Characters/Character4/SelectButton" to="." method="_on_character_button_pressed" binds=["res://assets/characters/skins/character_04.png"]]
