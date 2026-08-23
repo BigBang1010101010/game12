@@ -26,12 +26,25 @@ const MODEL_FEET_OFFSET := -0.9
 ## added on top of the model's movement-facing yaw to correct for it.
 const MODEL_FRONT_CORRECTION := PI
 
+## Max raycast distance for Shift-drag object picking.
+const DRAG_RAY_LENGTH := 100.0
+
 var animation_player: AnimationPlayer
 var skeleton: Skeleton3D
 var character_model: Node3D
 
+## True while Shift is held (mouse released, left-click drags objects
+## instead of driving camera look).
+var shift_held := false
+## True after Escape releases the mouse outside of Shift mode; the next
+## click just re-captures it rather than starting a drag.
+var escaped := false
+var dragged_body: RigidBody3D = null
+var drag_plane_y := 0.0
+
 @onready var camera_yaw: Node3D = $CameraYaw
 @onready var camera_pitch: Node3D = $CameraYaw/CameraPitch
+@onready var camera: Camera3D = $CameraYaw/CameraPitch/Camera3D
 
 func _ready() -> void:
 	add_to_group("player")
@@ -40,12 +53,33 @@ func _ready() -> void:
 	call_deferred("_spawn_character_model")
 
 func _unhandled_input(event: InputEvent) -> void:
+	if event is InputEventKey and event.pressed and event.keycode == KEY_ESCAPE and not shift_held:
+		escaped = true
+		Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
+		return
+
+	if event is InputEventKey and not event.echo and event.keycode == KEY_SHIFT:
+		_set_shift_held(event.pressed)
+		return
+
+	if escaped:
+		if event is InputEventMouseButton and event.pressed:
+			escaped = false
+			Input.mouse_mode = Input.MOUSE_MODE_CAPTURED
+		return
+
+	if shift_held:
+		if event is InputEventMouseButton and event.button_index == MOUSE_BUTTON_LEFT:
+			if event.pressed:
+				_try_start_drag(event.position)
+			else:
+				_stop_drag()
+		elif event is InputEventMouseMotion and dragged_body:
+			_update_drag(event.position)
+		return
+
 	if event is InputEventMouseMotion and Input.mouse_mode == Input.MOUSE_MODE_CAPTURED:
 		_apply_look_delta(event.relative)
-	elif event is InputEventKey and event.pressed and event.keycode == KEY_ESCAPE:
-		Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
-	elif event is InputEventMouseButton and event.pressed and Input.mouse_mode == Input.MOUSE_MODE_VISIBLE:
-		Input.mouse_mode = Input.MOUSE_MODE_CAPTURED
 
 ## Pure rotation math for mouse-look, split out from _unhandled_input so it
 ## can be exercised directly (the mouse_mode gate above is untestable
@@ -57,6 +91,59 @@ func _apply_look_delta(relative: Vector2) -> void:
 		PITCH_MIN,
 		PITCH_MAX
 	)
+
+func _set_shift_held(pressed: bool) -> void:
+	if pressed == shift_held:
+		return
+	shift_held = pressed
+	if escaped:
+		return
+	if shift_held:
+		Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
+	else:
+		_stop_drag()
+		Input.mouse_mode = Input.MOUSE_MODE_CAPTURED
+
+## Raycasts from the camera through the given viewport position and, if it
+## hits a RigidBody3D in the "draggable" group, grabs it: freezes its
+## physics and remembers the horizontal plane (at the object's current
+## height) it will be dragged along.
+func _try_start_drag(mouse_pos: Vector2) -> void:
+	var from := camera.project_ray_origin(mouse_pos)
+	var to := from + camera.project_ray_normal(mouse_pos) * DRAG_RAY_LENGTH
+	# Exclude the player's own collision body: the camera orbits close to (and
+	# sometimes behind/through) it, so an unfiltered ray can hit the player's
+	# capsule before it ever reaches the object being aimed at.
+	var query := PhysicsRayQueryParameters3D.create(from, to, 0xFFFFFFFF, [self.get_rid()])
+	var result := get_world_3d().direct_space_state.intersect_ray(query)
+	if result.is_empty():
+		return
+	var collider = result["collider"]
+	if not (collider is RigidBody3D) or not collider.is_in_group("draggable"):
+		return
+	dragged_body = collider
+	drag_plane_y = dragged_body.global_position.y
+	dragged_body.freeze = true
+	_update_drag(mouse_pos)
+
+## Moves the currently dragged body to wherever the camera ray now crosses
+## the drag plane, so it tracks the mouse cursor.
+func _update_drag(mouse_pos: Vector2) -> void:
+	var from := camera.project_ray_origin(mouse_pos)
+	var dir := camera.project_ray_normal(mouse_pos)
+	if absf(dir.y) < 0.0001:
+		return
+	var t := (drag_plane_y - from.y) / dir.y
+	if t < 0.0:
+		return
+	var target := from + dir * t
+	target.y = drag_plane_y
+	dragged_body.global_position = target
+
+func _stop_drag() -> void:
+	if dragged_body:
+		dragged_body.freeze = false
+		dragged_body = null
 
 func _physics_process(delta: float) -> void:
 	if not is_on_floor():
