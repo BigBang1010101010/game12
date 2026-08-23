@@ -1,9 +1,14 @@
-[gd_scene load_steps=7 format=3]
+[gd_scene load_steps=8 format=3]
 
 [ext_resource type="Script" path="res://scripts/player.gd" id="1_player"]
 
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_grass"]
+albedo_color = Color(0.290196, 0.486275, 0.227451, 1)
+roughness = 0.95
+
 [sub_resource type="PlaneMesh" id="PlaneMesh_1"]
 size = Vector2(50, 50)
+material = SubResource("StandardMaterial3D_grass")
 
 [sub_resource type="BoxShape3D" id="BoxShape3D_1"]
 size = Vector3(50, 0.2, 50)
