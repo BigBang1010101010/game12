@@ -39,6 +39,11 @@ func _spawn_character_model() -> void:
 	var instance := packed.instantiate()
 	instance.name = "CharacterModel"
 	instance.transform.origin.y = MODEL_FEET_OFFSET
+	# The source model's own front faces local +Z, the opposite of Godot's
+	# -Z forward convention (confirmed via its skeleton rest pose: "LeftArm"
+	# sits on +X, which only matches a +Z-facing rig). Rotate it 180 degrees
+	# around Y so it faces -Z like the rest of the Player/movement code.
+	instance.rotate_y(PI)
 	add_child(instance)
 
 	skeleton = CharacterRig.find_skeleton(instance)
