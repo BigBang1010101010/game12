@@ -1,0 +1,39 @@
+name: Export Web Build
+
+on:
+  push:
+    branches: [main]
+
+env:
+  GODOT_VERSION: "4.3"
+  EXPORT_NAME: game12
+
+jobs:
+  export-web:
+    name: Export Web (HTML5)
+    runs-on: ubuntu-latest
+    container:
+      image: barichello/godot-ci:4.3
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          lfs: true
+
+      - name: Setup export templates
+        run: |
+          mkdir -v -p ~/.local/share/godot/export_templates
+          mv /root/.local/share/godot/export_templates/${GODOT_VERSION} ~/.local/share/godot/export_templates/${GODOT_VERSION}
+
+      - name: Create build directory
+        run: mkdir -v -p build/web
+
+      - name: Export Web build
+        run: godot --headless --verbose --export-release "Web" build/web/index.html
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: web-build
+          path: build/web
