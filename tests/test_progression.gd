@@ -27,6 +27,12 @@ func _run() -> void:
 	_formula_en_rango_para_perfiles_extremos()
 	_formula_es_monotona()
 	_early_nunca_perjudica()
+	_actividades_son_coherentes()
+	_ruta_atletica_esta_cerrada_bajo_umbral()
+	_indice_academico_en_rango()
+	_presupuesto_penaliza_sobrecompromiso()
+	_ledger_registra_cada_actividad()
+	_slots_respetan_el_limite()
 	_ledger_conserva_totales()
 
 	print("")
@@ -47,14 +53,14 @@ func _verificar(condicion: bool, mensaje: String) -> void:
 func _registros_cargan_sin_errores() -> void:
 	for par in [["atributos", AttributeRegistry], ["sinergias", SynergyRegistry],
 			["universidades", UniversityRegistry], ["carreras", CareerRegistry],
-			["ensayos", EssayRegistry]]:
+			["ensayos", EssayRegistry], ["actividades", ActivityRegistry]]:
 		var registro: ResourceRegistry = par[1]
 		var errores: PackedStringArray = registro.obtener_errores()
 		_verificar(errores.is_empty(), "%s reporto errores: %s" % [par[0], ", ".join(errores)])
 		_verificar(registro.contar() > 0, "%s no cargo ningun recurso" % par[0])
-	print("registros:      %d atributos, %d sinergias, %d universidades, %d carreras, %d ensayos" % [
+	print("registros:      %d atributos, %d sinergias, %d universidades, %d carreras, %d ensayos, %d actividades" % [
 		AttributeRegistry.contar(), SynergyRegistry.contar(), UniversityRegistry.contar(),
-		CareerRegistry.contar(), EssayRegistry.contar()])
+		CareerRegistry.contar(), EssayRegistry.contar(), ActivityRegistry.contar()])
 
 ## No .tres may reference an id that does not exist. This is the check that
 ## catches a typo in new content before it ships.
@@ -206,3 +212,205 @@ func _ledger_conserva_totales() -> void:
 	print("ledger:         %d detalladas + %d agregados, total exacto, %d eventos de minijuego + %d de decaimiento" % [
 		PlayerState.ledger.size(), PlayerState.ledger_consolidado.size(),
 		eventos_minijuego, eventos_decaimiento])
+
+# --- Activities ---------------------------------------------------------------
+
+## No activity may grant an attribute or claim a career that does not exist,
+## promise a tier its ladder cannot reach, or gate a level on a lever the
+## engine does not know. All four are content typos that must fail loudly.
+func _actividades_son_coherentes() -> void:
+	var niveles_totales := 0
+	for a_res in ActivityRegistry.obtener_todos():
+		var a: ActivityData = a_res
+		for carrera_id in a.carreras_afinidad:
+			_verificar(CareerRegistry.tiene(carrera_id),
+				"actividad '%s' referencia la carrera inexistente '%s'" % [a.id, carrera_id])
+		_verificar(a.mejor_tier_de_niveles() >= a.tier_techo,
+			"actividad '%s': su escalera llega a tier %d, mejor que el techo %d que declara" % [
+				a.id, a.mejor_tier_de_niveles(), a.tier_techo])
+		var tier_previo := 5
+		for nivel in a.obtener_niveles():
+			niveles_totales += 1
+			for atributo_id in nivel.modificadores_atributo:
+				_verificar(AttributeRegistry.tiene(atributo_id),
+					"actividad '%s', nivel '%s': atributo inexistente '%s'" % [a.id, nivel.nombre, atributo_id])
+			# The ladder has to actually climb: a rung may not be worth less
+			# than the one below it.
+			_verificar(nivel.tier <= tier_previo,
+				"actividad '%s': el nivel '%s' (tier %d) va hacia atras respecto al anterior (tier %d)" % [
+					a.id, nivel.nombre, nivel.tier, tier_previo])
+			tier_previo = nivel.tier
+			_verificar(nivel.validar().is_empty(),
+				"actividad '%s', nivel '%s': %s" % [a.id, nivel.nombre, ", ".join(nivel.validar())])
+	print("actividades:    %d actividades, %d niveles, referencias y escaleras coherentes" % [
+		ActivityRegistry.contar(), niveles_totales])
+
+## THE deliberate rule: an athlete gets nothing from the athletic route until
+## BOTH gates open. Checked for every sport in the catalogue, at its own bar
+## and its own floor, so a sport added later is covered automatically.
+func _ruta_atletica_esta_cerrada_bajo_umbral() -> void:
+	var carrera: StringName = CareerRegistry.obtener_ids()[0]
+	var ensayo: StringName = EssayRegistry.obtener_ids()[0]
+	var universidad: StringName = UniversityRegistry.obtener_ids()[0]
+	var deportes := 0
+	for a_res in ActivityRegistry.obtener_todos():
+		var a: ActivityData = a_res
+		if not a.es_deporte:
+			continue
+		deportes += 1
+		var justo: StringName = ActivityScales.nombre_reconocimiento(a.umbral_reclutamiento)
+		var corto: StringName = ActivityScales.nombre_reconocimiento(a.umbral_reclutamiento - 1)
+
+		# 1. Recognition below the bar, academics irrelevant.
+		var r1: AdmissionResult = _con_deporte(universidad, carrera, ensayo, a, corto, 100.0)
+		_verificar(not r1.es_reclutado and is_zero_approx(r1.efecto_atletico),
+			"'%s': reclutado con reconocimiento '%s', por debajo de su umbral '%s'" % [a.id, corto, justo])
+
+		# 2. Recognition fine, Academic Index below the sport's floor.
+		var bajo: float = _valor_para_indice(float(a.academic_index_minimo) - 12.0)
+		var r2: AdmissionResult = _con_deporte(universidad, carrera, ensayo, a, justo, bajo)
+		_verificar(not r2.es_reclutado and is_zero_approx(r2.efecto_atletico),
+			"'%s': reclutado con indice %.0f, por debajo de su minimo %d" % [
+				a.id, r2.academic_index, a.academic_index_minimo])
+		_verificar(not r2.deportes_no_reclutables.is_empty(),
+			"'%s': no se reclutó pero el resultado no dice por qué" % a.id)
+
+		# 3. Both gates open: the bonus appears and it is worth something.
+		var alto: float = _valor_para_indice(float(a.academic_index_minimo) + 12.0)
+		var r3: AdmissionResult = _con_deporte(universidad, carrera, ensayo, a, justo, alto)
+		_verificar(r3.es_reclutado and r3.efecto_atletico > 0.0,
+			"'%s': cumple ambas compuertas y aun asi no recibe bono atletico" % a.id)
+		_verificar(r3.probabilidad > r2.probabilidad,
+			"'%s': ser reclutable no mejoro la probabilidad (%.4f vs %.4f)" % [
+				a.id, r3.probabilidad, r2.probabilidad])
+	print("ruta atletica:  %d deportes, ninguno da bono bajo su umbral ni bajo su indice minimo" % deportes)
+
+## Builds a one-sport application at a given recognition and academic level.
+func _con_deporte(universidad: StringName, carrera: StringName, ensayo: StringName,
+		deporte: ActivityData, reconocimiento: StringName, valor_academico: float) -> AdmissionResult:
+	var valores: Dictionary = _perfil_uniforme(50.0)
+	for definicion_res in AttributeRegistry.get_by_category(
+			AdmissionCalculator.obtener_config().categoria_academica):
+		valores[(definicion_res as AttributeDefinition).id] = valor_academico
+	var sim: Dictionary = ActivityTracker.simular_perfil({
+		deporte.id: {"anios": 4.0, "reconocimiento": reconocimiento, "rol": &"oficial"},
+	}, valores)
+	var estados: Dictionary = {deporte.id: sim["actividades"][deporte.id]["estado"]}
+	var indice: float = AcademicIndex.calcular_desde(sim["valores"])
+	var seleccion: Array[Dictionary] = ApplicationBuilder.detalle_desde_estados(estados, indice)
+	return AdmissionCalculator.calcular_probabilidad(
+		universidad, carrera, ensayo, false, sim["valores"], seleccion)
+
+## Attribute value that lands the Academic Index on a target, so a test can ask
+## for "just under this sport's floor" without hardcoding an attribute.
+func _valor_para_indice(indice: float) -> float:
+	var fraccion: float = clampf(
+		(indice - AcademicIndex.MINIMO) / (AcademicIndex.MAXIMO - AcademicIndex.MINIMO), 0.0, 1.0)
+	return fraccion * 100.0
+
+## The index is the real 60-240 scale at both ends and everywhere between.
+func _indice_academico_en_rango() -> void:
+	for valor in [0.0, 1.0, 37.0, 50.0, 99.0, 100.0]:
+		var indice: float = AcademicIndex.calcular_desde(_perfil_uniforme(valor))
+		_verificar(indice >= AcademicIndex.MINIMO and indice <= AcademicIndex.MAXIMO,
+			"indice academico %.2f fuera de 60-240 con atributos en %.0f" % [indice, valor])
+	_verificar(is_equal_approx(AcademicIndex.calcular_desde(_perfil_uniforme(0.0)), AcademicIndex.MINIMO),
+		"un perfil en cero deberia dar exactamente 60")
+	_verificar(is_equal_approx(AcademicIndex.calcular_desde(_perfil_uniforme(100.0)), AcademicIndex.MAXIMO),
+		"un perfil al maximo deberia dar exactamente 240")
+	# And it has to be built from academic attributes only: moving everything
+	# else must not move it.
+	var solo_academico: Dictionary = _perfil_uniforme(0.0)
+	var mezcla: Dictionary = _perfil_uniforme(0.0)
+	for definicion_res in AttributeRegistry.obtener_todos():
+		var definicion: AttributeDefinition = definicion_res
+		if definicion.categoria != AdmissionCalculator.obtener_config().categoria_academica:
+			mezcla[definicion.id] = 100.0
+	_verificar(is_equal_approx(AcademicIndex.calcular_desde(solo_academico), AcademicIndex.calcular_desde(mezcla)),
+		"subir atributos no academicos movio el indice academico")
+	print("indice acad.:   60-240 exacto en los extremos, inmune a lo no academico")
+
+## Overcommitting has to cost, and the cost has to be auditable.
+func _presupuesto_penaliza_sobrecompromiso() -> void:
+	PlayerState.reiniciar()
+	ActivityTracker.reiniciar()
+	var config: AdmissionConfig = AdmissionCalculator.obtener_config()
+	_verificar(not config.penalizacion_sobrecompromiso.is_empty(),
+		"la configuracion no define ninguna penalizacion por sobrecompromiso")
+
+	# Nothing committed: no penalty, and none charged.
+	_verificar(TimeBudget.penalizacion_semanal().is_empty(),
+		"se penalizo sobrecompromiso sin ninguna actividad activa")
+
+	# Enrol until the week is genuinely over budget.
+	for a_res in ActivityRegistry.obtener_todos():
+		if TimeBudget.horas_comprometidas() > TimeBudget.horas_totales():
+			break
+		ActivityTracker.inscribir((a_res as ActivityData).id)
+	var exceso: float = TimeBudget.horas_excedidas()
+	_verificar(exceso > 0.0, "no se logro exceder el presupuesto de %.0f horas" % TimeBudget.horas_totales())
+
+	var antes: Dictionary = {}
+	for atributo_id in config.penalizacion_sobrecompromiso:
+		antes[atributo_id] = PlayerState.obtener_valor(atributo_id)
+	var cobrado: Dictionary = TimeBudget.aplicar_semana()
+	_verificar(cobrado.size() == config.penalizacion_sobrecompromiso.size(),
+		"se cobraron %d penalizaciones de %d configuradas" % [
+			cobrado.size(), config.penalizacion_sobrecompromiso.size()])
+	for atributo_id in cobrado:
+		_verificar(cobrado[atributo_id] < 0.0,
+			"la penalizacion a '%s' no es negativa" % atributo_id)
+		_verificar(PlayerState.obtener_valor(atributo_id) <= antes[atributo_id],
+			"'%s' no bajo pese al sobrecompromiso" % atributo_id)
+		var entradas: Array[Dictionary] = PlayerState.consultar_ledger({
+			"atributo": atributo_id, "fuente_tipo": TimeBudget.FUENTE})
+		_verificar(not entradas.is_empty(),
+			"el sobrecompromiso sobre '%s' no quedo en el ledger" % atributo_id)
+	print("presupuesto:    %.0f horas comprometidas sobre %.0f, exceso %.0f cobrado y auditado" % [
+		TimeBudget.horas_comprometidas(), TimeBudget.horas_totales(), exceso])
+
+## Every point an activity grants must be attributable to that activity.
+func _ledger_registra_cada_actividad() -> void:
+	PlayerState.reiniciar()
+	ActivityTracker.reiniciar()
+	var sin_registro: Array[String] = []
+	for a_res in ActivityRegistry.obtener_todos():
+		var a: ActivityData = a_res
+		ActivityTracker.inscribir(a.id)
+		# Four years, top role and top recognition: enough to walk the whole
+		# ladder of any activity in the catalogue.
+		ActivityTracker.invertir_tiempo(a.id, 4.0 * float(a.costo_horas_semana) * 36.0)
+		ActivityTracker.fijar_rol(a.id, &"fundador")
+		ActivityTracker.fijar_reconocimiento(a.id, &"internacional")
+		ActivityTracker.sumar_impacto(a.id, 1000.0)
+		var estado: Dictionary = ActivityTracker.obtener_estado(a.id)
+		_verificar(estado["nivel_indice"] == a.obtener_niveles().size() - 1,
+			"'%s' no llego a su ultimo nivel pese a cumplir todas las palancas" % a.id)
+		var entradas: Array[Dictionary] = PlayerState.consultar_ledger({
+			"fuente_tipo": ActivityTracker.FUENTE, "fuente_id": a.id})
+		if entradas.is_empty():
+			sin_registro.append(String(a.id))
+			continue
+		for entrada in entradas:
+			_verificar(entrada["contexto"].has("nivel") and entrada["contexto"].has("tier"),
+				"'%s': una entrada del ledger no dice de que nivel salio" % a.id)
+	_verificar(sin_registro.is_empty(),
+		"actividades sin rastro en el ledger: %s" % ", ".join(sin_registro))
+	var total: int = PlayerState.consultar_ledger({"fuente_tipo": ActivityTracker.FUENTE}).size()
+	print("ledger activid.: %d modificaciones registradas, todas con actividad, nivel y tier" % total)
+
+## The application can never carry more than the configured slots.
+func _slots_respetan_el_limite() -> void:
+	var seleccion: Array[Dictionary] = ApplicationBuilder.seleccion_automatica()
+	var slots: int = ApplicationBuilder.slots()
+	_verificar(seleccion.size() <= slots,
+		"la seleccion lleva %d actividades con solo %d slots" % [seleccion.size(), slots])
+	_verificar(seleccion.size() == mini(slots, ActivityTracker.actividades_activas().size()),
+		"la seleccion no lleno los slots disponibles")
+	# And it must be the BEST ones: nothing left out may outscore what got in.
+	var fuera: Array[Dictionary] = ApplicationBuilder.fuera_de_slots()
+	if not seleccion.is_empty() and not fuera.is_empty():
+		_verificar(seleccion[seleccion.size() - 1]["puntaje"] >= fuera[0]["puntaje"],
+			"una actividad fuera de los slots puntua mas alto que una dentro")
+	print("slots:          %d de %d actividades activas entran, y son las mejores" % [
+		seleccion.size(), ActivityTracker.actividades_activas().size()])
