@@ -18,19 +18,16 @@ const PITCH_DEFAULT := deg_to_rad(-15.0) # initial look-slightly-down angle
 const CHARACTER_MODEL := "res://assets/characters/character_model.glb"
 ## The imported model's rest-pose vertex data measures ~3.76 units tall (feet
 ## to top of hair), reconstructed via manual linear-blend skinning
-## (bind-pose vertices + bone weights + skeleton pose). MODEL_SCALE brings
-## that down to match the collision capsule below - enlarging the capsule to
-## match the raw model instead isn't viable, since it'd be taller than the
-## house's 2.4-tall door opening. 0.465 was the original 1:1 match to the old
-## 1.8-tall capsule; this is that same ratio scaled up ~18% (both the model
-## and the capsule below grew together, so they stay aligned).
-const MODEL_SCALE := 0.465 * 1.18
-## Feet-to-origin offset: the capsule collision (radius 0.47, height 2.12) is
-## centered on the Player's origin, so its bottom sits half the height below
-## it. The character model's root is at its feet, so it's offset down to
-## match - keep this at -CapsuleShape3D_1.height/2 (scenes/main.tscn) or the
-## visual model and the physical capsule drift apart again.
-const MODEL_FEET_OFFSET := -1.06
+## (bind-pose vertices + bone weights + skeleton pose) - about 2.1x taller
+## than the 1.8-tall collision capsule. Scaling it down to match the capsule
+## (rather than enlarging the capsule to match it) is what keeps the
+## character able to fit through the house's 2.4-tall door at all; a
+## 3.76-tall capsule couldn't fit through a 2.4 opening no matter the offset.
+const MODEL_SCALE := 0.465
+## Feet-to-origin offset: the capsule collision (radius 0.4, height 1.8) is
+## centered on the Player's origin, so its bottom sits 0.9 below it. The
+## character model's root is at its feet, so it's offset down to match.
+const MODEL_FEET_OFFSET := -0.9
 ## The source model's own front faces local +Z, the opposite of Godot's -Z
 ## forward convention (confirmed via its skeleton rest pose: "LeftArm" sits
 ## on +X, which only matches a +Z-facing rig). This constant rotation gets
