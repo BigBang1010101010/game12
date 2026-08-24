@@ -51,6 +51,7 @@ interact={
 
 [autoload]
 
+DayNightCycle="*res://scripts/day_night_cycle.gd"
 InteractionUI="*res://scripts/interaction_ui.gd"
 
 [rendering]
