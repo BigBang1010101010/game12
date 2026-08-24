@@ -1,35 +1,21 @@
-[gd_scene load_steps=29 format=3]
+[gd_scene load_steps=52 format=4]
 
 [ext_resource type="Script" path="res://scripts/player.gd" id="1_player"]
 [ext_resource type="Script" path="res://scripts/demo_interactable_box.gd" id="2_box"]
 [ext_resource type="Script" path="res://scripts/interactable.gd" id="3_interactable"]
 [ext_resource type="Script" path="res://scripts/draggable_box.gd" id="4_draggable"]
-
-[sub_resource type="BoxMesh" id="BoxMesh_1"]
-size = Vector3(1, 1, 1)
-
-[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_box"]
-albedo_color = Color(0.85, 0.45, 0.1, 1)
-
-[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_draggable"]
-albedo_color = Color(0.2, 0.5, 0.9, 1)
-
-[sub_resource type="BoxShape3D" id="BoxShape3D_box"]
-size = Vector3(1, 1, 1)
-
-[sub_resource type="BoxShape3D" id="BoxShape3D_box_range"]
-size = Vector3(2.5, 2.5, 2.5)
+[ext_resource type="PackedScene" path="res://assets/environment/tree.glb" id="5_l25mh"]
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_grass"]
 albedo_color = Color(0.290196, 0.486275, 0.227451, 1)
 roughness = 0.95
 
 [sub_resource type="PlaneMesh" id="PlaneMesh_1"]
-size = Vector2(50, 50)
 material = SubResource("StandardMaterial3D_grass")
+size = Vector2(250, 250)
 
 [sub_resource type="BoxShape3D" id="BoxShape3D_1"]
-size = Vector3(50, 0.2, 50)
+size = Vector3(250, 0.2, 250)
 
 [sub_resource type="ProceduralSkyMaterial" id="ProceduralSkyMaterial_1"]
 
@@ -41,18 +27,24 @@ background_mode = 2
 sky = SubResource("Sky_1")
 ambient_light_energy = 0.3
 
-[sub_resource type="CapsuleShape3D" id="CapsuleShape3D_1"]
-radius = 0.4
-height = 1.8
+[sub_resource type="BoxMesh" id="BoxMesh_1"]
 
-[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_wall"]
-albedo_color = Color(0.85, 0.78, 0.65, 1)
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_box"]
+albedo_color = Color(0.85, 0.45, 0.1, 1)
 
-[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_roof"]
-albedo_color = Color(0.55, 0.27, 0.2, 1)
+[sub_resource type="BoxShape3D" id="BoxShape3D_box"]
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_box_range"]
+size = Vector3(2.5, 2.5, 2.5)
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_draggable"]
+albedo_color = Color(0.2, 0.5, 0.9, 1)
 
 [sub_resource type="BoxMesh" id="BoxMesh_wallSN"]
 size = Vector3(2.6, 3.2, 0.3)
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_wall"]
+albedo_color = Color(0.85, 0.78, 0.65, 1)
 
 [sub_resource type="BoxShape3D" id="BoxShape3D_wallSN"]
 size = Vector3(2.6, 3.2, 0.3)
@@ -78,8 +70,151 @@ size = Vector3(0.3, 3.2, 6.6)
 [sub_resource type="BoxMesh" id="BoxMesh_roof"]
 size = Vector3(7, 0.2, 7)
 
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_roof"]
+albedo_color = Color(0.55, 0.27, 0.2, 1)
+
 [sub_resource type="BoxShape3D" id="BoxShape3D_roof"]
 size = Vector3(7, 0.2, 7)
+
+[sub_resource type="CapsuleShape3D" id="CapsuleShape3D_1"]
+radius = 0.4
+height = 1.8
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_sfd1f"]
+resource_name = "woodBark"
+albedo_color = Color(0.948242, 0.744326, 0.619001, 1)
+metallic = 1.0
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_vvcce"]
+resource_name = "leafsGreen"
+albedo_color = Color(0.43763, 0.900416, 0.838187, 1)
+metallic = 1.0
+
+[sub_resource type="ArrayMesh" id="ArrayMesh_lkc28"]
+_surfaces = [{
+"aabb": AABB(-0.122183, 0, -0.136708, 0.266646, 0.800388, 0.271668),
+"format": 34896613377,
+"index_count": 222,
+"index_data": PackedByteArray("AgAAAAEAAQADAAIABgAEAAUABQAHAAYABgAHAAgACAAJAAYADAAKAAsACwANAAwAAQAOAA8ADwADAAEAEQAQAAwADAASABEADAATABIAEwAUABIACgAMABAAEAAVAAoAFQAUAAoAFQASABQAFgALAAoACgAUABYACAAHAAUABQAXAAgAGgAYABkAGQAbABoAEQASABwAHAAdABEAHAAYAB0AGAAaAB0AGgAeAB0AEgAeAB8AHwAcABIAHgAaAB8AIAAXAAUABQAEACAADAANACEAIQATAAwAHQAiABAAEAARAB0AFwAgAAkACQAIABcAJAAjAAAAAAACACQAIgAdAAAAAAAlACIAAAAjACUAIwAOACUAAQAAAB0AHQAeAAEAHgAOAAEAHgAlAA4ADgAjACQAJAAPAA4AFgAUABMAEwAhABYAJQAVAAYABgAJACUACQAgACUABAAGABUAIgAEABUAIgAgAAQAIgAlACAAFQAQACIAJAACAAMAAwAPACQAIQANAAsACwAWACEAGQAYABwAHAAmABkAJgAcAB8AHwAnACYAJwAfABoAGgAbACcAGQAmACcAJwAbABkA"),
+"name": "woodBark",
+"primitive": 3,
+"uv_scale": Vector4(0, 0, 0, 0),
+"vertex_count": 40,
+"vertex_data": PackedByteArray("DlmCq9NPAABDkIKr008AAIJg2K4AAAAAz4jYrgAAAADNR2na8JMAAAAA6NzKjgAAPEmY6fCTAAAZAZroyo4AABkBmuhTbAAAPEmY6S1nAAChVZU9+rsAAFheNkH//wAAb4qVPfq7AAC4gTZB//8AAEOQ5L2HUQAAz4hDvD0BAAA6MwAArMEAAGC3AACswQAAQp///wCqAABviitPWroAAKFVK09augAAWEv//wCqAABYXv5M6P4AAAAA6NxTbAAAuq7LW9teAAD//89fL2gAAOys+W7bXgAAyf6pbC9oAAC6rstbZZcAAGC3AAD3PwAAQp///6NXAADsrPluZZcAAM1HadotZwAAuIH+TOj+AAA6MwAA9z8AAA5Z5L2HUQAAgmBDvD0BAABYS///o1cAAP//z18RjgAAyf6pbBGOAAA=")
+}, {
+"aabb": AABB(-0.3775, 0.800388, -0.326925, 0.755, 0.9075, 0.653849),
+"format": 34896613377,
+"index_count": 120,
+"index_data": PackedByteArray("AgAAAAEAAQADAAIABgAEAAUABQAHAAYABwAFAAgACAAJAAcACQACAAcACQAKAAIACgALAAIADAAJAAgACAANAAwADQALAAwADQACAAsADQAAAAIAEAAOAA8ABAARAAgACAAFAAQAAQASABMAEwAUAAEAFQARAAQABAAWABUADwAWAAQABAAGAA8ADgAWAA8ADwAGAAMAAwAQAA8AEgANAAgACAARABIADQASAAEAAQAAAA0ABgAHAAIAAgADAAYAAwABABQAFAAQAAMAFAATAA4AEwASABEAEQAVABMAEwAVAA4ADgAVABYAFAAOABAA"),
+"name": "leafsGreen",
+"primitive": 3,
+"uv_scale": Vector4(0, 0, 0, 0),
+"vertex_count": 23,
+"vertex_data": PackedByteArray("1uMAAP9/AAD//7kr/38AAOqxAAAoHAAA/7+5KwAAAAAAALkr/38AACgcAAD/fwAA/z+5KwAAAAAUTgAAKBwAABROAADW4wAALnEAAONuAADQjgAA424AANCOAAAbkQAALnEAABuRAADqsQAA1uMAAP9/////fwAAuE52xXAdAABGsXbFcB0AAP8/uSv//wAA/7+5K///AABGsXbFjuIAAI7idsX/fwAAuE52xY7iAABwHXbF/38AAA==")
+}]
+blend_shape_mode = 0
+
+[sub_resource type="ArrayMesh" id="ArrayMesh_tvboh"]
+resource_name = "tree_Mesh tree_default"
+_surfaces = [{
+"aabb": AABB(-0.122183, 0, -0.136708, 0.266646, 0.800388, 0.271668),
+"attribute_data": PackedByteArray("iprRcKlm0XCJk7Biqm2wYq5WKxMGE+ARBVhPCw4U0wtfjT+TX2w/k02SzIZyZ8yGPGL8dGxq5Gjbk/x0q4vkaMqq7yH698ciaaxzKyn5uSnnQY+E25OrZBe+j4RtpwAA25OQWzxikFs8YqtkkVgAACT2eWKBtFpkG/VhXPayQVtfjYAMX42OEl9sgAxfbI4SJ064VEIBo1LWT8pKZAL9S5FYAABiagdV50GPhBe+j4SEoAdVhKAYS22nAABiahhLX2w1ZF+NNWRyZ6dwTZKncJ8IeGKoCV9cQkpYZM1LP1sXvs94F76Yj+dBz3jnQZiP3KgsE4SnUAuE7OERfOvTC1BV8CGxU3MrIAjHIvEGuSnnQY+Eipq/Kxe+j4RtpwAAipo6IqlmOiKpZr8rkVgAAIqaoYaJk8OUqWahhqptw5Q8YnSK25N0imxqjJari4yWbacAAE2SmQuRWAAAcmeZC3JndhNNknYT50GPhBe+j4SJk3Yqqm12KomTgyOqbYMjq4sqY2xqKmOrixFdbGoRXYSgb3Niam9zlZdEZVBzRGUas7ZUarHISv//olLd/vtLYmroiISg6IhQcxKXlZcSl1BzY1NQc7tMlZdjU5WXu0w="),
+"format": 34896613399,
+"index_count": 222,
+"index_data": PackedByteArray("AgAAAAEAAQADAAIABgAEAAUABQAHAAYACgAIAAkACQALAAoADgAMAA0ADQAPAA4AEgAQABEAEQATABIAFgAUABUAFQAXABYAFQAYABcAGAAZABcAGgAVABQAFAAbABoAGwAZABoAGwAXABkAHgAcAB0AHQAfAB4AIgAgACEAIQAjACIAJgAkACUAJQAnACYAKgAoACkAKQArACoAKQAsACsALAAtACsALQAuACsAKAAuAC8ALwApACgALgAtAC8AMgAwADEAMQAzADIANgA0ADUANQA3ADYAOgA4ADkAOQA7ADoAPgA8AD0APQA/AD4AQgBAAEEAQQBDAEIARgBEAEUARQBHAEYARQBIAEcASABJAEcASgBFAEQARABLAEoASwBJAEoASwBHAEkATgBMAE0ATQBPAE4AUgBQAFEAUQBTAFIAVgBUAFUAVQBXAFYAVwBYAFYAWQBVAFQAWgBZAFQAWgBYAFkAWgBWAFgAVABbAFoAXgBcAF0AXQBfAF4AYgBgAGEAYQBjAGIAZgBkAGUAZQBnAGYAagBoAGkAaQBrAGoAbgBsAG0AbQBvAG4AcgBwAHEAcQBzAHIA"),
+"material": SubResource("StandardMaterial3D_sfd1f"),
+"name": "woodBark",
+"primitive": 3,
+"uv_scale": Vector4(11.1708, 60.8837, 0, 0),
+"vertex_count": 116,
+"vertex_data": PackedByteArray("DlmCq9NP//9DkIKr00///4Jg2K4AAP//z4jYrgAA///NR2na8JP1ggAA6NzKjvWCPEmY6fCT9YIZAZroyo71ghkBmujKjl3UGQGa6FNsXdQ8SZjp8JNd1DxJmOktZ13UoVWVPfq7pblYXjZB//+luW+KlT36u6W5uIE2Qf//pblDkOS9h1G0w8+IQ7w9AbTDQ5CCq9NPtMPPiNiuAAC0wzozAACswUaBb4qVPfq7RoFgtwAArMFGgUKf//8AqkaBb4orT1q6RoGhVStPWrpGgaFVlT36u0aBWEv//wCqRoFYXjZB///tuqFVlT36u+26WF7+TOj+7bqhVStPWrrtuhkBmujKjgHAAADo3MqOAcAZAZroU2wBwAAA6NxTbAHAuq7LW9teRvv//89fL2hG++ys+W7bXkb7yf6pbC9oRvtCn///AKoBwLquy1tllwHAYLcAAKzBAcBgtwAA9z8BwLquy1vbXgHA7Kz5btteAcBCn///o1cBwOys+W5llwHAAADo3FNs7dIAAOjcyo7t0s1HadotZ+3SzUdp2vCT7dK4gTZB///turiB/kzo/u26b4qVPfq77bpviitPWrrtujozAAD3P///OjMAAKzB//9gtwAA9z///2C3AACswf//zUdp2i1nCf08SZjpLWcJ/QAA6NxTbAn9GQGa6FNsCf0OWeS9h1G0ww5ZgqvTT7TDgmBDvD0BtMOCYNiuAAC0w2C3AAD3P///DlmCq9NP//86MwAA9z///1hL//+jV///DlnkvYdR//9DkOS9h1H//0OQgqvTT///Qp///6NX//8OWeS9h1H//4JgQ7w9Af//Q5DkvYdR///PiEO8PQH//6FVK09aujO8b4orT1q6M7xYXv5M6P4zvLiB/kzo/jO8WEv//wCqAcA8SZjp8JMBwFhL//+jVwHAPEmY6S1nAcDNR2naLWcBwM1HadrwkwHAOjMAAPc/AcA6MwAArMEBwIJg2K4AAP//z4jYrgAA//+CYEO8PQH//8+IQ7w9Af//uIE2Qf//RoFYXjZB//9GgbiB/kzo/kaBWF7+TOj+RoG6rstb21700bquy1tll/TR///PXy9o9NH//89fEY700bquy1tll7iE7Kz5bmWXuIT//89fEY64hMn+qWwRjriE7Kz5bmWXXtPsrPlu215e08n+qWwRjl7Tyf6pbC9oXtP//89fEY4BwMn+qWwRjgHA///PXy9oAcDJ/qlsL2gBwBK8//8SvP//Erz//xK8///ig/j74oP4++KD+Pvig/j7EqrZqxKq2asSqtmrEqrZqwAA/38AAP9/AAD/fwAA/39YgCoAWIAqAFiAKgBYgCoA////f/7//3/+//9//v//f/7//X/i//9//v//f/7//39HgHf/R4B3/0eAd/9HgHf/8YEa/PGBGvzxgRr88YEa/D6AAwA+gAMAPoADAD6AAwDkg/IB5IPyAeSD8gHkg/IB5IPyAeSD8gHkg/IB5IPyAa4t1tauLdbWri3W1q4t1taHgEgAh4BIAIeASACHgEgA/3//P/9//z//f/8//3//PwCA2P8AgNj/AIDY/wCA2P8qgKX/KoCl/yqApf8qgKX//38E/v9/BP7/fwT+/38E/v9/BP7/fwT+/38E/v9/BP7/f+jB/3/owf9/6MH/f+jB////f////3////9/////f/GBGvzxgRr88YEa/PGBGvzxgRr88YEa/PGBGvzxgRr8/38E/v9/BP7/fwT+/38E/v///3////9/////f////397VwdRe1cHUXtXB1F7VwdRGYTgAxmE4AMZhOADGYTgA+PScSnj0nEp49JxKePScSnkg/IB5IPyAeSD8gHkg/IB")
+}, {
+"aabb": AABB(-0.3775, 0.800388, -0.326925, 0.755, 0.9075, 0.653849),
+"attribute_data": PackedByteArray("/z+AN/ItKyj/v4A3DNIrKAzSKyj/v4A38i0rKP8/gDf//0aC/78omf+/ZWv+klt+/z9lawBtW34AbTKG/pIyhv8/KJkAAEaC/3/NIC2/Ez7RQBM+DNIrKP+/gDfyLSso/z+AN/ItXTHRQAAADNJdMS2/AAAM0l0x8i1dMS2/AADRQAAALb8AAAzSXTHRQAAA8i1dMS2/Ez7RQBM+/3/NIAzSXTHyLV0xLb8AANFAAAD/v4A3/z+ANwzSKyjyLSso8i0rKAzSKyj/P4A3/7+AN/+/gDf/P4A3DNIrKPItKyjyLV0x0UAAAAzSXTEtvwAA0UATPv9/zSAtvxM+DNJdMfItXTEtvwAA0UAAANFAEz7/f80gLb8TPi2/Ez7RQBM+/3/NIP9/zSAtvxM+0UATPg=="),
+"format": 34896613399,
+"index_count": 120,
+"index_data": PackedByteArray("AgAAAAEAAQADAAIABgAEAAUABQAHAAYACgAIAAkACQALAAoACwAMAAoACwANAAwADQAOAAwADwALAAkACQAQAA8AEAAOAA8AEAAMAA4AEAARAAwAFAASABMAFwAVABYAFgAYABcAGwAZABoAGgAcABsAHwAdAB4AHgAgAB8AIwAhACIAIgAkACMAJwAlACYAKgAoACkAKQArACoALgAsAC0ALQAvAC4AMgAwADEAMQAzADIANgA0ADUANQA3ADYAOgA4ADkAOQA7ADoAPgA8AD0AQQA/AEAAQABCAEEARQBDAEQASABGAEcASwBJAEoA"),
+"material": SubResource("StandardMaterial3D_vvcce"),
+"name": "leafsGreen",
+"primitive": 3,
+"uv_scale": Vector4(23.185, 112.323, 0, 0),
+"vertex_count": 76,
+"vertex_data": PackedByteArray("1uMAAP9/btb//7kr/39u1uqxAAAoHG7W/7+5KwAAbtYAALkr/39u1igcAAD/f27W/z+5KwAAbtYUTgAAKBxu1igcAAD/f///FE4AANbj//8UTgAAKBz//y5xAADjbv//6rEAACgc///QjgAA427//9COAAAbkf//LnEAABuR///qsQAA1uP//9bjAAD/f////3////9///+4TnbFcB3//0axdsVwHf///z+5K///360UTgAA1uPfrQAAuSv/f9+tKBwAAP9/363/v7kr///+qkaxdsWO4v6q//+5K/9//qqO4nbF/3/+qv8/uSv///6qAAC5K/9//qq4TnbFjuL+qnAddsX/f/6qcB12xf9/cNUAALkr/39w1bhOdsVwHXDV/z+5KwAAcNVwHXbF/3/C2bhOdsVwHcLZ/3////9/wtn/P7krAAD///+/uSsAAP//uE52xXAd//9GsXbFcB3//+qxAADW47KRFE4AANbjspH/v7kr//+ykf8/uSv//7KR/7+5K///363//7kr/3/freqxAADW49+t1uMAAP9/360UTgAAKBz//+qxAAAoHP///z+5KwAA////v7krAAD/////uSv/f3DVjuJ2xf9/cNX/v7krAABw1UaxdsVwHXDVRrF2xY7iqrb/f////3+qto7idsX/f6q2/7+5K///lYX/P7kr//+VhUaxdsWO4pWFuE52xY7ilYW4TnbFjuLoo/9/////f+ijRrF2xY7i6KO4TnbFjuKqtnAddsX/f6q2/3////9/qrb/f////3/C2UaxdsVwHcLZjuJ2xf9/wtnmcw0h5nMNIeZzDSHmcw0h8V7l8/Fe5fPxXuXz8V7l8/9//z//f/8//3//P/9//z//f/8//3//P/9//z//f/8//3//P/9//z//f/nW/3/51v9/+dbZT3jh2U944dlPeOHZT3jhN5TRDDeU0Qw3lNEMN5TRDNCMx+vQjMfr0IzH69CMx+uThH3zk4R985OEffOThH3z+5NkyfuTZMn7k2TJ/3/F9/9/xff/f8X3/3/F9wAA/38AAP9/AAD/fwAA/395YSUweWElMHlhJTB5YSUwI5f//yOX//8jl///I5f//4GMkwSBjJMEgYyTBIGMkwQRyLAtEciwLRHIsC3///9/////f////3////9/////f////3////9/sK3tt7Ct7bewre23mbb8E5m2/BOZtvwT")
+}]
+blend_shape_mode = 0
+shadow_mesh = SubResource("ArrayMesh_lkc28")
+
+[sub_resource type="CylinderShape3D" id="CylinderShape3D_b5j7j"]
+height = 1.6
+radius = 0.2
+
+[sub_resource type="CylinderShape3D" id="CylinderShape3D_h22w3"]
+height = 1.6
+radius = 0.2
+
+[sub_resource type="CylinderShape3D" id="CylinderShape3D_eju2a"]
+height = 1.6
+radius = 0.2
+
+[sub_resource type="CylinderShape3D" id="CylinderShape3D_iww0t"]
+height = 1.6
+radius = 0.2
+
+[sub_resource type="CylinderShape3D" id="CylinderShape3D_g26j5"]
+height = 1.6
+radius = 0.2
+
+[sub_resource type="CylinderShape3D" id="CylinderShape3D_yfgie"]
+height = 1.6
+radius = 0.2
+
+[sub_resource type="CylinderShape3D" id="CylinderShape3D_m6b64"]
+height = 1.6
+radius = 0.2
+
+[sub_resource type="CylinderShape3D" id="CylinderShape3D_pr6b4"]
+height = 1.6
+radius = 0.2
+
+[sub_resource type="CylinderShape3D" id="CylinderShape3D_30nt8"]
+height = 1.6
+radius = 0.2
+
+[sub_resource type="CylinderShape3D" id="CylinderShape3D_lchlp"]
+height = 1.6
+radius = 0.2
+
+[sub_resource type="CylinderShape3D" id="CylinderShape3D_v8ajc"]
+height = 1.6
+radius = 0.2
+
+[sub_resource type="CylinderShape3D" id="CylinderShape3D_ejdoy"]
+height = 1.6
+radius = 0.2
+
+[sub_resource type="CylinderShape3D" id="CylinderShape3D_56niy"]
+height = 1.6
+radius = 0.2
+
+[sub_resource type="CylinderShape3D" id="CylinderShape3D_pwurx"]
+height = 1.6
+radius = 0.2
+
+[sub_resource type="CylinderShape3D" id="CylinderShape3D_1w5ck"]
+height = 1.6
+radius = 0.2
+
+[sub_resource type="CylinderShape3D" id="CylinderShape3D_mocrl"]
+height = 1.6
+radius = 0.2
+
+[sub_resource type="CylinderShape3D" id="CylinderShape3D_cnj1p"]
+height = 1.6
+radius = 0.2
+
+[sub_resource type="CylinderShape3D" id="CylinderShape3D_r7q28"]
+height = 1.6
+radius = 0.2
 
 [node name="Main" type="Node3D"]
 
@@ -93,13 +228,13 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.1, 0)
 shape = SubResource("BoxShape3D_1")
 
 [node name="DirectionalLight3D" type="DirectionalLight3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 0.7071068, 0.7071068, 0, -0.7071068, 0.7071068, 0, 5, 0)
+transform = Transform3D(1, 0, 0, 0, 0.707107, 0.707107, 0, -0.707107, 0.707107, 0, 5, 0)
 
 [node name="WorldEnvironment" type="WorldEnvironment" parent="."]
 environment = SubResource("Environment_1")
 
 [node name="TestBox" type="StaticBody3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 4, 0.5, -4)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 6, 0.5, -6)
 script = ExtResource("2_box")
 
 [node name="MeshInstance3D" type="MeshInstance3D" parent="TestBox"]
@@ -117,7 +252,7 @@ prompt_text = "Presiona E para interactuar"
 shape = SubResource("BoxShape3D_box_range")
 
 [node name="DraggableBox" type="RigidBody3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -4, 0.5, -4)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -6, 0.5, -6)
 script = ExtResource("4_draggable")
 
 [node name="MeshInstance3D" type="MeshInstance3D" parent="DraggableBox"]
@@ -128,7 +263,7 @@ surface_material_override/0 = SubResource("StandardMaterial3D_draggable")
 shape = SubResource("BoxShape3D_box")
 
 [node name="House" type="StaticBody3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 10, 0, 10)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 50, 0, 50)
 
 [node name="WallSouthLeft" type="MeshInstance3D" parent="House"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -2, 1.6, -3.15)
@@ -208,3 +343,291 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.3, 0)
 [node name="Camera3D" type="Camera3D" parent="Player/CameraYaw/CameraPitch"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 7)
 current = true
+
+[node name="Tree01" type="StaticBody3D" parent="."]
+transform = Transform3D(1.77554, 0, 0.905139, 0, 1.99294, 0, -0.905139, 0, 1.77554, 26.7122, 0, 109.105)
+
+[node name="TreeModel" type="Node3D" parent="Tree01" instance=ExtResource("5_l25mh")]
+
+[node name="tmpParent" type="Node3D" parent="Tree01/TreeModel"]
+
+[node name="tree_default" type="MeshInstance3D" parent="Tree01/TreeModel/tmpParent"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.05, 0)
+mesh = SubResource("ArrayMesh_tvboh")
+skeleton = NodePath("")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Tree01"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.8, 0)
+shape = SubResource("CylinderShape3D_b5j7j")
+
+[node name="Tree02" type="StaticBody3D" parent="."]
+transform = Transform3D(1.29748, 0, 1.13397, 0, 1.72318, 0, -1.13397, 0, 1.29748, -62.2413, 0, -33.9818)
+
+[node name="TreeModel" type="Node3D" parent="Tree02" instance=ExtResource("5_l25mh")]
+
+[node name="tmpParent" type="Node3D" parent="Tree02/TreeModel"]
+
+[node name="tree_default" type="MeshInstance3D" parent="Tree02/TreeModel/tmpParent"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.05, 0)
+mesh = SubResource("ArrayMesh_tvboh")
+skeleton = NodePath("")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Tree02"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.8, 0)
+shape = SubResource("CylinderShape3D_h22w3")
+
+[node name="Tree03" type="StaticBody3D" parent="."]
+transform = Transform3D(-2.06616, 0, 1.11562, 0, 2.34811, 0, -1.11562, 0, -2.06616, 6.76252, 0, -44.7655)
+
+[node name="TreeModel" type="Node3D" parent="Tree03" instance=ExtResource("5_l25mh")]
+
+[node name="tmpParent" type="Node3D" parent="Tree03/TreeModel"]
+
+[node name="tree_default" type="MeshInstance3D" parent="Tree03/TreeModel/tmpParent"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.05, 0)
+mesh = SubResource("ArrayMesh_tvboh")
+skeleton = NodePath("")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Tree03"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.8, 0)
+shape = SubResource("CylinderShape3D_eju2a")
+
+[node name="Tree04" type="StaticBody3D" parent="."]
+transform = Transform3D(-1.98282, 0, 0.746929, 0, 2.11883, 0, -0.746929, 0, -1.98282, 97.6846, 0, -49.8675)
+
+[node name="TreeModel" type="Node3D" parent="Tree04" instance=ExtResource("5_l25mh")]
+
+[node name="tmpParent" type="Node3D" parent="Tree04/TreeModel"]
+
+[node name="tree_default" type="MeshInstance3D" parent="Tree04/TreeModel/tmpParent"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.05, 0)
+mesh = SubResource("ArrayMesh_tvboh")
+skeleton = NodePath("")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Tree04"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.8, 0)
+shape = SubResource("CylinderShape3D_iww0t")
+
+[node name="Tree05" type="StaticBody3D" parent="."]
+transform = Transform3D(2.00096, 0, 0.0469134, 0, 2.00151, 0, -0.0469134, 0, 2.00096, 53.0713, 0, -52.3226)
+
+[node name="TreeModel" type="Node3D" parent="Tree05" instance=ExtResource("5_l25mh")]
+
+[node name="tmpParent" type="Node3D" parent="Tree05/TreeModel"]
+
+[node name="tree_default" type="MeshInstance3D" parent="Tree05/TreeModel/tmpParent"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.05, 0)
+mesh = SubResource("ArrayMesh_tvboh")
+skeleton = NodePath("")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Tree05"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.8, 0)
+shape = SubResource("CylinderShape3D_g26j5")
+
+[node name="Tree06" type="StaticBody3D" parent="."]
+transform = Transform3D(1.6918, 0, -1.24847, 0, 2.10259, 0, 1.24847, 0, 1.6918, -4.76032, 0, -19.6697)
+
+[node name="TreeModel" type="Node3D" parent="Tree06" instance=ExtResource("5_l25mh")]
+
+[node name="tmpParent" type="Node3D" parent="Tree06/TreeModel"]
+
+[node name="tree_default" type="MeshInstance3D" parent="Tree06/TreeModel/tmpParent"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.05, 0)
+mesh = SubResource("ArrayMesh_tvboh")
+skeleton = NodePath("")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Tree06"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.8, 0)
+shape = SubResource("CylinderShape3D_yfgie")
+
+[node name="Tree07" type="StaticBody3D" parent="."]
+transform = Transform3D(2.00566, 0, 1.25367, 0, 2.36524, 0, -1.25367, 0, 2.00566, -68.0143, 0, -79.9391)
+
+[node name="TreeModel" type="Node3D" parent="Tree07" instance=ExtResource("5_l25mh")]
+
+[node name="tmpParent" type="Node3D" parent="Tree07/TreeModel"]
+
+[node name="tree_default" type="MeshInstance3D" parent="Tree07/TreeModel/tmpParent"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.05, 0)
+mesh = SubResource("ArrayMesh_tvboh")
+skeleton = NodePath("")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Tree07"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.8, 0)
+shape = SubResource("CylinderShape3D_m6b64")
+
+[node name="Tree08" type="StaticBody3D" parent="."]
+transform = Transform3D(0.823167, 0, -1.79822, 0, 1.97767, 0, 1.79822, 0, 0.823167, 8.69952, 0, 45.3581)
+
+[node name="TreeModel" type="Node3D" parent="Tree08" instance=ExtResource("5_l25mh")]
+
+[node name="tmpParent" type="Node3D" parent="Tree08/TreeModel"]
+
+[node name="tree_default" type="MeshInstance3D" parent="Tree08/TreeModel/tmpParent"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.05, 0)
+mesh = SubResource("ArrayMesh_tvboh")
+skeleton = NodePath("")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Tree08"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.8, 0)
+shape = SubResource("CylinderShape3D_pr6b4")
+
+[node name="Tree09" type="StaticBody3D" parent="."]
+transform = Transform3D(-2.05406, 0, -0.44797, 0, 2.10234, 0, 0.44797, 0, -2.05406, 104.618, 0, 39.5596)
+
+[node name="TreeModel" type="Node3D" parent="Tree09" instance=ExtResource("5_l25mh")]
+
+[node name="tmpParent" type="Node3D" parent="Tree09/TreeModel"]
+
+[node name="tree_default" type="MeshInstance3D" parent="Tree09/TreeModel/tmpParent"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.05, 0)
+mesh = SubResource("ArrayMesh_tvboh")
+skeleton = NodePath("")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Tree09"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.8, 0)
+shape = SubResource("CylinderShape3D_30nt8")
+
+[node name="Tree10" type="StaticBody3D" parent="."]
+transform = Transform3D(1.90623, 0, 0.582345, 0, 1.9932, 0, -0.582345, 0, 1.90623, -82.8564, 0, 87.3157)
+
+[node name="TreeModel" type="Node3D" parent="Tree10" instance=ExtResource("5_l25mh")]
+
+[node name="tmpParent" type="Node3D" parent="Tree10/TreeModel"]
+
+[node name="tree_default" type="MeshInstance3D" parent="Tree10/TreeModel/tmpParent"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.05, 0)
+mesh = SubResource("ArrayMesh_tvboh")
+skeleton = NodePath("")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Tree10"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.8, 0)
+shape = SubResource("CylinderShape3D_lchlp")
+
+[node name="Tree11" type="StaticBody3D" parent="."]
+transform = Transform3D(1.85562, 0, -0.572329, 0, 1.94188, 0, 0.572329, 0, 1.85562, 27.0887, 0, -33.0942)
+
+[node name="TreeModel" type="Node3D" parent="Tree11" instance=ExtResource("5_l25mh")]
+
+[node name="tmpParent" type="Node3D" parent="Tree11/TreeModel"]
+
+[node name="tree_default" type="MeshInstance3D" parent="Tree11/TreeModel/tmpParent"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.05, 0)
+mesh = SubResource("ArrayMesh_tvboh")
+skeleton = NodePath("")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Tree11"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.8, 0)
+shape = SubResource("CylinderShape3D_v8ajc")
+
+[node name="Tree12" type="StaticBody3D" parent="."]
+transform = Transform3D(2.2206, 0, -0.719166, 0, 2.33415, 0, 0.719166, 0, 2.2206, 17.9101, 0, 51.9677)
+
+[node name="TreeModel" type="Node3D" parent="Tree12" instance=ExtResource("5_l25mh")]
+
+[node name="tmpParent" type="Node3D" parent="Tree12/TreeModel"]
+
+[node name="tree_default" type="MeshInstance3D" parent="Tree12/TreeModel/tmpParent"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.05, 0)
+mesh = SubResource("ArrayMesh_tvboh")
+skeleton = NodePath("")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Tree12"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.8, 0)
+shape = SubResource("CylinderShape3D_ejdoy")
+
+[node name="Tree13" type="StaticBody3D" parent="."]
+transform = Transform3D(0.87179, 0, -1.93343, 0, 2.12089, 0, 1.93343, 0, 0.87179, -45.787, 0, -36.4864)
+
+[node name="TreeModel" type="Node3D" parent="Tree13" instance=ExtResource("5_l25mh")]
+
+[node name="tmpParent" type="Node3D" parent="Tree13/TreeModel"]
+
+[node name="tree_default" type="MeshInstance3D" parent="Tree13/TreeModel/tmpParent"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.05, 0)
+mesh = SubResource("ArrayMesh_tvboh")
+skeleton = NodePath("")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Tree13"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.8, 0)
+shape = SubResource("CylinderShape3D_56niy")
+
+[node name="Tree14" type="StaticBody3D" parent="."]
+transform = Transform3D(-2.29736, 0, 0.241629, 0, 2.31003, 0, -0.241629, 0, -2.29736, -27.9657, 0, 22.3162)
+
+[node name="TreeModel" type="Node3D" parent="Tree14" instance=ExtResource("5_l25mh")]
+
+[node name="tmpParent" type="Node3D" parent="Tree14/TreeModel"]
+
+[node name="tree_default" type="MeshInstance3D" parent="Tree14/TreeModel/tmpParent"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.05, 0)
+mesh = SubResource("ArrayMesh_tvboh")
+skeleton = NodePath("")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Tree14"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.8, 0)
+shape = SubResource("CylinderShape3D_pwurx")
+
+[node name="Tree15" type="StaticBody3D" parent="."]
+transform = Transform3D(-1.90575, 0, -0.195232, 0, 1.91572, 0, 0.195232, 0, -1.90575, 35.6764, 0, 62.9762)
+
+[node name="TreeModel" type="Node3D" parent="Tree15" instance=ExtResource("5_l25mh")]
+
+[node name="tmpParent" type="Node3D" parent="Tree15/TreeModel"]
+
+[node name="tree_default" type="MeshInstance3D" parent="Tree15/TreeModel/tmpParent"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.05, 0)
+mesh = SubResource("ArrayMesh_tvboh")
+skeleton = NodePath("")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Tree15"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.8, 0)
+shape = SubResource("CylinderShape3D_1w5ck")
+
+[node name="Tree16" type="StaticBody3D" parent="."]
+transform = Transform3D(0.704648, 0, -2.16053, 0, 2.27253, 0, 2.16053, 0, 0.704648, 37.9355, 0, -64.2147)
+
+[node name="TreeModel" type="Node3D" parent="Tree16" instance=ExtResource("5_l25mh")]
+
+[node name="tmpParent" type="Node3D" parent="Tree16/TreeModel"]
+
+[node name="tree_default" type="MeshInstance3D" parent="Tree16/TreeModel/tmpParent"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.05, 0)
+mesh = SubResource("ArrayMesh_tvboh")
+skeleton = NodePath("")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Tree16"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.8, 0)
+shape = SubResource("CylinderShape3D_mocrl")
+
+[node name="Tree17" type="StaticBody3D" parent="."]
+transform = Transform3D(1.6158, 0, -0.545562, 0, 1.70541, 0, 0.545562, 0, 1.6158, 38.9434, 0, 70.7699)
+
+[node name="TreeModel" type="Node3D" parent="Tree17" instance=ExtResource("5_l25mh")]
+
+[node name="tmpParent" type="Node3D" parent="Tree17/TreeModel"]
+
+[node name="tree_default" type="MeshInstance3D" parent="Tree17/TreeModel/tmpParent"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.05, 0)
+mesh = SubResource("ArrayMesh_tvboh")
+skeleton = NodePath("")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Tree17"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.8, 0)
+shape = SubResource("CylinderShape3D_cnj1p")
+
+[node name="Tree18" type="StaticBody3D" parent="."]
+transform = Transform3D(1.29677, 0, -1.13811, 0, 1.72538, 0, 1.13811, 0, 1.29677, -18.4577, 0, -49.8448)
+
+[node name="TreeModel" type="Node3D" parent="Tree18" instance=ExtResource("5_l25mh")]
+
+[node name="tmpParent" type="Node3D" parent="Tree18/TreeModel"]
+
+[node name="tree_default" type="MeshInstance3D" parent="Tree18/TreeModel/tmpParent"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.05, 0)
+mesh = SubResource("ArrayMesh_tvboh")
+skeleton = NodePath("")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Tree18"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.8, 0)
+shape = SubResource("CylinderShape3D_r7q28")

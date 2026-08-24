@@ -1,0 +1,18 @@
+Environment assets
+===================
+
+Source: Kenney "Nature Kit" pack (2.1)
+Mirror repo: https://github.com/ETdoFresh/kenney.nl (path: kenney_natureKit_2.1/)
+Original: https://kenney.nl/assets/nature-kit
+Author: Kenney - https://kenney.nl / https://twitter.com/KenneyNL
+
+License: CC0 1.0 Universal (Creative Commons Zero) - Public Domain
+https://creativecommons.org/publicdomain/zero/1.0/
+
+Attribution is not required, but credited here for the record.
+
+Files in this directory:
+- tree.glb: low-poly tree mesh, copied as-is from
+  kenney_natureKit_2.1/Models/GLTF format/tree_default.glb. Instanced
+  multiple times across the terrain in scenes/main.tscn with varied
+  position/rotation/scale.
