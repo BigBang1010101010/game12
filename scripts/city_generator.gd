@@ -58,7 +58,9 @@ class_name CityGenerator
 @export var reserved_block := Vector2i(2, 2)
 
 const ASPHALT_COLOR := Color(0.16, 0.16, 0.18)
-const SIDEWALK_COLOR := Color(0.62, 0.62, 0.60)
+## Darkened from 0.62: at that value the sunlit sidewalks were the
+## brightest thing on screen and clipped toward white at midday.
+const SIDEWALK_COLOR := Color(0.52, 0.52, 0.50)
 const BUILDING_COLORS: Array[Color] = [
 	Color(0.55, 0.52, 0.48),
 	Color(0.45, 0.47, 0.52),
@@ -107,7 +109,7 @@ func _add_asphalt(span_x: float, span_z: float) -> void:
 	mesh_instance.name = "StreetSurface"
 	var plane := PlaneMesh.new()
 	plane.size = Vector2(span_x, span_z)
-	plane.material = _make_material(ASPHALT_COLOR)
+	plane.material = _make_material(ASPHALT_COLOR, 0.98)
 	mesh_instance.mesh = plane
 	mesh_instance.position = city_center + Vector3(0, 0.02, 0)
 	add_child(mesh_instance)
@@ -122,7 +124,7 @@ func _add_sidewalk(ix: int, iz: int, center: Vector3) -> void:
 	var mesh_instance := MeshInstance3D.new()
 	var box := BoxMesh.new()
 	box.size = size
-	box.material = _make_material(SIDEWALK_COLOR)
+	box.material = _make_material(SIDEWALK_COLOR, 0.96)
 	mesh_instance.mesh = box
 	body.add_child(mesh_instance)
 
@@ -150,7 +152,10 @@ func _add_building(ix: int, iz: int, center: Vector3, rng: RandomNumberGenerator
 	var mesh_instance := MeshInstance3D.new()
 	var box := BoxMesh.new()
 	box.size = size
-	box.material = _make_material(BUILDING_COLORS[rng.randi() % BUILDING_COLORS.size()])
+	# Vary roughness a little alongside the colour so neighbouring blocks do
+	# not all catch the light identically.
+	box.material = _make_material(
+		BUILDING_COLORS[rng.randi() % BUILDING_COLORS.size()], rng.randf_range(0.82, 0.96))
 	mesh_instance.mesh = box
 	body.add_child(mesh_instance)
 
@@ -160,7 +165,13 @@ func _add_building(ix: int, iz: int, center: Vector3, rng: RandomNumberGenerator
 	collision.shape = shape
 	body.add_child(collision)
 
-func _make_material(color: Color) -> StandardMaterial3D:
+## Blockout surfaces should read as concrete and asphalt, not plastic. The
+## Godot default (roughness 1.0 but specular 0.5) still puts a broad sheen on
+## every face, so specular is pulled right down and roughness varied a little
+## per surface type.
+func _make_material(color: Color, roughness: float = 0.95) -> StandardMaterial3D:
 	var material := StandardMaterial3D.new()
 	material.albedo_color = color
+	material.roughness = roughness
+	material.metallic_specular = 0.1
 	return material

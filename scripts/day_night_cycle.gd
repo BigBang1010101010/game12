@@ -34,12 +34,27 @@ const DAY_ENERGY := 1.0
 const DUSK_COLOR := Color(1.0, 0.55, 0.25)
 const DUSK_ENERGY := 0.55
 const NIGHT_COLOR := Color(0.45, 0.55, 0.9)
-const NIGHT_ENERGY := 0.08
+const NIGHT_ENERGY := 0.20
+
+const DAY_FOG := Color(0.62, 0.70, 0.80)
+const DUSK_FOG := Color(0.72, 0.48, 0.34)
+const NIGHT_FOG := Color(0.07, 0.09, 0.16)
+
+const DAY_SKY_TOP := Color(0.38, 0.52, 0.74)
+const DAY_SKY_HORIZON := Color(0.65, 0.72, 0.82)
+const DUSK_SKY_HORIZON := Color(0.85, 0.48, 0.28)
+const NIGHT_SKY_TOP := Color(0.03, 0.04, 0.09)
+const NIGHT_SKY_HORIZON := Color(0.08, 0.10, 0.18)
 
 const DAY_AMBIENT := Color(0.75, 0.8, 0.9)
-const DAY_AMBIENT_ENERGY := 0.3
-const NIGHT_AMBIENT := Color(0.1, 0.15, 0.3)
-const NIGHT_AMBIENT_ENERGY := 0.08
+## Tuned against measured screen luminance rather than by eye: at 0.30 the
+## sunlit sidewalks blew out (3.66% of ground pixels clipped to white once
+## ambient started actually applying); 0.20 keeps the day bright with no
+## clipping. The night value is low enough to read as night without going
+## black - the scene stays visible at roughly half the sunset brightness.
+const DAY_AMBIENT_ENERGY := 0.20
+const NIGHT_AMBIENT := Color(0.30, 0.38, 0.62)
+const NIGHT_AMBIENT_ENERGY := 0.30
 
 ## Normalised position in the cycle, [0, 1). Starts at mid-morning so a fresh
 ## game begins in daylight rather than in the dark.
@@ -140,8 +155,28 @@ func _apply() -> void:
 
 	if _environment:
 		var night_blend: float = _night_blend()
+		var dusk_blend: float = _dusk_blend()
 		_environment.ambient_light_color = DAY_AMBIENT.lerp(NIGHT_AMBIENT, night_blend)
 		_environment.ambient_light_energy = lerpf(DAY_AMBIENT_ENERGY, NIGHT_AMBIENT_ENERGY, night_blend)
+
+		# Distance fog hides the hard edge of the world. Tinting it with the
+		# same blends keeps the horizon consistent with the lighting instead
+		# of leaving a daylight-blue haze hanging over a night scene.
+		var fog: Color = DAY_FOG.lerp(NIGHT_FOG, night_blend).lerp(DUSK_FOG, dusk_blend)
+		_environment.fog_light_color = fog
+
+		# The procedural sky is otherwise a fixed noon blue, which reads
+		# badly at midnight. Darkening its colours by the same blend keeps
+		# the backdrop in step with the light.
+		var sky_material: ProceduralSkyMaterial = null
+		if _environment.sky:
+			sky_material = _environment.sky.sky_material as ProceduralSkyMaterial
+		if sky_material:
+			sky_material.sky_top_color = DAY_SKY_TOP.lerp(NIGHT_SKY_TOP, night_blend)
+			sky_material.sky_horizon_color = (
+				DAY_SKY_HORIZON.lerp(NIGHT_SKY_HORIZON, night_blend).lerp(DUSK_SKY_HORIZON, dusk_blend))
+			sky_material.ground_horizon_color = sky_material.sky_horizon_color
+			sky_material.ground_bottom_color = DAY_SKY_TOP.lerp(NIGHT_SKY_TOP, night_blend)
 
 ## 0.0 in full daylight, 1.0 in full night, ramping across dawn and dusk so
 ## the change is gradual rather than a switch.
