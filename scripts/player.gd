@@ -211,6 +211,15 @@ const ANIM_IDLE := "HumanArmature|Man_Idle"
 const ANIM_RUN := "HumanArmature|Man_Run"
 const ANIM_JUMP := "HumanArmature|Man_Jump"
 
+## Playback speed for the jump clip only, so its arc lands with the character
+## instead of still winding up on touchdown. The clip is authored 1.0417s
+## long but a jump is only airborne for 2*JUMP_VELOCITY/gravity =
+## 2*4.5/9.8 = 0.918s (measured empirically at 0.933s - 56 physics frames -
+## the small excess being the tick the landing is detected on), so the clip
+## needs to run ~1.12x faster. Derived at spawn instead of hardcoded so it
+## stays correct if JUMP_VELOCITY, gravity, or the clip itself changes.
+var jump_anim_speed := 1.0
+
 func _spawn_character_model() -> void:
 	var packed: PackedScene = load(CHARACTER_MODEL)
 	var instance := packed.instantiate()
@@ -232,6 +241,17 @@ func _spawn_character_model() -> void:
 	if not animation_player:
 		push_warning("Player: no AnimationPlayer found in character model")
 		return
+
+	var jump_clip: Animation = animation_player.get_animation(ANIM_JUMP)
+	if jump_clip:
+		# Read gravity from the project setting rather than get_gravity():
+		# this runs in a deferred call before the body's first physics step,
+		# and get_gravity() still returns 0 there (measured), which would
+		# divide out to a speed of 0 and freeze the jump clip entirely.
+		var gravity: float = absf(float(ProjectSettings.get_setting("physics/3d/default_gravity", 9.8)))
+		var air_time: float = 2.0 * JUMP_VELOCITY / gravity
+		jump_anim_speed = jump_clip.length / air_time
+
 	animation_player.play(ANIM_IDLE)
 
 func _update_animation() -> void:
@@ -245,4 +265,5 @@ func _update_animation() -> void:
 	else:
 		next_animation = ANIM_IDLE
 	if animation_player.current_animation != next_animation:
-		animation_player.play(next_animation, 0.1)
+		var speed: float = jump_anim_speed if next_animation == ANIM_JUMP else 1.0
+		animation_player.play(next_animation, 0.1, speed)
