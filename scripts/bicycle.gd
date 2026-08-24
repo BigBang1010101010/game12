@@ -48,14 +48,44 @@ const TURN_RATE := 2.0
 const DISMOUNT_SIDE_OFFSET := 1.1
 
 ## Camera pushed back and up while riding, since the bike covers ground faster.
-const RIDE_CAMERA_DISTANCE := 9.5
-const RIDE_CAMERA_HEIGHT := 2.0
+const RIDE_CAMERA_DISTANCE := 11.5
+const RIDE_CAMERA_HEIGHT := 2.6
+
+## Wheel radius in world units: the model's wheels span y -0.950..0.950
+## unscaled, so 0.950 * MODEL_SCALE. Used to turn linear speed into the
+## correct angular speed (omega = v / r) rather than spinning at some
+## arbitrary rate.
+const WHEEL_RADIUS := 0.950 * MODEL_SCALE
+
+## Crank turns per wheel turn. A real bike gears up, so the legs pedal a good
+## deal slower than the wheels spin; without this the rider's legs would
+## blur round at wheel speed.
+const GEAR_RATIO := 0.35
+
+## Maximum roll into a turn. Subtle on purpose - it is a lean, not a stunt.
+const MAX_LEAN_DEGREES := 12.0
+const LEAN_RESPONSE := 6.0
 
 var is_mounted := false
 var rider: CharacterBody3D = null
 
 var _speed := 0.0
 var _model: Node3D = null
+
+## Wheel spin state.
+var _wheel_nodes: Array[Node3D] = []
+var _wheel_rest_bases: Array[Basis] = []
+## The spin axis expressed in each wheel's OWN local space, so the wheels
+## turn about the bike's left-right axis regardless of how the imported
+## model's node basis happens to be oriented.
+var _wheel_axes: Array[Vector3] = []
+var _wheel_angle := 0.0
+
+## Pedal crank angle, in radians, advanced from the real speed.
+var _pedal_phase := 0.0
+## Current visual roll, eased toward the target so it banks in and out
+## smoothly instead of snapping.
+var _lean := 0.0
 
 @onready var interaction_area: Interactable = $Area3D
 
@@ -75,6 +105,20 @@ func _spawn_model() -> void:
 	_model.scale = Vector3.ONE * MODEL_SCALE
 	_model.position.y = MODEL_GROUND_OFFSET
 	add_child(_model)
+	call_deferred("_cache_wheels")
+
+## Finds the wheel nodes and works out which axis, in each wheel's own local
+## space, corresponds to the bike's left-right axis - that is the axle they
+## must spin about.
+func _cache_wheels() -> void:
+	for wheel_name in ["FrontWheel", "BackWheel"]:
+		var node: Node3D = _model.find_child(wheel_name, true, false)
+		if not node:
+			continue
+		_wheel_nodes.append(node)
+		_wheel_rest_bases.append(node.transform.basis)
+		var axis: Vector3 = (node.global_transform.basis.inverse() * global_transform.basis.x).normalized()
+		_wheel_axes.append(axis)
 
 func _on_interacted() -> void:
 	# The same E press both mounts and dismounts.
@@ -101,6 +145,8 @@ func mount(player: CharacterBody3D) -> void:
 	# at 32.8 u/s against a 10.0 top speed) instead of the intended cruise.
 	add_collision_exception_with(player)
 	player.add_collision_exception_with(self)
+	if player.has_method("set_handlebar_target") and _model:
+		player.set_handlebar_target(_model.find_child("Handle", true, false))
 	if player.has_method("set_mounted"):
 		player.set_mounted(self)
 	_set_camera_ride_view(true)
@@ -162,8 +208,37 @@ func _physics_process(delta: float) -> void:
 	velocity.z = forward.z * _speed
 	move_and_slide()
 
+	_update_wheels(delta)
+	_update_lean(delta)
+
 	if is_mounted and rider:
 		_carry_rider()
+
+## Spins both wheels at omega = v / r, so the rotation is tied to how fast the
+## bike is actually travelling rather than to a fixed rate.
+func _update_wheels(delta: float) -> void:
+	if _wheel_nodes.is_empty():
+		return
+	_wheel_angle += (_speed / WHEEL_RADIUS) * delta
+	_pedal_phase += (_speed / WHEEL_RADIUS) * GEAR_RATIO * delta
+	for i in range(_wheel_nodes.size()):
+		_wheel_nodes[i].transform.basis = _wheel_rest_bases[i] * Basis(_wheel_axes[i], _wheel_angle)
+
+## Banks the whole bike (and with it the rider, who is parented by position
+## and heading) into a turn, proportionally to how hard it is turning and how
+## fast it is going.
+func _update_lean(delta: float) -> void:
+	var steer: float = 0.0
+	if is_mounted:
+		steer = Input.get_axis("move_right", "move_left")
+	var speed_ratio: float = clampf(_speed / SPEED, -1.0, 1.0)
+	var target: float = deg_to_rad(MAX_LEAN_DEGREES) * -steer * speed_ratio
+	_lean = lerpf(_lean, target, clampf(delta * LEAN_RESPONSE, 0.0, 1.0))
+	if _model:
+		_model.rotation.z = _lean
+
+func get_lean() -> float:
+	return _lean
 
 func _drive(delta: float) -> void:
 	var throttle: float = Input.get_axis("move_back", "move_forward")
@@ -198,6 +273,11 @@ func _carry_rider() -> void:
 	rider.velocity = Vector3.ZERO
 	if rider.has_method("face_direction"):
 		rider.face_direction(-global_transform.basis.z)
+	# The rider leans with the frame and pedals at the crank's rate.
+	if rider.has_method("apply_riding_pose"):
+		rider.apply_riding_pose(_pedal_phase)
+	if rider.character_model:
+		rider.character_model.rotation.z = _lean
 
 func get_speed() -> float:
 	return _speed

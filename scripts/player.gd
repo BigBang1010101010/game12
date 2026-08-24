@@ -67,27 +67,133 @@ func _ready() -> void:
 	add_to_group("player")
 	call_deferred("_spawn_character_model")
 
-## Called by a vehicle when the player gets on or off it.
-## While riding, the model simply holds its idle pose, placed on the saddle
-## by the vehicle. Bending the legs into a real sitting posture was tried and
-## abandoned: this rig is IK-style (Foot.L is bone 1, a separate IK target,
-## not a child of LowerLeg.L), so rotating the hip bone moved nothing -
-## measured at 0.000 units of knee displacement for +/-70 degrees about every
-## local axis. Posing it properly means driving the IK targets, which is a
-## much larger job than this task warrants.
-## Forward lean applied to the whole model while riding. This is a rotation
-## of the model's container node, not a bone pose, so it carries none of the
-## risk of touching the rig - it just stops the rider reading as standing
-## bolt upright on the frame.
-const RIDING_LEAN_DEGREES := -14.0
+## Forward lean of the whole model while riding, on top of the bone pose.
+## Riders lean well forward: measured, the handlebar sits 0.89 units ahead of
+## the saddle while the arm spans only ~0.55, so an upright torso physically
+## cannot reach the bars. Leaning the torso carries the shoulders forward and
+## down, which is what closes most of that gap (and is what a real cyclist
+## does for the same reason).
+const RIDING_LEAN_DEGREES := 24.0
 
+## Riding pose, in degrees of local rotation about each bone's own X axis -
+## measured to be the flexion axis for both the leg and the arm chains
+## (rotating UpperLeg.L about X swings its knee 0.836 units forward/back in
+## the model's frame, while Y and Z mostly splay it sideways).
+##
+## An earlier attempt concluded this rig could not be posed at all, because
+## rotating a bone moved its child by 0.000. That was wrong: the cause was
+## the AnimationPlayer still writing bone poses every frame - pause() and
+## stop() both leave it doing that (child moved 0.019 and 0.025), and only
+## `active = false` actually releases the skeleton (child moved 0.360).
+## LowerLeg.L is a real child of UpperLeg.L and Palm.L of LowerArm.L, so both
+## chains are ordinary FK. Only Foot.L is a separate IK target, which is why
+## the feet do not follow the shins.
+const RIDE_HIP_BASE := -52.0      # thigh swung forward toward the pedals
+const RIDE_HIP_SWING := 20.0      # pedal cycle amplitude
+const RIDE_KNEE_BASE := 58.0      # knee bent
+const RIDE_KNEE_SWING := 26.0
+const RIDE_SHOULDER := -80.0      # arms swung down-forward toward the bars
+const RIDE_ELBOW := 24.0          # elbows bent, not locked straight
+
+const RIDE_BONES := ["UpperLeg.L", "UpperLeg.R", "LowerLeg.L", "LowerLeg.R",
+	"UpperArm.L", "UpperArm.R", "LowerArm.L", "LowerArm.R"]
+
+## The node the rider's hands reach for while mounted, supplied by the
+## vehicle (the bike passes its handlebar).
+var _handlebar_target: Node3D = null
+
+func set_handlebar_target(node: Node3D) -> void:
+	_handlebar_target = node
+
+## Called by a vehicle when the player gets on or off it.
 func set_mounted(vehicle: Node3D) -> void:
 	mounted_vehicle = vehicle
 	if animation_player:
-		# Idle rather than the run cycle, so the legs are not mid-stride.
-		animation_player.play(ANIM_IDLE)
+		if vehicle:
+			# Fully release the skeleton so the riding pose below survives;
+			# pause()/stop() are not enough (see the note above).
+			animation_player.active = false
+		else:
+			animation_player.active = true
+			animation_player.play(ANIM_IDLE)
+	if not vehicle:
+		_handlebar_target = null
+	if not vehicle and skeleton:
+		for bone_name in RIDE_BONES:
+			var idx := skeleton.find_bone(bone_name)
+			if idx >= 0:
+				skeleton.reset_bone_pose(idx)
 	if character_model:
 		character_model.rotation.x = deg_to_rad(RIDING_LEAN_DEGREES) if vehicle else 0.0
+
+## Poses the rider on a bike. `pedal_phase` is in radians and advances with
+## the vehicle's speed, so the legs pedal faster the faster it goes; the two
+## legs are driven half a cycle apart.
+func apply_riding_pose(pedal_phase: float) -> void:
+	if not skeleton:
+		return
+	var swing_l: float = sin(pedal_phase)
+	var swing_r: float = sin(pedal_phase + PI)
+	_set_bone_x("UpperLeg.L", RIDE_HIP_BASE + RIDE_HIP_SWING * swing_l)
+	_set_bone_x("UpperLeg.R", RIDE_HIP_BASE + RIDE_HIP_SWING * swing_r)
+	# Knees bend most when the thigh is up, so they run a quarter cycle out.
+	_set_bone_x("LowerLeg.L", RIDE_KNEE_BASE + RIDE_KNEE_SWING * sin(pedal_phase - PI * 0.5))
+	_set_bone_x("LowerLeg.R", RIDE_KNEE_BASE + RIDE_KNEE_SWING * sin(pedal_phase + PI * 0.5))
+	# Arms are AIMED at the handlebar rather than set to a fixed angle.
+	# Rotating the shoulder about a single axis cannot reach it: measured, X
+	# only raises the hand (at -80 degrees it still sat at z=+0.59 while the
+	# bar is at z=-0.42), because the arm's swing plane under that axis is not
+	# the sagittal one. Aiming solves it directly and keeps working if the
+	# seat or the bike changes.
+	if _handlebar_target:
+		_aim_bone_at("UpperArm.L", "LowerArm.L", _handlebar_target.global_position)
+		_aim_bone_at("UpperArm.R", "LowerArm.R", _handlebar_target.global_position)
+		_aim_bone_at("LowerArm.L", "Palm.L", _handlebar_target.global_position)
+		_aim_bone_at("LowerArm.R", "Palm.R", _handlebar_target.global_position)
+	else:
+		_set_bone_x("UpperArm.L", RIDE_SHOULDER)
+		_set_bone_x("UpperArm.R", RIDE_SHOULDER)
+		_set_bone_x("LowerArm.L", RIDE_ELBOW)
+		_set_bone_x("LowerArm.R", RIDE_ELBOW)
+
+## Rotates `bone` so the segment running to `child` points at a world-space
+## target. Same shortest-arc aiming used elsewhere in this project: it works
+## on real 3D directions instead of guessing an axis, so it does not care how
+## the rig's bone bases happen to be oriented.
+##
+## Everything is read from the bone's CURRENT posed transform, not its rest
+## pose, and the skeleton is force-updated first. That matters for a chain:
+## aiming the forearm off rest positions ignores where the upper arm just put
+## the elbow, and the errors compound (measured: hand ended up further from
+## the bar, 1.45, than with a fixed angle).
+func _aim_bone_at(bone_name: String, child_name: String, target_world: Vector3) -> void:
+	var b := skeleton.find_bone(bone_name)
+	var c := skeleton.find_bone(child_name)
+	if b < 0 or c < 0:
+		return
+	skeleton.force_update_all_bone_transforms()
+	var b_pose: Transform3D = skeleton.get_bone_global_pose(b)
+	var c_pose: Transform3D = skeleton.get_bone_global_pose(c)
+	var from_dir: Vector3 = (c_pose.origin - b_pose.origin).normalized()
+	# Bone poses are in the skeleton's own space, so the target comes into
+	# that space before any directions are compared.
+	var target_local: Vector3 = skeleton.global_transform.affine_inverse() * target_world
+	var to_dir: Vector3 = (target_local - b_pose.origin).normalized()
+	if from_dir.is_zero_approx() or to_dir.is_zero_approx():
+		return
+	var new_global: Quaternion = Quaternion(from_dir, to_dir) * b_pose.basis.get_rotation_quaternion()
+	var parent := skeleton.get_bone_parent(b)
+	var parent_rot := Quaternion.IDENTITY
+	if parent >= 0:
+		parent_rot = skeleton.get_bone_global_pose(parent).basis.get_rotation_quaternion()
+	skeleton.set_bone_pose_rotation(b, parent_rot.inverse() * new_global)
+
+func _set_bone_x(bone_name: String, degrees: float) -> void:
+	var idx := skeleton.find_bone(bone_name)
+	if idx < 0:
+		return
+	var rest: Quaternion = skeleton.get_bone_rest(idx).basis.get_rotation_quaternion()
+	skeleton.set_bone_pose_rotation(idx, rest * Quaternion(Vector3(1, 0, 0), deg_to_rad(degrees)))
 
 ## Lets a vehicle point the rider the way it is heading.
 func face_direction(direction: Vector3) -> void:
