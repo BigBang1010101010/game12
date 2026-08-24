@@ -63,6 +63,12 @@ var time_of_day: float = 0.35
 ## Emitted once per crossing of midnight, for anything that counts days.
 signal day_passed
 
+## Monotonic count of real seconds this world has been running, including
+## time skipped by sleeping. This is THE clock: anything that measures
+## elapsed time (the awake counter, and through it health loss) reads it
+## instead of accumulating its own delta, so the two can never drift apart.
+var total_elapsed_seconds: float = 0.0
+
 var _light: DirectionalLight3D = null
 var _environment: Environment = null
 var _days_elapsed: int = 0
@@ -80,6 +86,7 @@ func _process(delta: float) -> void:
 ## directly instead of waiting in real time.
 func advance_seconds(seconds: float) -> void:
 	var before := time_of_day
+	total_elapsed_seconds += seconds
 	time_of_day = fposmod(time_of_day + seconds / CYCLE_DURATION_SECONDS, 1.0)
 	if time_of_day < before:
 		_days_elapsed += 1
@@ -90,6 +97,9 @@ func advance_seconds(seconds: float) -> void:
 ## in-game hours were skipped. Used by sleeping.
 func skip_to(target_time_of_day: float) -> float:
 	var delta_fraction: float = fposmod(target_time_of_day - time_of_day, 1.0)
+	# Skipped hours are still elapsed world time, so the monotonic clock has
+	# to move with them or sleeping would rewind everything derived from it.
+	total_elapsed_seconds += delta_fraction * CYCLE_DURATION_SECONDS
 	time_of_day = fposmod(target_time_of_day, 1.0)
 	_days_elapsed += 1
 	day_passed.emit()

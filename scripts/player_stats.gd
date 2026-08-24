@@ -13,11 +13,15 @@ signal stamina_changed(stamina: float)
 ## the underlying value and nothing has to deal in fractions.
 const MAX_HALF_HEARTS := 4 # 2 full hearts
 
-## In-game hours of being awake that cost half a heart. Sleeping is the only
-## thing that costs health for now, but the cost itself goes through
-## change_health() like any other source would, so adding real damage later
-## means calling that rather than editing this system.
-const HOURS_AWAKE_PER_HALF_HEART := 0.5
+## In-game hours of being awake that cost half a heart. Deliberately equal to
+## DayNightCycle.HOURS_PER_DAY: one half heart per FULL day/night cycle, i.e.
+## per 30 real minutes awake, locked 1:1 to the cycle rather than to some
+## independent unit. (It was 0.5 game hours, which measured out to a half
+## heart every 37.5 real seconds - 1/48th of a cycle.)
+## Sleeping is still the only thing that costs health, but the cost goes
+## through change_health() like any other source would, so adding real damage
+## later means calling that rather than editing this system.
+const HOURS_AWAKE_PER_HALF_HEART := DayNightCycle.HOURS_PER_DAY
 
 ## Stamina, 0-100, spent by sprinting and regained by not sprinting. Unlike
 ## awake time (which is measured in game hours off the day/night clock), this
@@ -36,10 +40,15 @@ var stamina: float = MAX_STAMINA
 ## Set when stamina hits 0, cleared once STAMINA_SPRINT_RESUME is back.
 var _sprint_locked := false
 
-## In-game hours since the player last woke up. Advances off the day/night
-## cycle's own rate rather than an independent one, so "awake time" and the
-## clock on the wall can never drift apart.
+## In-game hours since the player last woke up. DERIVED each frame from
+## DayNightCycle.total_elapsed_seconds rather than accumulated here: both
+## values then come from one single clock, so no amount of running can make
+## the awake counter and the day/night cycle disagree.
 var awake_hours: float = 0.0
+
+## The reading of DayNightCycle.total_elapsed_seconds at the moment the
+## player last woke up. awake_hours is just the distance from here to now.
+var _awake_since_seconds: float = 0.0
 
 var health_half_hearts: int = MAX_HALF_HEARTS
 
@@ -53,17 +62,28 @@ func _ready() -> void:
 	# disagree by however long menus were left open.
 	process_mode = Node.PROCESS_MODE_ALWAYS
 
-func _process(delta: float) -> void:
-	add_awake_hours(delta * DayNightCycle.game_hours_per_real_second())
+func _process(_delta: float) -> void:
+	_refresh_awake()
 
-## Adds in-game hours to the awake counter. Separate from _process so sleeping
-## and tests can drive it directly instead of waiting in real time.
+## Recomputes awake_hours from the shared clock.
+func _refresh_awake() -> void:
+	var elapsed: float = DayNightCycle.total_elapsed_seconds - _awake_since_seconds
+	var hours: float = elapsed * DayNightCycle.game_hours_per_real_second()
+	if is_equal_approx(hours, awake_hours):
+		return
+	awake_hours = hours
+	awake_changed.emit(awake_hours)
+	_apply_exhaustion()
+
+## Shifts the wake-up anchor back so the player reads as having been awake
+## `hours` longer. Used by tests to reach a state without waiting for it in
+## real time; it moves the anchor rather than a second counter, so the single
+## source of truth stays intact.
 func add_awake_hours(hours: float) -> void:
 	if hours == 0.0:
 		return
-	awake_hours += hours
-	awake_changed.emit(awake_hours)
-	_apply_exhaustion()
+	_awake_since_seconds -= hours / DayNightCycle.game_hours_per_real_second()
+	_refresh_awake()
 
 ## Charges half a heart for every whole HOURS_AWAKE_PER_HALF_HEART the player
 ## has been awake, at most once per threshold.
@@ -123,6 +143,7 @@ func restore_full_stamina() -> void:
 
 ## Called when the player sleeps.
 func reset_awake() -> void:
+	_awake_since_seconds = DayNightCycle.total_elapsed_seconds
 	awake_hours = 0.0
 	_hours_charged = 0.0
 	awake_changed.emit(awake_hours)
