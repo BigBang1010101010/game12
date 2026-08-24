@@ -1,0 +1,14 @@
+[gd_resource type="Resource" script_class="AttributeDefinition" load_steps=2 format=3 uid="uid://bab488e7ba026f"]
+
+[ext_resource type="Script" path="res://scripts/resources/attribute_definition.gd" id="1_def"]
+
+[resource]
+script = ExtResource("1_def")
+id = &"impacto_comunitario"
+nombre_display = "Impacto Comunitario"
+descripcion = "Cambio medible que has generado fuera de ti mismo. Las admisiones distinguen entre horas de servicio y consecuencias reales."
+categoria = &"holistico"
+valor_inicial = 0.0
+valor_maximo = 100.0
+tasa_decaimiento = 0.02
+curva_exponente = 1.4

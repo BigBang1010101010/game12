@@ -1,0 +1,14 @@
+[gd_resource type="Resource" script_class="AttributeDefinition" load_steps=2 format=3 uid="uid://b7d81dd1eedbd3"]
+
+[ext_resource type="Script" path="res://scripts/resources/attribute_definition.gd" id="1_def"]
+
+[resource]
+script = ExtResource("1_def")
+id = &"habilidad_artistica"
+nombre_display = "Habilidad Artística"
+descripcion = "Dominio en una disciplina creativa. Requiere práctica constante para no retroceder."
+categoria = &"holistico"
+valor_inicial = 0.0
+valor_maximo = 100.0
+tasa_decaimiento = 0.1
+curva_exponente = 1.4

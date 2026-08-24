@@ -70,6 +70,7 @@ sprint={
 
 [autoload]
 
+AttributeRegistry="*res://scripts/registries/attribute_registry.gd"
 DayNightCycle="*res://scripts/day_night_cycle.gd"
 Inventory="*res://scripts/inventory.gd"
 PlayerStats="*res://scripts/player_stats.gd"

@@ -1,0 +1,14 @@
+[gd_resource type="Resource" script_class="AttributeDefinition" load_steps=2 format=3 uid="uid://bd299e747cba70"]
+
+[ext_resource type="Script" path="res://scripts/resources/attribute_definition.gd" id="1_def"]
+
+[resource]
+script = ExtResource("1_def")
+id = &"bienestar"
+nombre_display = "Bienestar"
+descripcion = "Tu salud física y mental. Cae rápido si la descuidas y limita cuánto rinde todo lo demás."
+categoria = &"vida"
+valor_inicial = 0.0
+valor_maximo = 100.0
+tasa_decaimiento = 0.3
+curva_exponente = 0.9

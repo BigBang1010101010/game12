@@ -1,0 +1,14 @@
+[gd_resource type="Resource" script_class="AttributeDefinition" load_steps=2 format=3 uid="uid://be94e067572a2f"]
+
+[ext_resource type="Script" path="res://scripts/resources/attribute_definition.gd" id="1_def"]
+
+[resource]
+script = ExtResource("1_def")
+id = &"gestion_tiempo"
+nombre_display = "Gestión del Tiempo"
+descripcion = "Qué tanto aprovechas las horas que tienes. Multiplica el efecto de cualquier otra inversión."
+categoria = &"vida"
+valor_inicial = 0.0
+valor_maximo = 100.0
+tasa_decaimiento = 0.1
+curva_exponente = 1.2

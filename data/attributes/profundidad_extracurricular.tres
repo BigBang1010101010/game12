@@ -1,0 +1,14 @@
+[gd_resource type="Resource" script_class="AttributeDefinition" load_steps=2 format=3 uid="uid://beefd5af5aadb4"]
+
+[ext_resource type="Script" path="res://scripts/resources/attribute_definition.gd" id="1_def"]
+
+[resource]
+script = ExtResource("1_def")
+id = &"profundidad_extracurricular"
+nombre_display = "Profundidad Extracurricular"
+descripcion = "Qué tan lejos has llevado UNA actividad, en oposición a coleccionar muchas superficiales."
+categoria = &"holistico"
+valor_inicial = 0.0
+valor_maximo = 100.0
+tasa_decaimiento = 0.06
+curva_exponente = 1.5

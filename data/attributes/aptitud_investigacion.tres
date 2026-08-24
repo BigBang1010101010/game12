@@ -1,0 +1,14 @@
+[gd_resource type="Resource" script_class="AttributeDefinition" load_steps=2 format=3 uid="uid://b47f21c95da233"]
+
+[ext_resource type="Script" path="res://scripts/resources/attribute_definition.gd" id="1_def"]
+
+[resource]
+script = ExtResource("1_def")
+id = &"aptitud_investigacion"
+nombre_display = "Aptitud de Investigación"
+descripcion = "Capacidad de formular preguntas propias y sostener un proyecto largo sin que nadie te lo asigne."
+categoria = &"academico"
+valor_inicial = 0.0
+valor_maximo = 100.0
+tasa_decaimiento = 0.04
+curva_exponente = 1.5

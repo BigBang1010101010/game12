@@ -1,0 +1,14 @@
+[gd_resource type="Resource" script_class="AttributeDefinition" load_steps=2 format=3 uid="uid://ba9886b6d4730b"]
+
+[ext_resource type="Script" path="res://scripts/resources/attribute_definition.gd" id="1_def"]
+
+[resource]
+script = ExtResource("1_def")
+id = &"curiosidad_intelectual"
+nombre_display = "Curiosidad Intelectual"
+descripcion = "Lo que estudias cuando nadie te califica. Es lo que separa a un buen estudiante de alguien interesante."
+categoria = &"holistico"
+valor_inicial = 0.0
+valor_maximo = 100.0
+tasa_decaimiento = 0.03
+curva_exponente = 1.2
