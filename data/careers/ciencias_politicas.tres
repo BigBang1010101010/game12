@@ -1,0 +1,23 @@
+[gd_resource type="Resource" script_class="CareerData" load_steps=2 format=3 uid="uid://e3d3363d479a26"]
+
+[ext_resource type="Script" path="res://scripts/resources/career_data.gd" id="1_car"]
+
+[resource]
+script = ExtResource("1_car")
+id = &"ciencias_politicas"
+nombre_display = "Ciencias Políticas"
+descripcion = "Cómo se distribuye y ejerce el poder. Mucha lectura, escritura y análisis de instituciones."
+perfil_ideal = {
+&"aptitud_verbal": 80,
+&"curiosidad_intelectual": 70,
+&"impacto_comunitario": 70,
+&"rigor_academico": 70,
+&"liderazgo": 60,
+&"aptitud_investigacion": 60
+}
+tolerancia_desviacion = {
+&"aptitud_verbal": 22,
+&"impacto_comunitario": 30,
+&"curiosidad_intelectual": 28
+}
+datos_estadisticos = {}

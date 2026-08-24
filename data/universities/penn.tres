@@ -1,0 +1,62 @@
+[gd_resource type="Resource" script_class="UniversityData" load_steps=2 format=3 uid="uid://dd7120d60ad22d"]
+
+[ext_resource type="Script" path="res://scripts/resources/university_data.gd" id="1_uni"]
+
+; RAZONAMIENTO DE PESOS - Penn
+; - unica escuela donde liderazgo (1.0) supera a rigor_academico (0.95): el
+;   arquetipo Wharton es el operador ambicioso, no el academico puro.
+; - red_social 0.5 y gestion_tiempo 0.45, ambos los mas altos del conjunto:
+;   la cultura preprofesional premia explicitamente las redes y la ejecucion.
+; - afinidad con emprendimiento 1.45, el valor mas alto de todo el dataset.
+; - early 0.150, tambien el mas alto: Penn es conocida por llenar cerca de la
+;   mitad de su clase por early decision, asi que aplicar temprano importa mas
+;   aqui que en ninguna otra.
+
+[resource]
+script = ExtResource("1_uni")
+id = &"penn"
+nombre_display = "University of Pennsylvania"
+color_primario = Color(0.0, 0.2, 0.44, 1)
+color_secundario = Color(0.6, 0.1, 0.2, 1)
+tasa_admision_base = 0.048
+tasa_admision_early = 0.15
+pesos_atributos = {
+&"rigor_academico": 0.95,
+&"liderazgo": 1.0,
+&"aptitud_cuantitativa": 0.8,
+&"profundidad_extracurricular": 0.7,
+&"impacto_comunitario": 0.6,
+&"red_social": 0.5,
+&"curiosidad_intelectual": 0.5,
+&"gestion_tiempo": 0.45,
+&"aptitud_verbal": 0.5
+}
+umbrales_minimos = {
+&"rigor_academico": 65.0,
+&"liderazgo": 40.0
+}
+afinidad_narrativas = {
+&"emprendimiento": 1.45,
+&"liderazgo_comunitario": 1.3,
+&"mentoria": 1.1,
+&"servicio": 1.05,
+&"identidad_origen": 1.05,
+&"superacion_adversidad": 1.05,
+&"disciplina_atletica": 1.0,
+&"pasion_investigativa": 0.95,
+&"curiosidad_autodidacta": 0.9,
+&"expresion_artistica": 0.85
+}
+fortalezas_carrera = {
+&"finanzas": 1.0,
+&"negocios": 1.0,
+&"economia": 0.95,
+&"medicina": 0.9,
+&"ciencias_computacion": 0.85,
+&"derecho": 0.85,
+&"ingenieria": 0.8,
+&"ciencias_politicas": 0.75,
+&"psicologia": 0.8,
+&"artes_comunicacion": 0.7
+}
+descripcion_cultura = "Pragmática y preprofesional. Wharton domina la cultura del campus: ambición explícita, redes y resultados aplicados por encima de la teoría."

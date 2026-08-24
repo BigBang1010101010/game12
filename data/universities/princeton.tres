@@ -1,0 +1,61 @@
+[gd_resource type="Resource" script_class="UniversityData" load_steps=2 format=3 uid="uid://ddaf3d5926cb7e"]
+
+[ext_resource type="Script" path="res://scripts/resources/university_data.gd" id="1_uni"]
+
+; RAZONAMIENTO DE PESOS - Princeton
+; - aptitud_investigacion 0.95, la mas alta de las ocho: la senior thesis es
+;   requisito de graduacion, asi que el perfil que buscan ya viene con esa
+;   capacidad. Por eso ademas es umbral (40), no solo peso.
+; - curiosidad_intelectual muy alta y liderazgo notablemente mas bajo que
+;   Harvard: el arquetipo aqui es el academico, no el organizador.
+; - afinidad maxima con pasion_investigativa (1.4), el valor mas alto de
+;   cualquier escuela con cualquier narrativa en este conjunto de datos.
+
+[resource]
+script = ExtResource("1_uni")
+id = &"princeton"
+nombre_display = "Princeton University"
+color_primario = Color(0.95, 0.4, 0.05, 1)
+color_secundario = Color(0.1, 0.1, 0.1, 1)
+tasa_admision_base = 0.037
+tasa_admision_early = 0.099
+pesos_atributos = {
+&"rigor_academico": 1.0,
+&"aptitud_investigacion": 0.95,
+&"curiosidad_intelectual": 0.85,
+&"aptitud_cuantitativa": 0.7,
+&"aptitud_verbal": 0.7,
+&"impacto_comunitario": 0.6,
+&"liderazgo": 0.55,
+&"profundidad_extracurricular": 0.6,
+&"aptitud_cientifica": 0.6
+}
+umbrales_minimos = {
+&"rigor_academico": 70.0,
+&"aptitud_investigacion": 40.0
+}
+afinidad_narrativas = {
+&"pasion_investigativa": 1.4,
+&"curiosidad_autodidacta": 1.3,
+&"servicio": 1.2,
+&"mentoria": 1.1,
+&"identidad_origen": 1.05,
+&"liderazgo_comunitario": 1.0,
+&"superacion_adversidad": 1.05,
+&"emprendimiento": 0.9,
+&"disciplina_atletica": 0.9,
+&"expresion_artistica": 0.95
+}
+fortalezas_carrera = {
+&"ciencias_politicas": 1.0,
+&"economia": 1.0,
+&"ingenieria": 0.95,
+&"ciencias_computacion": 0.9,
+&"psicologia": 0.85,
+&"derecho": 0.85,
+&"medicina": 0.7,
+&"finanzas": 0.85,
+&"negocios": 0.6,
+&"artes_comunicacion": 0.75
+}
+descripcion_cultura = "Enfoque casi obsesivo en el pregrado y en la investigación original: la tesis de licenciatura es obligatoria. Busca gente que genera preguntas propias."

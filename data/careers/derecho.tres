@@ -1,0 +1,23 @@
+[gd_resource type="Resource" script_class="CareerData" load_steps=2 format=3 uid="uid://e47207a6890ade"]
+
+[ext_resource type="Script" path="res://scripts/resources/career_data.gd" id="1_car"]
+
+[resource]
+script = ExtResource("1_car")
+id = &"derecho"
+nombre_display = "Derecho"
+descripcion = "Argumentación, interpretación de textos densos y construcción de casos. Menos dramatismo de tribunal y más lectura minuciosa de la que la mayoría espera."
+perfil_ideal = {
+&"aptitud_verbal": 85,
+&"rigor_academico": 80,
+&"curiosidad_intelectual": 65,
+&"resiliencia": 70,
+&"liderazgo": 55,
+&"gestion_tiempo": 65
+}
+tolerancia_desviacion = {
+&"aptitud_verbal": 20,
+&"rigor_academico": 25,
+&"resiliencia": 30
+}
+datos_estadisticos = {}

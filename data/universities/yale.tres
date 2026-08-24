@@ -1,0 +1,59 @@
+[gd_resource type="Resource" script_class="UniversityData" load_steps=2 format=3 uid="uid://dbf98e9e66325b"]
+
+[ext_resource type="Script" path="res://scripts/resources/university_data.gd" id="1_uni"]
+
+; RAZONAMIENTO DE PESOS - Yale
+; - perfil deliberadamente mas parejo que Harvard: mismo rigor exigido pero
+;   liderazgo bastante mas bajo (0.75 vs 0.95) y artes mas altas.
+; - solo un umbral (rigor 68): de las ocho es de las que menos castiga un
+;   perfil disparejo, coherente con su fama de admitir personas "interesantes".
+; - servicio y expresion_artistica empatadas arriba: el teatro y el servicio
+;   publico son dos senas de identidad simultaneas de la escuela.
+
+[resource]
+script = ExtResource("1_uni")
+id = &"yale"
+nombre_display = "Yale University"
+color_primario = Color(0.05, 0.22, 0.5, 1)
+color_secundario = Color(0.9, 0.9, 0.92, 1)
+tasa_admision_base = 0.042
+tasa_admision_early = 0.1
+pesos_atributos = {
+&"rigor_academico": 1.0,
+&"aptitud_verbal": 0.85,
+&"liderazgo": 0.75,
+&"impacto_comunitario": 0.75,
+&"curiosidad_intelectual": 0.8,
+&"habilidad_artistica": 0.6,
+&"profundidad_extracurricular": 0.65,
+&"aptitud_investigacion": 0.55,
+&"red_social": 0.35
+}
+umbrales_minimos = {
+&"rigor_academico": 68.0
+}
+afinidad_narrativas = {
+&"expresion_artistica": 1.3,
+&"servicio": 1.3,
+&"liderazgo_comunitario": 1.25,
+&"identidad_origen": 1.2,
+&"mentoria": 1.2,
+&"superacion_adversidad": 1.15,
+&"curiosidad_autodidacta": 1.1,
+&"pasion_investigativa": 1.0,
+&"emprendimiento": 0.9,
+&"disciplina_atletica": 0.95
+}
+fortalezas_carrera = {
+&"derecho": 1.0,
+&"ciencias_politicas": 0.95,
+&"artes_comunicacion": 0.95,
+&"psicologia": 0.9,
+&"economia": 0.85,
+&"medicina": 0.85,
+&"ciencias_computacion": 0.8,
+&"finanzas": 0.75,
+&"negocios": 0.7,
+&"ingenieria": 0.65
+}
+descripcion_cultura = "Cultura de residential colleges y vida estudiantil intensa. Fuerte en humanidades, teatro y derecho; valora la calidez y el compromiso con la comunidad."

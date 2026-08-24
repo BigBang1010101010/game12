@@ -1,0 +1,63 @@
+[gd_resource type="Resource" script_class="UniversityData" load_steps=2 format=3 uid="uid://d9166eeff1e505"]
+
+[ext_resource type="Script" path="res://scripts/resources/university_data.gd" id="1_uni"]
+
+; RAZONAMIENTO DE PESOS - Brown
+; - curiosidad_intelectual 1.0, por encima del rigor academico, y ademas
+;   umbral (40): con Open Curriculum, un estudiante sin direccion propia se
+;   hunde. Es literalmente el rasgo que la escuela necesita.
+; - afinidad con curiosidad_autodidacta 1.45, empatada como la mas alta del
+;   dataset junto al emprendimiento en Penn, y por la misma logica: es el
+;   rasgo que define a la institucion.
+; - liderazgo 0.5, el mas bajo de las ocho: aqui no se premia dirigir, se
+;   premia explorar.
+; - umbral de rigor 60, el mas bajo, coherente con su fama de flexibilidad.
+
+[resource]
+script = ExtResource("1_uni")
+id = &"brown"
+nombre_display = "Brown University"
+color_primario = Color(0.45, 0.24, 0.1, 1)
+color_secundario = Color(0.85, 0.2, 0.25, 1)
+tasa_admision_base = 0.054
+tasa_admision_early = 0.145
+pesos_atributos = {
+&"rigor_academico": 0.85,
+&"curiosidad_intelectual": 1.0,
+&"aptitud_investigacion": 0.7,
+&"habilidad_artistica": 0.7,
+&"impacto_comunitario": 0.7,
+&"aptitud_verbal": 0.65,
+&"profundidad_extracurricular": 0.6,
+&"liderazgo": 0.5,
+&"gestion_tiempo": 0.5
+}
+umbrales_minimos = {
+&"rigor_academico": 60.0,
+&"curiosidad_intelectual": 40.0
+}
+afinidad_narrativas = {
+&"curiosidad_autodidacta": 1.45,
+&"expresion_artistica": 1.3,
+&"identidad_origen": 1.25,
+&"servicio": 1.2,
+&"superacion_adversidad": 1.15,
+&"pasion_investigativa": 1.15,
+&"mentoria": 1.1,
+&"liderazgo_comunitario": 1.05,
+&"emprendimiento": 0.95,
+&"disciplina_atletica": 0.85
+}
+fortalezas_carrera = {
+&"artes_comunicacion": 1.0,
+&"psicologia": 0.9,
+&"ciencias_computacion": 0.9,
+&"ciencias_politicas": 0.85,
+&"medicina": 0.9,
+&"economia": 0.8,
+&"derecho": 0.8,
+&"ingenieria": 0.75,
+&"negocios": 0.6,
+&"finanzas": 0.6
+}
+descripcion_cultura = "El Open Curriculum elimina los requisitos generales: eliges todo. Premia a quien sabe qué quiere aprender sin que se lo impongan."

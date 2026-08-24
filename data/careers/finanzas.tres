@@ -1,0 +1,23 @@
+[gd_resource type="Resource" script_class="CareerData" load_steps=2 format=3 uid="uid://eedb3174a7e265"]
+
+[ext_resource type="Script" path="res://scripts/resources/career_data.gd" id="1_car"]
+
+[resource]
+script = ExtResource("1_car")
+id = &"finanzas"
+nombre_display = "Finanzas"
+descripcion = "Alto retorno y alta exigencia horaria. Se decide tanto por redes y ejecución como por capacidad analítica."
+perfil_ideal = {
+&"aptitud_cuantitativa": 80,
+&"gestion_tiempo": 75,
+&"red_social": 70,
+&"resiliencia": 70,
+&"rigor_academico": 70,
+&"liderazgo": 60
+}
+tolerancia_desviacion = {
+&"aptitud_cuantitativa": 22,
+&"red_social": 30,
+&"gestion_tiempo": 25
+}
+datos_estadisticos = {}

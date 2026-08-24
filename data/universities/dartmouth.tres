@@ -1,0 +1,62 @@
+[gd_resource type="Resource" script_class="UniversityData" load_steps=2 format=3 uid="uid://d83dee584d7bc3"]
+
+[ext_resource type="Script" path="res://scripts/resources/university_data.gd" id="1_uni"]
+
+; RAZONAMIENTO DE PESOS - Dartmouth
+; - profundidad_extracurricular 0.95 por encima del propio rigor academico, y
+;   ademas umbral (35): el aislamiento rural hace que la vida fuera del aula
+;   SEA la escuela. Un perfil solo academico encaja mal aqui.
+; - resiliencia 0.9, la mas alta de las ocho, y logro_atletico 0.7, tambien la
+;   mas alta: inviernos duros, D1 con cuerpo estudiantil pequeno.
+; - unica escuela que pondera bienestar (0.35), por la misma razon.
+; - umbral de rigor 62, el mas bajo del grupo: compensa mejor que las demas un
+;   expediente algo menor con una trayectoria extracurricular profunda.
+
+[resource]
+script = ExtResource("1_uni")
+id = &"dartmouth"
+nombre_display = "Dartmouth College"
+color_primario = Color(0.0, 0.42, 0.24, 1)
+color_secundario = Color(0.95, 0.95, 0.95, 1)
+tasa_admision_base = 0.05
+tasa_admision_early = 0.17
+pesos_atributos = {
+&"rigor_academico": 0.9,
+&"resiliencia": 0.9,
+&"profundidad_extracurricular": 0.95,
+&"logro_atletico": 0.7,
+&"liderazgo": 0.7,
+&"impacto_comunitario": 0.6,
+&"red_social": 0.55,
+&"curiosidad_intelectual": 0.55,
+&"bienestar": 0.35
+}
+umbrales_minimos = {
+&"rigor_academico": 62.0,
+&"profundidad_extracurricular": 35.0
+}
+afinidad_narrativas = {
+&"disciplina_atletica": 1.4,
+&"superacion_adversidad": 1.35,
+&"mentoria": 1.2,
+&"liderazgo_comunitario": 1.15,
+&"servicio": 1.1,
+&"identidad_origen": 1.05,
+&"emprendimiento": 1.0,
+&"curiosidad_autodidacta": 1.0,
+&"pasion_investigativa": 0.9,
+&"expresion_artistica": 0.95
+}
+fortalezas_carrera = {
+&"negocios": 0.9,
+&"economia": 0.9,
+&"medicina": 0.85,
+&"ingenieria": 0.85,
+&"ciencias_politicas": 0.85,
+&"psicologia": 0.8,
+&"derecho": 0.8,
+&"ciencias_computacion": 0.8,
+&"finanzas": 0.8,
+&"artes_comunicacion": 0.75
+}
+descripcion_cultura = "Pequeña, rural y de vínculos intensos. La vida fuera del aula (deporte, aire libre, hermandades) pesa tanto como el aula. Lealtad institucional altísima."

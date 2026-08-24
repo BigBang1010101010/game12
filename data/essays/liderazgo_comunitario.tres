@@ -1,0 +1,16 @@
+[gd_resource type="Resource" script_class="EssayNarrative" load_steps=2 format=3 uid="uid://f4733d53084f3c"]
+
+[ext_resource type="Script" path="res://scripts/resources/essay_narrative.gd" id="1_ens"]
+
+[resource]
+script = ExtResource("1_ens")
+id = &"liderazgo_comunitario"
+titulo = "El consejo que nadie quería presidir"
+texto_preview = "Heredaste una organización estudiantil moribunda y con deudas. La dejaste con estructura, presupuesto y sucesores formados."
+modificadores_atributo = {
+&"liderazgo": 20,
+&"impacto_comunitario": 12,
+&"red_social": 6
+}
+narrativa_tipo = &"liderazgo_comunitario"
+requisitos_desbloqueo = [{"tipo": "atributo_minimo", "atributo": &"liderazgo", "valor": 40.0}]

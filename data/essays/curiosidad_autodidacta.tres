@@ -1,0 +1,16 @@
+[gd_resource type="Resource" script_class="EssayNarrative" load_steps=2 format=3 uid="uid://f7332fe91d0dff"]
+
+[ext_resource type="Script" path="res://scripts/resources/essay_narrative.gd" id="1_ens"]
+
+[resource]
+script = ExtResource("1_ens")
+id = &"curiosidad_autodidacta"
+titulo = "Nadie me pidió que aprendiera esto"
+texto_preview = "Sobre el tema que perseguiste durante años sin que contara para ninguna calificación, y a dónde te llevó."
+modificadores_atributo = {
+&"curiosidad_intelectual": 20,
+&"aptitud_investigacion": 8,
+&"aptitud_verbal": 6
+}
+narrativa_tipo = &"curiosidad_autodidacta"
+requisitos_desbloqueo = [{"tipo": "atributo_minimo", "atributo": &"curiosidad_intelectual", "valor": 45.0}]

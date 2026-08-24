@@ -1,0 +1,17 @@
+[gd_resource type="Resource" script_class="EssayNarrative" load_steps=2 format=3 uid="uid://f7cc588740ab63"]
+
+[ext_resource type="Script" path="res://scripts/resources/essay_narrative.gd" id="1_ens"]
+
+[resource]
+script = ExtResource("1_ens")
+id = &"emprendimiento"
+titulo = "Mi primer cliente pagó 40 dólares"
+texto_preview = "Montaste algo pequeño que resolvía un problema real y aprendiste que vender es más difícil que construir."
+modificadores_atributo = {
+&"liderazgo": 12,
+&"gestion_tiempo": 10,
+&"red_social": 10,
+&"resiliencia": 8
+}
+narrativa_tipo = &"emprendimiento"
+requisitos_desbloqueo = [{"tipo": "atributo_minimo", "atributo": &"gestion_tiempo", "valor": 35.0}]

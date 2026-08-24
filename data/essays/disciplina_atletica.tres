@@ -1,0 +1,16 @@
+[gd_resource type="Resource" script_class="EssayNarrative" load_steps=2 format=3 uid="uid://f3e08f00f69e6e"]
+
+[ext_resource type="Script" path="res://scripts/resources/essay_narrative.gd" id="1_ens"]
+
+[resource]
+script = ExtResource("1_ens")
+id = &"disciplina_atletica"
+titulo = "4:45 de la mañana"
+texto_preview = "No sobre ganar, sino sobre los años de levantarte antes que nadie y qué te enseñó eso sobre el trabajo que no se ve."
+modificadores_atributo = {
+&"logro_atletico": 18,
+&"resiliencia": 12,
+&"gestion_tiempo": 8
+}
+narrativa_tipo = &"disciplina_atletica"
+requisitos_desbloqueo = [{"tipo": "atributo_minimo", "atributo": &"logro_atletico", "valor": 45.0}]

@@ -1,0 +1,16 @@
+[gd_resource type="Resource" script_class="EssayNarrative" load_steps=2 format=3 uid="uid://fa4de715b45e11"]
+
+[ext_resource type="Script" path="res://scripts/resources/essay_narrative.gd" id="1_ens"]
+
+[resource]
+script = ExtResource("1_ens")
+id = &"pasion_investigativa"
+titulo = "Tres años con la misma pregunta"
+texto_preview = "Empezó como un proyecto de feria de ciencias y no lo soltaste. El ensayo muestra cómo la pregunta cambió a medida que aprendías por qué la primera versión estaba mal."
+modificadores_atributo = {
+&"aptitud_investigacion": 20,
+&"curiosidad_intelectual": 12,
+&"rigor_academico": 6
+}
+narrativa_tipo = &"pasion_investigativa"
+requisitos_desbloqueo = [{"tipo": "atributo_minimo", "atributo": &"aptitud_investigacion", "valor": 40.0}]

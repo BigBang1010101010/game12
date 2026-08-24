@@ -1,0 +1,60 @@
+[gd_resource type="Resource" script_class="UniversityData" load_steps=2 format=3 uid="uid://de175f416f75e3"]
+
+[ext_resource type="Script" path="res://scripts/resources/university_data.gd" id="1_uni"]
+
+; RAZONAMIENTO DE PESOS - Cornell
+; - el perfil deliberadamente MAS PLANO de las ocho: ninguna afinidad baja de
+;   1.05 y ninguna pasa de 1.25. Con siete colegios distintos y la tasa de
+;   admision mas alta (7.5%), no hay un unico arquetipo que buscar.
+; - aptitud_cientifica 0.75, la mas alta del grupo, por el peso de ingenieria
+;   y de las ciencias aplicadas en su mezcla de programas.
+; - un solo umbral y relativamente bajo: es la mas accesible para un perfil
+;   fuerte pero no extraordinario, que es exactamente lo que la reputa.
+
+[resource]
+script = ExtResource("1_uni")
+id = &"cornell"
+nombre_display = "Cornell University"
+color_primario = Color(0.70, 0.11, 0.11, 1)
+color_secundario = Color(0.95, 0.95, 0.95, 1)
+tasa_admision_base = 0.075
+tasa_admision_early = 0.176
+pesos_atributos = {
+&"rigor_academico": 0.9,
+&"aptitud_cuantitativa": 0.75,
+&"aptitud_cientifica": 0.75,
+&"profundidad_extracurricular": 0.65,
+&"aptitud_investigacion": 0.65,
+&"liderazgo": 0.6,
+&"impacto_comunitario": 0.6,
+&"curiosidad_intelectual": 0.6,
+&"gestion_tiempo": 0.5
+}
+umbrales_minimos = {
+&"rigor_academico": 60.0
+}
+afinidad_narrativas = {
+&"pasion_investigativa": 1.25,
+&"emprendimiento": 1.15,
+&"servicio": 1.15,
+&"disciplina_atletica": 1.1,
+&"liderazgo_comunitario": 1.1,
+&"mentoria": 1.1,
+&"curiosidad_autodidacta": 1.1,
+&"superacion_adversidad": 1.15,
+&"identidad_origen": 1.1,
+&"expresion_artistica": 1.05
+}
+fortalezas_carrera = {
+&"ingenieria": 1.0,
+&"ciencias_computacion": 0.95,
+&"negocios": 0.85,
+&"medicina": 0.85,
+&"economia": 0.85,
+&"psicologia": 0.8,
+&"artes_comunicacion": 0.8,
+&"ciencias_politicas": 0.8,
+&"derecho": 0.75,
+&"finanzas": 0.8
+}
+descripcion_cultura = "La más grande y la más variada: siete colegios con culturas propias, desde ingeniería hasta agricultura. Admisión por colegio, no monolítica."

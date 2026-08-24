@@ -1,0 +1,23 @@
+[gd_resource type="Resource" script_class="CareerData" load_steps=2 format=3 uid="uid://e5a64faf73bc12"]
+
+[ext_resource type="Script" path="res://scripts/resources/career_data.gd" id="1_car"]
+
+[resource]
+script = ExtResource("1_car")
+id = &"medicina"
+nombre_display = "Medicina"
+descripcion = "Camino largo y de alta carga: ciencia dura, resistencia sostenida durante más de una década y trato humano bajo presión."
+perfil_ideal = {
+&"aptitud_cientifica": 85,
+&"rigor_academico": 85,
+&"resiliencia": 80,
+&"impacto_comunitario": 60,
+&"gestion_tiempo": 70,
+&"bienestar": 55
+}
+tolerancia_desviacion = {
+&"aptitud_cientifica": 18,
+&"rigor_academico": 18,
+&"resiliencia": 22
+}
+datos_estadisticos = {}

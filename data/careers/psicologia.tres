@@ -1,0 +1,23 @@
+[gd_resource type="Resource" script_class="CareerData" load_steps=2 format=3 uid="uid://e567781f437142"]
+
+[ext_resource type="Script" path="res://scripts/resources/career_data.gd" id="1_car"]
+
+[resource]
+script = ExtResource("1_car")
+id = &"psicologia"
+nombre_display = "Psicología"
+descripcion = "Estudio empírico de la conducta. Método científico aplicado a algo notoriamente difícil de medir."
+perfil_ideal = {
+&"aptitud_cientifica": 70,
+&"aptitud_investigacion": 70,
+&"aptitud_verbal": 70,
+&"impacto_comunitario": 60,
+&"resiliencia": 55,
+&"curiosidad_intelectual": 70
+}
+tolerancia_desviacion = {
+&"aptitud_investigacion": 25,
+&"aptitud_cientifica": 28,
+&"aptitud_verbal": 28
+}
+datos_estadisticos = {}

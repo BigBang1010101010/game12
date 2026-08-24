@@ -1,0 +1,61 @@
+[gd_resource type="Resource" script_class="UniversityData" load_steps=2 format=3 uid="uid://d4100921de61e9"]
+
+[ext_resource type="Script" path="res://scripts/resources/university_data.gd" id="1_uni"]
+
+; RAZONAMIENTO DE PESOS - Columbia
+; - aptitud_verbal 0.9 y como umbral (45): el Core Curriculum es dos anos de
+;   lectura y discusion de textos densos. Quien no escribe bien la pasa mal.
+; - habilidad_artistica con peso real (0.55), poco comun entre las ocho, por
+;   el peso de las artes en Nueva York y en la propia escuela.
+; - afinidad maxima con identidad_origen y expresion_artistica: es la Ivy que
+;   mas se define por la ciudad diversa en la que esta.
+; - disciplina_atletica en 0.8, la mas baja: el atletismo no es su identidad.
+
+[resource]
+script = ExtResource("1_uni")
+id = &"columbia"
+nombre_display = "Columbia University"
+color_primario = Color(0.6, 0.78, 0.92, 1)
+color_secundario = Color(0.1, 0.1, 0.15, 1)
+tasa_admision_base = 0.042
+tasa_admision_early = 0.116
+pesos_atributos = {
+&"rigor_academico": 1.0,
+&"aptitud_verbal": 0.9,
+&"curiosidad_intelectual": 0.8,
+&"impacto_comunitario": 0.75,
+&"liderazgo": 0.6,
+&"aptitud_investigacion": 0.6,
+&"habilidad_artistica": 0.55,
+&"aptitud_cuantitativa": 0.6,
+&"red_social": 0.3
+}
+umbrales_minimos = {
+&"rigor_academico": 68.0,
+&"aptitud_verbal": 45.0
+}
+afinidad_narrativas = {
+&"identidad_origen": 1.35,
+&"expresion_artistica": 1.3,
+&"superacion_adversidad": 1.25,
+&"liderazgo_comunitario": 1.15,
+&"servicio": 1.1,
+&"curiosidad_autodidacta": 1.15,
+&"pasion_investigativa": 1.05,
+&"mentoria": 1.05,
+&"emprendimiento": 0.95,
+&"disciplina_atletica": 0.8
+}
+fortalezas_carrera = {
+&"artes_comunicacion": 1.0,
+&"ciencias_politicas": 0.95,
+&"derecho": 0.95,
+&"economia": 0.9,
+&"finanzas": 0.9,
+&"psicologia": 0.85,
+&"ciencias_computacion": 0.85,
+&"negocios": 0.8,
+&"medicina": 0.85,
+&"ingenieria": 0.8
+}
+descripcion_cultura = "El Core Curriculum obliga a todos a leer los mismos textos fundacionales. Nueva York es parte del plan de estudios: urbana, verbal, intensa."

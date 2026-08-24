@@ -1,0 +1,16 @@
+[gd_resource type="Resource" script_class="EssayNarrative" load_steps=2 format=3 uid="uid://ffb7d84d771100"]
+
+[ext_resource type="Script" path="res://scripts/resources/essay_narrative.gd" id="1_ens"]
+
+[resource]
+script = ExtResource("1_ens")
+id = &"superacion_adversidad"
+titulo = "La lesión que me cambió el plan"
+texto_preview = "Ibas camino a ser reclutado y una lesión terminó con eso en una tarde. El ensayo no trata de la lesión: trata de qué construiste después, cuando ya nadie te miraba."
+modificadores_atributo = {
+&"resiliencia": 18,
+&"logro_atletico": 8,
+&"gestion_tiempo": 6
+}
+narrativa_tipo = &"superacion_adversidad"
+requisitos_desbloqueo = [{"tipo": "atributo_minimo", "atributo": &"resiliencia", "valor": 35.0}]

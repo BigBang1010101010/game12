@@ -1,0 +1,16 @@
+[gd_resource type="Resource" script_class="EssayNarrative" load_steps=2 format=3 uid="uid://f5f8282bb9664e"]
+
+[ext_resource type="Script" path="res://scripts/resources/essay_narrative.gd" id="1_ens"]
+
+[resource]
+script = ExtResource("1_ens")
+id = &"identidad_origen"
+titulo = "El idioma en el que sueño"
+texto_preview = "Sobre traducir entre dos mundos desde niño, y sobre lo que se pierde y se gana en esa traducción diaria."
+modificadores_atributo = {
+&"aptitud_verbal": 14,
+&"resiliencia": 10,
+&"curiosidad_intelectual": 8
+}
+narrativa_tipo = &"identidad_origen"
+requisitos_desbloqueo = []

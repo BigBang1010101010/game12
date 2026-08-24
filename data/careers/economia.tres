@@ -1,0 +1,22 @@
+[gd_resource type="Resource" script_class="CareerData" load_steps=2 format=3 uid="uid://e9077b7a6987f9"]
+
+[ext_resource type="Script" path="res://scripts/resources/career_data.gd" id="1_car"]
+
+[resource]
+script = ExtResource("1_car")
+id = &"economia"
+nombre_display = "Economía"
+descripcion = "Modelar decisiones bajo escasez. Más matemática de la que su reputación sugiere."
+perfil_ideal = {
+&"aptitud_cuantitativa": 80,
+&"aptitud_verbal": 65,
+&"rigor_academico": 75,
+&"curiosidad_intelectual": 65,
+&"aptitud_investigacion": 55
+}
+tolerancia_desviacion = {
+&"aptitud_cuantitativa": 20,
+&"rigor_academico": 25,
+&"aptitud_verbal": 30
+}
+datos_estadisticos = {}

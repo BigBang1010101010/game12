@@ -1,0 +1,62 @@
+[gd_resource type="Resource" script_class="UniversityData" load_steps=2 format=3 uid="uid://d69c1d0aa4fd75"]
+
+[ext_resource type="Script" path="res://scripts/resources/university_data.gd" id="1_uni"]
+
+; RAZONAMIENTO DE PESOS - Harvard
+; - liderazgo casi al nivel del rigor academico: es la escuela cuyo discurso
+;   institucional gira mas explicitamente en torno a formar lideres.
+; - impacto_comunitario alto: distingue entre horas de servicio y consecuencias.
+; - umbral de rigor 70, el mas alto junto con Princeton: con 3.2% de admision,
+;   el expediente academico es un filtro previo, no un factor mas.
+; - umbral de liderazgo 45: unica Ivy donde tambien lo tratamos como filtro.
+; - afinidad maxima con liderazgo_comunitario y servicio; baja con
+;   disciplina_atletica y expresion_artistica, que resuenan mas en otras.
+
+[resource]
+script = ExtResource("1_uni")
+id = &"harvard"
+nombre_display = "Harvard University"
+color_primario = Color(0.65, 0.05, 0.12, 1)
+color_secundario = Color(0.1, 0.1, 0.1, 1)
+tasa_admision_base = 0.032
+tasa_admision_early = 0.078
+pesos_atributos = {
+&"rigor_academico": 1.0,
+&"liderazgo": 0.95,
+&"impacto_comunitario": 0.8,
+&"aptitud_verbal": 0.6,
+&"aptitud_cuantitativa": 0.55,
+&"curiosidad_intelectual": 0.6,
+&"profundidad_extracurricular": 0.7,
+&"aptitud_investigacion": 0.5,
+&"resiliencia": 0.35
+}
+umbrales_minimos = {
+&"rigor_academico": 70.0,
+&"liderazgo": 45.0
+}
+afinidad_narrativas = {
+&"liderazgo_comunitario": 1.35,
+&"servicio": 1.25,
+&"identidad_origen": 1.2,
+&"superacion_adversidad": 1.15,
+&"pasion_investigativa": 1.05,
+&"emprendimiento": 1.0,
+&"mentoria": 1.15,
+&"disciplina_atletica": 0.9,
+&"expresion_artistica": 0.9,
+&"curiosidad_autodidacta": 0.95
+}
+fortalezas_carrera = {
+&"derecho": 1.0,
+&"ciencias_politicas": 1.0,
+&"economia": 0.95,
+&"negocios": 0.85,
+&"medicina": 0.9,
+&"ciencias_computacion": 0.8,
+&"finanzas": 0.85,
+&"psicologia": 0.85,
+&"ingenieria": 0.6,
+&"artes_comunicacion": 0.75
+}
+descripcion_cultura = "La escuela que más explícitamente busca futuros líderes con impacto público medible. Premia el logro sostenido y la trayectoria que ya cambió algo fuera del aula."

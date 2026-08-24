@@ -1,0 +1,23 @@
+[gd_resource type="Resource" script_class="CareerData" load_steps=2 format=3 uid="uid://e05d614c38a46d"]
+
+[ext_resource type="Script" path="res://scripts/resources/career_data.gd" id="1_car"]
+
+[resource]
+script = ExtResource("1_car")
+id = &"artes_comunicacion"
+nombre_display = "Artes y Comunicación"
+descripcion = "Producir obra y hacerla llegar. La disciplina de terminar cosas importa tanto como el talento."
+perfil_ideal = {
+&"habilidad_artistica": 85,
+&"aptitud_verbal": 70,
+&"curiosidad_intelectual": 70,
+&"profundidad_extracurricular": 70,
+&"red_social": 55,
+&"resiliencia": 60
+}
+tolerancia_desviacion = {
+&"habilidad_artistica": 18,
+&"profundidad_extracurricular": 25,
+&"aptitud_verbal": 32
+}
+datos_estadisticos = {}

@@ -1,0 +1,16 @@
+[gd_resource type="Resource" script_class="EssayNarrative" load_steps=2 format=3 uid="uid://fdd3300164c7e4"]
+
+[ext_resource type="Script" path="res://scripts/resources/essay_narrative.gd" id="1_ens"]
+
+[resource]
+script = ExtResource("1_ens")
+id = &"servicio"
+titulo = "Los martes en el comedor"
+texto_preview = "Cuatro años en el mismo lugar, sin fotos ni cargos. El ensayo trata de lo que aprendes cuando vuelves lo suficiente como para que te conozcan por tu nombre."
+modificadores_atributo = {
+&"impacto_comunitario": 18,
+&"resiliencia": 8,
+&"red_social": 6
+}
+narrativa_tipo = &"servicio"
+requisitos_desbloqueo = [{"tipo": "atributo_minimo", "atributo": &"impacto_comunitario", "valor": 35.0}]

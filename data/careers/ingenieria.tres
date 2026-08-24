@@ -1,0 +1,23 @@
+[gd_resource type="Resource" script_class="CareerData" load_steps=2 format=3 uid="uid://e6647a07582805"]
+
+[ext_resource type="Script" path="res://scripts/resources/career_data.gd" id="1_car"]
+
+[resource]
+script = ExtResource("1_car")
+id = &"ingenieria"
+nombre_display = "Ingeniería"
+descripcion = "Resolver problemas físicos con restricciones reales. Matemática aplicada más trabajo en equipo y tolerancia a que las cosas fallen."
+perfil_ideal = {
+&"aptitud_cuantitativa": 85,
+&"aptitud_cientifica": 75,
+&"rigor_academico": 75,
+&"gestion_tiempo": 60,
+&"resiliencia": 60,
+&"curiosidad_intelectual": 60
+}
+tolerancia_desviacion = {
+&"aptitud_cuantitativa": 18,
+&"aptitud_cientifica": 25,
+&"rigor_academico": 30
+}
+datos_estadisticos = {}

@@ -1,0 +1,17 @@
+[gd_resource type="Resource" script_class="EssayNarrative" load_steps=2 format=3 uid="uid://fc56d960856b69"]
+
+[ext_resource type="Script" path="res://scripts/resources/essay_narrative.gd" id="1_ens"]
+
+[resource]
+script = ExtResource("1_ens")
+id = &"mentoria"
+titulo = "El estudiante que no entendía fracciones"
+texto_preview = "Sobre enseñar a alguien que iba muy atrás, y descubrir que explicar bien exige entender mucho mejor de lo que creías."
+modificadores_atributo = {
+&"impacto_comunitario": 12,
+&"aptitud_verbal": 10,
+&"liderazgo": 10,
+&"red_social": 6
+}
+narrativa_tipo = &"mentoria"
+requisitos_desbloqueo = [{"tipo": "atributo_minimo", "atributo": &"impacto_comunitario", "valor": 30.0}]

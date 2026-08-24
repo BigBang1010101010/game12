@@ -1,0 +1,23 @@
+[gd_resource type="Resource" script_class="CareerData" load_steps=2 format=3 uid="uid://e3e05b7f10609f"]
+
+[ext_resource type="Script" path="res://scripts/resources/career_data.gd" id="1_car"]
+
+[resource]
+script = ExtResource("1_car")
+id = &"negocios"
+nombre_display = "Negocios"
+descripcion = "Coordinar personas y recursos hacia un resultado. La habilidad central es de trato y criterio, no técnica."
+perfil_ideal = {
+&"liderazgo": 80,
+&"red_social": 75,
+&"gestion_tiempo": 70,
+&"aptitud_cuantitativa": 60,
+&"impacto_comunitario": 50,
+&"rigor_academico": 60
+}
+tolerancia_desviacion = {
+&"liderazgo": 22,
+&"red_social": 25,
+&"gestion_tiempo": 30
+}
+datos_estadisticos = {}

@@ -1,0 +1,16 @@
+[gd_resource type="Resource" script_class="EssayNarrative" load_steps=2 format=3 uid="uid://faa7d3afc36489"]
+
+[ext_resource type="Script" path="res://scripts/resources/essay_narrative.gd" id="1_ens"]
+
+[resource]
+script = ExtResource("1_ens")
+id = &"expresion_artistica"
+titulo = "Lo que no podía decir hablando"
+texto_preview = "Sobre encontrar en una disciplina creativa la forma de decir algo que no te salía de otro modo, y sobre el oficio que exigió hacerlo bien."
+modificadores_atributo = {
+&"habilidad_artistica": 20,
+&"curiosidad_intelectual": 8,
+&"profundidad_extracurricular": 10
+}
+narrativa_tipo = &"expresion_artistica"
+requisitos_desbloqueo = [{"tipo": "atributo_minimo", "atributo": &"habilidad_artistica", "valor": 45.0}]

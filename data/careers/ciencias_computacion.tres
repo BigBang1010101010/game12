@@ -1,0 +1,22 @@
+[gd_resource type="Resource" script_class="CareerData" load_steps=2 format=3 uid="uid://e2deb358a9c11c"]
+
+[ext_resource type="Script" path="res://scripts/resources/career_data.gd" id="1_car"]
+
+[resource]
+script = ExtResource("1_car")
+id = &"ciencias_computacion"
+nombre_display = "Ciencias de la Computación"
+descripcion = "Abstracción y construcción de sistemas. Se aprende haciendo mucho más que escuchando."
+perfil_ideal = {
+&"aptitud_cuantitativa": 85,
+&"curiosidad_intelectual": 75,
+&"rigor_academico": 70,
+&"aptitud_investigacion": 60,
+&"gestion_tiempo": 55
+}
+tolerancia_desviacion = {
+&"aptitud_cuantitativa": 18,
+&"curiosidad_intelectual": 25,
+&"rigor_academico": 32
+}
+datos_estadisticos = {}
