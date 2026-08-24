@@ -2,6 +2,7 @@
 
 [ext_resource type="Script" path="res://scripts/player.gd" id="1_player"]
 [ext_resource type="Script" path="res://scripts/camera_controller.gd" id="2_camera"]
+[ext_resource type="Script" path="res://scripts/city_generator.gd" id="6_city"]
 [ext_resource type="Script" path="res://scripts/demo_interactable_box.gd" id="2_box"]
 [ext_resource type="Script" path="res://scripts/interactable.gd" id="3_interactable"]
 [ext_resource type="Script" path="res://scripts/draggable_box.gd" id="4_draggable"]
@@ -13,10 +14,10 @@ roughness = 0.95
 
 [sub_resource type="PlaneMesh" id="PlaneMesh_1"]
 material = SubResource("StandardMaterial3D_grass")
-size = Vector2(250, 250)
+size = Vector2(700, 700)
 
 [sub_resource type="BoxShape3D" id="BoxShape3D_1"]
-size = Vector3(250, 0.2, 250)
+size = Vector3(700, 0.2, 700)
 
 [sub_resource type="ProceduralSkyMaterial" id="ProceduralSkyMaterial_1"]
 
@@ -633,3 +634,6 @@ skeleton = NodePath("")
 [node name="CollisionShape3D" type="CollisionShape3D" parent="Tree18"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.8, 0)
 shape = SubResource("CylinderShape3D_r7q28")
+
+[node name="City" type="Node3D" parent="."]
+script = ExtResource("6_city")
