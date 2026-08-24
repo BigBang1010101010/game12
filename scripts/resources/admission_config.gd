@@ -42,6 +42,64 @@ class_name AdmissionConfig
 ## career's ideal profile.
 @export var peso_ajuste_carrera: float = 0.08
 
+## --- Activities ------------------------------------------------------------
+## Weeks of the school year an activity is actually practised. Turns hours
+## into years of continuity without any activity having to state its own
+## calendar.
+@export var semanas_por_anio_escolar: float = 36.0
+
+## Sticking with something pays. Each sustained year multiplies what that
+## activity is worth by this much more, up to the cap below - the shape of
+## "four years of the same thing beats four different things", which is what
+## admissions offices say they read for.
+@export var continuidad_bonus_por_anio: float = 0.18
+@export var continuidad_anios_tope: float = 4.0
+
+## Total hours a week the player has to spend on everything.
+@export var horas_semana_totales: int = 35
+
+## atributo_id -> points lost per week, per hour of overcommitment. This is
+## burnout: taking on more than the week holds costs something real. Kept as
+## data so which attributes suffer is a content decision, not a code one.
+@export var penalizacion_sobrecompromiso: Dictionary = {}
+
+## How many activities reach the application at all. The real Common App has
+## ten slots; everything else the player did still happened, it just never
+## gets read.
+@export var slots_common_app: int = 10
+
+## Impact figure that counts as "a lot" when ranking activities for those
+## slots (people reached, dollars raised, papers published...).
+@export var impacto_referencia: float = 500.0
+
+## Maximum fit contribution from the activities on the application matching
+## the career applied to, and the summed affinity that counts as full
+## strength.
+@export var peso_actividades: float = 0.14
+@export var actividad_afinidad_referencia: float = 4.0
+
+## What being a recruitable athlete is worth, as a fit term of its own. Large
+## on purpose: recruitment is the single biggest lever in Ivy admissions, and
+## it is also the most gated - see academic_index_minimo on each sport.
+@export var bonus_atletico: float = 0.55
+
+## --- Academic Index --------------------------------------------------------
+## Which attribute category the Academic Index is built from. A pointer into
+## data, so an academic attribute added later is picked up automatically.
+@export var categoria_academica: StringName = &"academico"
+
+## Floor a recruited athlete must clear for the athletic route to open, and
+## the floor below which a regular applicant is at a severe disadvantage.
+## Both on the real 60-240 scale (see academic_index.gd).
+@export var umbral_indice_atletico: float = 176.0
+@export var umbral_indice_competitivo: float = 210.0
+
+## Weight and shape of the penalty for falling under the relevant threshold.
+## Convex like the attribute thresholds: just under is survivable, far under
+## is not.
+@export var peso_indice: float = 0.45
+@export var exponente_indice: float = 1.6
+
 ## --- Output ----------------------------------------------------------------
 ## Hard ceiling on the returned probability. Never 1.0: admission is never
 ## certain, and a UI showing 100% would be lying.
@@ -65,4 +123,12 @@ func validar() -> PackedStringArray:
 		problemas.append("probabilidad_maxima debe ser < 1.0: la admision nunca es segura")
 	if probabilidad_minima < 0.0 or probabilidad_minima >= probabilidad_maxima:
 		problemas.append("probabilidad_minima fuera de rango")
+	if semanas_por_anio_escolar <= 0.0:
+		problemas.append("semanas_por_anio_escolar debe ser > 0")
+	if horas_semana_totales <= 0:
+		problemas.append("horas_semana_totales debe ser > 0")
+	if slots_common_app <= 0:
+		problemas.append("slots_common_app debe ser > 0")
+	if umbral_indice_atletico > umbral_indice_competitivo:
+		problemas.append("umbral_indice_atletico deberia ser menor que umbral_indice_competitivo")
 	return problemas

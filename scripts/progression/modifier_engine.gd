@@ -16,7 +16,10 @@ extends Node
 ##  delta_efectivo     after curve and synergies, before caps
 ##  delta_aplicado     after clamping to [0, valor_maximo]
 ##  valor_antes / valor_despues
-func evaluar(atributo_id: StringName, delta_crudo: float, valor_actual: float) -> Dictionary:
+## `valores` lets a caller evaluate against a HYPOTHETICAL profile instead of
+## the live player - the calibration lab and the test suite pass one. Empty
+## means "use the real player", which is what gameplay does.
+func evaluar(atributo_id: StringName, delta_crudo: float, valor_actual: float, valores: Dictionary = {}) -> Dictionary:
 	var definicion: AttributeDefinition = AttributeRegistry.get_definition(atributo_id)
 	if not definicion:
 		push_error("ModifierEngine: atributo desconocido '%s'" % atributo_id)
@@ -38,7 +41,9 @@ func evaluar(atributo_id: StringName, delta_crudo: float, valor_actual: float) -
 				# content error, not a crash: skip it and say so.
 				push_warning("SynergyRule '%s' referencia el atributo inexistente '%s'" % [regla.id, regla.atributo_origen])
 				continue
-			var valor_origen: float = PlayerState.obtener_valor(regla.atributo_origen)
+			var valor_origen: float = (float(valores[regla.atributo_origen])
+				if valores.has(regla.atributo_origen)
+				else PlayerState.obtener_valor(regla.atributo_origen))
 			var m: float = regla.multiplicador(valor_origen, origen.valor_maximo)
 			if not is_equal_approx(m, 1.0):
 				mult_sinergia *= m

@@ -17,3 +17,23 @@ peso_ajuste_carrera = 0.08
 probabilidad_maxima = 0.94
 probabilidad_minima = 0.001
 factor_aleatoriedad = 0.08
+semanas_por_anio_escolar = 36.0
+continuidad_bonus_por_anio = 0.18
+continuidad_anios_tope = 4.0
+horas_semana_totales = 35
+; Burnout: quien se sobrecompromete paga en bienestar y en gestion del tiempo.
+; Que atributos sufren es dato, no codigo.
+penalizacion_sobrecompromiso = {
+&"bienestar": 0.5,
+&"gestion_tiempo": 0.25
+}
+slots_common_app = 10
+impacto_referencia = 500.0
+peso_actividades = 0.14
+actividad_afinidad_referencia = 4.0
+bonus_atletico = 0.55
+categoria_academica = &"academico"
+umbral_indice_atletico = 176.0
+umbral_indice_competitivo = 210.0
+peso_indice = 0.45
+exponente_indice = 1.6

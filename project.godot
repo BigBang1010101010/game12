@@ -82,7 +82,13 @@ PlayerState="*res://scripts/progression/player_state.gd"
 UniversityRegistry="*res://scripts/registries/university_registry.gd"
 CareerRegistry="*res://scripts/registries/career_registry.gd"
 EssayRegistry="*res://scripts/registries/essay_registry.gd"
+ActivityRegistry="*res://scripts/registries/activity_registry.gd"
 AdmissionCalculator="*res://scripts/progression/admission_calculator.gd"
+; AcademicIndex reads the config that AdmissionCalculator owns, and
+; ActivityTracker asks AcademicIndex whether an athlete is recruitable,
+; so the three come in that order.
+AcademicIndex="*res://scripts/progression/academic_index.gd"
+ActivityTracker="*res://scripts/progression/activity_tracker.gd"
 SaveSystem="*res://scripts/progression/save_system.gd"
 AdmissionsLab="*res://scripts/debug/admissions_lab_toggle.gd"
 Inventory="*res://scripts/inventory.gd"

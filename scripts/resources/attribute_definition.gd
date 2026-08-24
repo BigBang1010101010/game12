@@ -28,6 +28,12 @@ class_name AttributeDefinition
 
 ## How much of this attribute is lost per in-game DAY when it is not
 ## reinforced. Models skills that need sustained practice. 0 = never decays.
+## Weight this attribute carries inside the Academic Index, for attributes in
+## the academic category. 1.0 means "one full component of the index"; 0.0
+## keeps an academic attribute out of it entirely. Ignored outside that
+## category, so every other attribute can leave it alone.
+@export var peso_indice_academico: float = 1.0
+
 @export var tasa_decaimiento: float = 0.0
 
 ## Diminishing returns, applied by ModifierEngine.

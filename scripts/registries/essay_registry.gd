@@ -33,13 +33,7 @@ func requisitos_faltantes(ensayo: EssayNarrative, tiempo_por_actividad: Dictiona
 	return faltantes
 
 func _cumple(requisito: Dictionary, tiempo_por_actividad: Dictionary, hitos: Array) -> bool:
-	match String(requisito.get("tipo", "")):
-		"atributo_minimo":
-			return PlayerState.obtener_valor(requisito.get("atributo", &"")) >= float(requisito.get("valor", 0.0))
-		"tiempo_minimo":
-			return float(tiempo_por_actividad.get(requisito.get("actividad", &""), 0.0)) >= float(requisito.get("cantidad", 0.0))
-		"hito":
-			return hitos.has(requisito.get("hito", &""))
-		_:
-			push_error("EssayRegistry: tipo de requisito desconocido '%s'" % requisito.get("tipo", ""))
-			return false
+	# Shared with activities, which gate themselves with the same vocabulary.
+	return RequirementChecker.cumple(requisito, {
+		"tiempo_por_actividad": tiempo_por_actividad, "hitos": hitos,
+	})
