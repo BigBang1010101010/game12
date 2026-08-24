@@ -106,12 +106,6 @@ func _spawn_model() -> void:
 	_model = packed.instantiate()
 	_model.name = "BikeModel"
 	_model.scale = Vector3.ONE * MODEL_SCALE
-	# Put the wheels on the GROUND, not on this body's origin. The collision
-	# capsule is centred on the origin, so when the bike rests on the floor the
-	# origin floats half a capsule above it - measured, the wheels sat exactly
-	# 0.5500 above the floor with the old fixed +0.304 offset, which assumed
-	# the origin was at ground level. Reading the capsule's real half-height
-	# here keeps this correct if the collider is ever resized.
 	# Drop the model so the WHEELS meet the ground, rather than leaving its
 	# origin on this body's origin. The collision capsule is centred on that
 	# origin, so when the bike rests on the floor the origin floats half a
