@@ -41,6 +41,14 @@ var shift_held := false
 var escaped := false
 var dragged_body: RigidBody3D = null
 var drag_plane_y := 0.0
+## Latest mouse position while dragging. Only _physics_process actually
+## writes dragged_body's position (see _update_drag) - _unhandled_input just
+## records where the mouse is, so the RigidBody3D's transform is only ever
+## touched from the same loop the physics engine itself steps on. Setting it
+## straight from input events (which fire asynchronously, not on the physics
+## tick) fights the physics server's own per-step handling of the frozen
+## body and is what caused the drag to stutter.
+var _drag_mouse_pos := Vector2.ZERO
 
 @onready var camera_yaw: Node3D = $CameraYaw
 @onready var camera_pitch: Node3D = $CameraYaw/CameraPitch
@@ -75,7 +83,7 @@ func _unhandled_input(event: InputEvent) -> void:
 			else:
 				_stop_drag()
 		elif event is InputEventMouseMotion and dragged_body:
-			_update_drag(event.position)
+			_drag_mouse_pos = event.position
 		return
 
 	if event is InputEventMouseMotion and Input.mouse_mode == Input.MOUSE_MODE_CAPTURED:
@@ -124,7 +132,7 @@ func _try_start_drag(mouse_pos: Vector2) -> void:
 	dragged_body = collider
 	drag_plane_y = dragged_body.global_position.y
 	dragged_body.freeze = true
-	_update_drag(mouse_pos)
+	_drag_mouse_pos = mouse_pos
 
 ## Moves the currently dragged body to wherever the camera ray now crosses
 ## the drag plane, so it tracks the mouse cursor.
@@ -167,6 +175,9 @@ func _physics_process(delta: float) -> void:
 	move_and_slide()
 	_update_model_facing(direction, delta)
 	_update_animation()
+
+	if dragged_body:
+		_update_drag(_drag_mouse_pos)
 
 func _update_model_facing(direction: Vector3, delta: float) -> void:
 	if not character_model or direction == Vector3.ZERO:
