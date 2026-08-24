@@ -40,18 +40,25 @@ const ANIM_PATHS := {
 ## not the borrowed-pose's raised arms) before this was relied on.
 const ARM_CHAIN_SIDES := ["Left", "Right"]
 
+## Run's arm chain previously used an animated (per-sample) retarget of the
+## source clip's own arm swing, but that path had two separate bugs (an
+## axis-convention mismatch, then a seek()-without-play() no-op) each of
+## which produced a visibly broken pose despite passing numeric checks. To
+## stop that class of bug for good, every clip - including run - now uses
+## the same static "arms down" reference already proven correct by repeated
+## rendering: arms just hang at the sides instead of swinging while running.
+## Legs/torso still animate normally from run's own data (untouched, never
+## the source of a reported visual bug).
 static func build_animation_player(skeleton: Skeleton3D) -> AnimationPlayer:
 	var bone_names := {}
 	for i in skeleton.get_bone_count():
 		bone_names[skeleton.get_bone_name(i)] = true
 
 	var static_arms_down := _compute_arms_down_reference(skeleton)
-	var run_arm_animated := _compute_run_arm_animated_reference(skeleton)
 
 	var library := AnimationLibrary.new()
 	for anim_name in ANIM_PATHS:
-		var override := run_arm_animated if anim_name == "run" else static_arms_down
-		var anim := _load_and_retarget(ANIM_PATHS[anim_name], bone_names, skeleton, override)
+		var anim := _load_and_retarget(ANIM_PATHS[anim_name], bone_names, skeleton, static_arms_down)
 		if anim:
 			library.add_animation(anim_name, anim)
 
@@ -94,112 +101,10 @@ static func _compute_arms_down_reference(skeleton: Skeleton3D) -> Dictionary:
 
 	return result
 
-## "run" is the one clip with real arm-swing data (measured directly from
-## its own raw keyframes: 51-91 degrees of genuine motion, vs. idle/jump's
-## 1-8 degrees), so unlike idle/jump it can't just hold a fixed pose - but
-## naively retargeting it with the plain delta-quaternion formula (see
-## _load_and_retarget) looked visibly wrong once actually rendered: elbows
-## bending up toward the head instead of a natural running arm swing, even
-## though the numeric rotation *magnitude* matched the source. The
-## quaternion delta only corrects for source and target disagreeing on
-## what "zero rotation" is - it does NOT correct for source and target
-## disagreeing on which axis a bone's local rotation happens around, and
-## that mismatch is invisible at idle/jump's few-degree motions but very
-## visible at run's 50-90 degree swings.
-##
-## Fix: resample the SOURCE's own posed arm/forearm/hand positions across
-## the whole cycle - letting Godot's normal scene-tree FK do the work via
-## the source clip's own embedded AnimationPlayer - and at each sample
-## point, use the same world-direction-matching technique as
-## _compute_arms_down_reference to compute what LOCAL target rotation
-## makes the target bone point the same real-world direction the source's
-## bone is *actually* pointing at that moment. This is immune to the
-## axis-convention mismatch because it never compares raw quaternions
-## between the two rigs - only 3D positions, in a shared world frame.
-static func _compute_run_arm_animated_reference(skeleton: Skeleton3D) -> Dictionary:
-	var packed: PackedScene = load(ANIM_PATHS["run"])
-	var instance := packed.instantiate()
-	Engine.get_main_loop().root.add_child(instance)
-	var source_player := _find_animation_player(instance)
-	var source_anim_name := _find_real_animation_name(source_player)
-	var result := {}
-	if source_anim_name == "":
-		instance.queue_free()
-		return result
-	# seek() only advances a playback that's actually assigned (via play());
-	# without this, every seek() below is a no-op and every sample reads the
-	# same untouched node transform (whatever the glTF importer set as each
-	# node's default transform, not any real point in the run cycle) -
-	# confirmed by dumping the built "run" animation's own keys, which showed
-	# all 25 arm/forearm keyframes holding one identical bent quaternion for
-	# the whole clip instead of animating, matching a real gameplay
-	# screenshot of the arm frozen wrapped across the torso mid-stride.
-	source_player.play(source_anim_name)
-	var source_anim := source_player.get_animation(source_anim_name)
-	if not source_anim:
-		instance.queue_free()
-		return result
-
-	var rest_dirs := {}
-	for side in ARM_CHAIN_SIDES:
-		var arm_idx := skeleton.find_bone(side + "Arm")
-		var forearm_idx := skeleton.find_bone(side + "ForeArm")
-		var hand_idx := skeleton.find_bone(side + "Hand")
-		if arm_idx < 0 or forearm_idx < 0 or hand_idx < 0:
-			continue
-		var arm_rest: Transform3D = skeleton.get_bone_global_rest(arm_idx)
-		var forearm_rest: Transform3D = skeleton.get_bone_global_rest(forearm_idx)
-		var hand_rest: Transform3D = skeleton.get_bone_global_rest(hand_idx)
-		rest_dirs[side] = {
-			"arm_idx": arm_idx, "arm_rest": arm_rest, "arm_dir": (forearm_rest.origin - arm_rest.origin).normalized(),
-			"forearm_rest": forearm_rest, "forearm_dir": (hand_rest.origin - forearm_rest.origin).normalized(),
-		}
-
-	# _point_arm_at expects both the "from" and "to" directions in the same
-	# space; arm_dir/forearm_dir above are skeleton-local (from
-	# get_bone_global_rest), so the source's world-space directions need
-	# the same world->skeleton-local conversion _compute_arms_down_reference
-	# uses.
-	var world_to_skel: Basis = skeleton.global_transform.basis.inverse()
-
-	var samples := 24
-	for side in ARM_CHAIN_SIDES:
-		result[side + "Arm"] = {"times": PackedFloat32Array(), "quats": []}
-		result[side + "ForeArm"] = {"times": PackedFloat32Array(), "quats": []}
-
-	for si in range(samples + 1):
-		var t: float = source_anim.length * float(si) / float(samples)
-		source_player.seek(t, true)
-
-		for side in ARM_CHAIN_SIDES:
-			var arm_node := instance.find_child(side + "Arm", true, false)
-			var forearm_node := instance.find_child(side + "ForeArm", true, false)
-			var hand_node := instance.find_child(side + "Hand", true, false)
-			if not arm_node or not forearm_node or not hand_node:
-				continue
-			var arm_world_dir: Vector3 = (forearm_node.global_transform.origin - arm_node.global_transform.origin).normalized()
-			var forearm_world_dir: Vector3 = (hand_node.global_transform.origin - forearm_node.global_transform.origin).normalized()
-			var arm_target: Vector3 = (world_to_skel * arm_world_dir).normalized()
-			var forearm_target: Vector3 = (world_to_skel * forearm_world_dir).normalized()
-
-			var rd: Dictionary = rest_dirs[side]
-			var pose := _point_arm_at(
-				skeleton, rd["arm_idx"], rd["arm_rest"], rd["arm_dir"], rd["forearm_rest"], rd["forearm_dir"],
-				arm_target, forearm_target
-			)
-			result[side + "Arm"]["times"].append(t)
-			result[side + "Arm"]["quats"].append(pose[0])
-			result[side + "ForeArm"]["times"].append(t)
-			result[side + "ForeArm"]["quats"].append(pose[1])
-
-	instance.queue_free()
-	return result
-
-## Shared math for both the static (arms-down) and animated (run) cases:
-## given the upper arm's and forearm's own rest-pose direction vectors
-## (skeleton-local space) and two TARGET directions to point them at
-## (already in skeleton-local space, or world space - see below), returns
-## [arm_local_rotation, forearm_local_rotation].
+## Shared math for the static "arms down" case: given the upper arm's and
+## forearm's own rest-pose direction vectors (skeleton-local space) and two
+## TARGET directions to point them at (already in skeleton-local space),
+## returns [arm_local_rotation, forearm_local_rotation].
 static func _point_arm_at(
 	skeleton: Skeleton3D, arm_idx: int, arm_rest: Transform3D, arm_dir: Vector3,
 	forearm_rest: Transform3D, forearm_dir: Vector3, arm_target_dir: Vector3, forearm_target_dir: Vector3
@@ -267,16 +172,6 @@ static func _load_and_retarget(path: String, bone_names: Dictionary, skeleton: S
 
 		var override_value: Variant = arm_pose_override.get(bone_name) if ttype == Animation.TYPE_ROTATION_3D else null
 
-		if override_value is Dictionary:
-			# Animated override (run's arm chain): replace this track's
-			# keys entirely with the pre-sampled world-direction-matched
-			# ones, ignoring the source's own (axis-mismatched) keys.
-			var times: PackedFloat32Array = override_value["times"]
-			var quats: Array = override_value["quats"]
-			for i in range(times.size()):
-				out.rotation_track_insert_key(new_track, times[i], quats[i])
-			continue
-
 		for ki in source_anim.track_get_key_count(ti):
 			var t: float = source_anim.track_get_key_time(ti, ki)
 			var v = source_anim.track_get_key_value(ti, ki)
@@ -315,20 +210,6 @@ static func _find_real_animation(player: AnimationPlayer) -> Animation:
 			if not anim_name.contains("Targeting"):
 				return lib.get_animation(anim_name)
 	return null
-
-## Same lookup as _find_real_animation, but returns the qualified name
-## (library-prefixed, as AnimationPlayer.play() expects) instead of the
-## Animation resource, so callers that need to seek() a real playback (which
-## requires an assigned/playing animation, not just the resource) can do so.
-static func _find_real_animation_name(player: AnimationPlayer) -> String:
-	if not player:
-		return ""
-	for lib_name in player.get_animation_library_list():
-		var lib := player.get_animation_library(lib_name)
-		for anim_name in lib.get_animation_list():
-			if not anim_name.contains("Targeting"):
-				return (lib_name + "/" + anim_name) if lib_name != "" else anim_name
-	return ""
 
 static func find_skeleton(n: Node) -> Skeleton3D:
 	if n is Skeleton3D:
