@@ -153,8 +153,23 @@ func set_mounted(vehicle: Node3D) -> void:
 			var idx := skeleton.find_bone(bone_name)
 			if idx >= 0:
 				skeleton.reset_bone_pose(idx)
-	if character_model:
-		character_model.rotation.x = deg_to_rad(RIDING_LEAN_DEGREES) if vehicle else 0.0
+	if vehicle:
+		if character_model:
+			character_model.rotation.x = deg_to_rad(RIDING_LEAN_DEGREES)
+	else:
+		# Getting off has to leave the character perfectly upright, whatever
+		# posture the vehicle had it in. Two separate tilts are in play while
+		# riding and BOTH are written from outside this script: the forward
+		# lean on X set above, and the roll on Z that the bike writes every
+		# frame from its turn lean (_carry_rider). Only heading survives, so
+		# the yaw is left alone and the other two axes are forced to zero -
+		# on the model and on the body itself, since a vehicle is free to
+		# tilt either one.
+		if character_model:
+			character_model.rotation.x = 0.0
+			character_model.rotation.z = 0.0
+		rotation.x = 0.0
+		rotation.z = 0.0
 
 ## Poses the rider on a bike. `pedal_phase` is in radians and advances with
 ## the vehicle's speed, so the legs pedal faster the faster it goes; the two
