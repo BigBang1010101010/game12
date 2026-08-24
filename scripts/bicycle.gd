@@ -20,15 +20,18 @@ class_name Bicycle
 ## needs no yaw correction), wheel bottoms at y=-0.950, saddle centre at
 ## (0, 1.774, 1.254).
 const MODEL_SCALE := 0.32
-## Lifts the model so the wheels sit on the ground: 0.950 * MODEL_SCALE.
-const MODEL_GROUND_OFFSET := 0.304
+## Distance from the model's own origin down to the bottom of its wheels:
+## 0.950 * MODEL_SCALE.
+const MODEL_WHEEL_DROP := 0.950 * MODEL_SCALE
 ## Where to place the rider's origin so they sit ON the saddle rather than
-## sunk into it. Derived by measurement, not by assuming the player's origin
-## is its hips: with the origin placed exactly at the saddle centre
-## (0, 0.872, 0.401) the rider's Hips bone measured 0.191 lower and 0.067
-## further forward than the saddle, so the offset is corrected by that much.
-## The feet then hover around pedal height instead of dragging on the road.
-const SEAT_OFFSET := Vector3(0.0, 1.09, 0.47)
+## sunk into it. Measured against the MODEL's origin, not this body's, so that
+## moving the model (as the ground-contact fix does) carries the rider with it
+## instead of leaving them hanging in the air.
+## Derived by measurement, not by assuming the player's origin is its hips:
+## with the origin placed exactly at the saddle centre the rider's Hips bone
+## measured 0.191 lower and 0.067 further forward than the saddle, so the
+## offset is corrected by that much.
+const SEAT_OFFSET_FROM_MODEL := Vector3(0.0, 0.786, 0.47)
 
 ## Cruising speed, about 2x the player's 5.0 walk.
 const SPEED := 10.0
@@ -103,9 +106,30 @@ func _spawn_model() -> void:
 	_model = packed.instantiate()
 	_model.name = "BikeModel"
 	_model.scale = Vector3.ONE * MODEL_SCALE
-	_model.position.y = MODEL_GROUND_OFFSET
+	# Put the wheels on the GROUND, not on this body's origin. The collision
+	# capsule is centred on the origin, so when the bike rests on the floor the
+	# origin floats half a capsule above it - measured, the wheels sat exactly
+	# 0.5500 above the floor with the old fixed +0.304 offset, which assumed
+	# the origin was at ground level. Reading the capsule's real half-height
+	# here keeps this correct if the collider is ever resized.
+	# Drop the model so the WHEELS meet the ground, rather than leaving its
+	# origin on this body's origin. The collision capsule is centred on that
+	# origin, so when the bike rests on the floor the origin floats half a
+	# capsule above it: measured, the wheels sat exactly 0.5500 above the floor
+	# with the old fixed +0.304. Wheel bottom = origin + offset - wheel drop,
+	# and it needs to equal the capsule's bottom, so offset = wheel drop minus
+	# half the capsule. Read from the shape so it stays right if it is resized.
+	_model.position.y = MODEL_WHEEL_DROP - _capsule_half_height()
 	add_child(_model)
 	call_deferred("_cache_wheels")
+
+## Half the height of this body's collision capsule, i.e. how far its lowest
+## point sits below the origin.
+func _capsule_half_height() -> float:
+	var collision := get_node_or_null("CollisionShape3D") as CollisionShape3D
+	if collision and collision.shape is CapsuleShape3D:
+		return (collision.shape as CapsuleShape3D).height * 0.5
+	return 0.55
 
 ## Finds the wheel nodes and works out which axis, in each wheel's own local
 ## space, corresponds to the bike's left-right axis - that is the axle they
@@ -269,7 +293,7 @@ func _drive(delta: float) -> void:
 
 ## Keeps the rider glued to the saddle, matching the bike's heading.
 func _carry_rider() -> void:
-	rider.global_position = global_position + global_transform.basis * SEAT_OFFSET
+	rider.global_position = get_seat_position()
 	rider.velocity = Vector3.ZERO
 	if rider.has_method("face_direction"):
 		rider.face_direction(-global_transform.basis.z)
@@ -278,6 +302,12 @@ func _carry_rider() -> void:
 		rider.apply_riding_pose(_pedal_phase)
 	if rider.character_model:
 		rider.character_model.rotation.z = _lean
+
+## World position the rider's origin is placed at, anchored to the model so it
+## tracks the bike's visuals rather than its collision origin.
+func get_seat_position() -> Vector3:
+	var base: Vector3 = _model.global_position if _model else global_position
+	return base + global_transform.basis * SEAT_OFFSET_FROM_MODEL
 
 func get_speed() -> float:
 	return _speed

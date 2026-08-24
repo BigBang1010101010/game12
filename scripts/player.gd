@@ -86,8 +86,8 @@ const RIDING_LEAN_DEGREES := 24.0
 ## stop() both leave it doing that (child moved 0.019 and 0.025), and only
 ## `active = false` actually releases the skeleton (child moved 0.360).
 ## LowerLeg.L is a real child of UpperLeg.L and Palm.L of LowerArm.L, so both
-## chains are ordinary FK. Only Foot.L is a separate IK target, which is why
-## the feet do not follow the shins.
+## chains are ordinary FK. Foot.L/R are the exception - they hang off the root
+## bone instead - so they are driven explicitly (see _attach_foot).
 const RIDE_HIP_BASE := -52.0      # thigh swung forward toward the pedals
 const RIDE_HIP_SWING := 20.0      # pedal cycle amplitude
 const RIDE_KNEE_BASE := 58.0      # knee bent
@@ -95,8 +95,14 @@ const RIDE_KNEE_SWING := 26.0
 const RIDE_SHOULDER := -80.0      # arms swung down-forward toward the bars
 const RIDE_ELBOW := 24.0          # elbows bent, not locked straight
 
+## Ankle tilt while pedalling, in degrees: a base angle plus a small rock
+## back and forth, the way a foot pivots on a pedal.
+const RIDE_ANKLE_BASE := -18.0
+const RIDE_ANKLE_SWING := 12.0
+
 const RIDE_BONES := ["UpperLeg.L", "UpperLeg.R", "LowerLeg.L", "LowerLeg.R",
-	"UpperArm.L", "UpperArm.R", "LowerArm.L", "LowerArm.R"]
+	"UpperArm.L", "UpperArm.R", "LowerArm.L", "LowerArm.R",
+	"Foot.L", "Foot.R"]
 
 ## Bone the held item hangs off. Read from the model's own skeleton, where
 ## the right hand is "Palm.R" (index 23, parented to LowerArm.R).
@@ -141,6 +147,8 @@ func set_mounted(vehicle: Node3D) -> void:
 	if not vehicle:
 		_handlebar_target = null
 	if not vehicle and skeleton:
+		# reset_bone_pose clears position as well as rotation, which matters
+		# for the feet: they are the only bones whose POSITION is overridden.
 		for bone_name in RIDE_BONES:
 			var idx := skeleton.find_bone(bone_name)
 			if idx >= 0:
@@ -161,6 +169,15 @@ func apply_riding_pose(pedal_phase: float) -> void:
 	# Knees bend most when the thigh is up, so they run a quarter cycle out.
 	_set_bone_x("LowerLeg.L", RIDE_KNEE_BASE + RIDE_KNEE_SWING * sin(pedal_phase - PI * 0.5))
 	_set_bone_x("LowerLeg.R", RIDE_KNEE_BASE + RIDE_KNEE_SWING * sin(pedal_phase + PI * 0.5))
+
+	# The feet are NOT part of the leg chain on this rig: Foot.L/R hang off the
+	# root bone "Bone", not off LowerLeg. Rotating the hip and knee therefore
+	# swung the shin around a completely stationary foot - measured, the foot
+	# moved 0.0000 units across a full pedal cycle while the shin's end moved
+	# 0.5946, and the ankle gap between them swung from 0.139 to 0.581. So each
+	# foot is placed explicitly at the end of its own shin every frame.
+	_attach_foot("Foot.L", "LowerLeg.L_end", pedal_phase)
+	_attach_foot("Foot.R", "LowerLeg.R_end", pedal_phase + PI)
 	# Arms are AIMED at the handlebar rather than set to a fixed angle.
 	# Rotating the shoulder about a single axis cannot reach it: measured, X
 	# only raises the hand (at -80 degrees it still sat at z=+0.59 while the
@@ -177,6 +194,27 @@ func apply_riding_pose(pedal_phase: float) -> void:
 		_set_bone_x("UpperArm.R", RIDE_SHOULDER)
 		_set_bone_x("LowerArm.L", RIDE_ELBOW)
 		_set_bone_x("LowerArm.R", RIDE_ELBOW)
+
+## Moves a foot bone to sit at the end of its shin and tilts it like a foot
+## resting on a pedal. Position is set as well as rotation, because the bone
+## is parented outside the leg chain and so inherits none of the leg's motion.
+func _attach_foot(foot_name: String, shin_end_name: String, phase: float) -> void:
+	var foot := skeleton.find_bone(foot_name)
+	var shin_end := skeleton.find_bone(shin_end_name)
+	if foot < 0 or shin_end < 0:
+		return
+	skeleton.force_update_all_bone_transforms()
+	var target: Transform3D = skeleton.get_bone_global_pose(shin_end)
+	var parent := skeleton.get_bone_parent(foot)
+	var parent_pose := Transform3D.IDENTITY
+	if parent >= 0:
+		parent_pose = skeleton.get_bone_global_pose(parent)
+	# Bone poses are parent-relative, so the target has to come back into the
+	# foot's own parent space before being written.
+	skeleton.set_bone_pose_position(foot, parent_pose.affine_inverse() * target.origin)
+	var rest_rot: Quaternion = skeleton.get_bone_rest(foot).basis.get_rotation_quaternion()
+	var tilt := Quaternion(Vector3(1, 0, 0), deg_to_rad(RIDE_ANKLE_BASE + RIDE_ANKLE_SWING * sin(phase)))
+	skeleton.set_bone_pose_rotation(foot, rest_rot * tilt)
 
 ## Rotates `bone` so the segment running to `child` points at a world-space
 ## target. Same shortest-arc aiming used elsewhere in this project: it works
