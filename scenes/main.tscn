@@ -355,7 +355,7 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 3.3, 0)
 shape = SubResource("BoxShape3D_roof")
 
 [node name="Player" type="CharacterBody3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 0)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 50, 1, 44)
 script = ExtResource("1_player")
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="Player"]
@@ -663,7 +663,7 @@ shape = SubResource("CylinderShape3D_r7q28")
 script = ExtResource("6_city")
 
 [node name="Bicycle" type="CharacterBody3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 44, 0.55, 44)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 47, 0.55, 43)
 script = ExtResource("7_bike")
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="Bicycle"]
