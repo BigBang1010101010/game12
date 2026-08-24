@@ -21,19 +21,31 @@ const ANIM_PATHS := {
 ## clip lands on the target skeleton's rest pose by construction (see
 ## _load_and_retarget's comment), "barely moves from frame 0" here means
 ## "barely moves from T-pose" - the character's arms visibly stay near
-## T-pose for the whole clip, not just a brief moment. run.glb is the one
-## clip with real arm-swing data (51-91 degrees of genuine motion), so its
-## own mid-cycle pose is borrowed as a static substitute for idle/jump's
-## arm bones specifically - everything else in idle/jump (spine, hips,
-## head, legs) keeps using that clip's own (real, if subtle) keyframes.
-const ARM_CHAIN_BONES := ["LeftArm", "LeftForeArm", "RightArm", "RightForeArm"]
+## T-pose for the whole clip, not just a brief moment.
+##
+## A first attempt at a fix borrowed a fixed pose from run.glb's own
+## mid-cycle keyframe (the one clip with real arm-swing data) as a static
+## substitute for idle/jump's arms. That was wrong in a way the earlier
+## purely-numeric verification missed: a rendered screenshot showed both
+## arms bent sharply with hands raised near the head - visually broken,
+## just differently from T-pose, because "some arbitrary moment in a
+## running swing" isn't a resting pose. (Angle-from-rest was substantial,
+## which is all that check measured, so it passed anyway.)
+##
+## This instead derives a real resting pose geometrically, with no
+## borrowed animation data: rotate each upper arm (and forearm, kept
+## in line with it) so it points straight down in WORLD space, based on
+## the bone's own rest-pose direction vector. Confirmed by rendering an
+## actual screenshot of the result (arms hanging naturally at the sides,
+## not the borrowed-pose's raised arms) before this was relied on.
+const ARM_CHAIN_SIDES := ["Left", "Right"]
 
 static func build_animation_player(skeleton: Skeleton3D) -> AnimationPlayer:
 	var bone_names := {}
 	for i in skeleton.get_bone_count():
 		bone_names[skeleton.get_bone_name(i)] = true
 
-	var arm_pose_override := _compute_run_arm_reference(bone_names, skeleton)
+	var arm_pose_override := _compute_arms_down_reference(skeleton)
 
 	var library := AnimationLibrary.new()
 	for anim_name in ANIM_PATHS:
@@ -47,53 +59,50 @@ static func build_animation_player(skeleton: Skeleton3D) -> AnimationPlayer:
 	player.add_animation_library("", library)
 	return player
 
-## Retargets run.glb's arm-chain bones only, at its own mid-cycle timestamp
-## (roughly the midpoint between a forward and backward swing extreme, a
-## reasonable stand-in for a neutral arm position), through the same
-## delta-from-frame-0 formula _load_and_retarget uses. Returns bone_name ->
-## final retargeted Quaternion.
-static func _compute_run_arm_reference(bone_names: Dictionary, skeleton: Skeleton3D) -> Dictionary:
-	var packed: PackedScene = load(ANIM_PATHS["run"])
-	var instance := packed.instantiate()
-	var source_player := _find_animation_player(instance)
-	var source_anim := _find_real_animation(source_player)
+## Returns bone_name -> LOCAL (parent-relative) rotation Quaternion, for
+## LeftArm/RightArm/LeftForeArm/RightForeArm, that makes each upper arm
+## (and its forearm, kept straight in line) point straight down in world
+## space. get_bone_global_rest()/global_pose() are relative to the
+## SKELETON node's own local space, not world space - and this skeleton's
+## "Root" ancestor carries an axis-swap rotation from the FBX conversion
+## (not just its 100x scale: its basis maps local Y to world -Z and local
+## Z to world Y), so "world down" is converted into skeleton-local space
+## via skeleton.global_transform before comparing against any rest-pose
+## direction vectors, which are already in that same local space.
+static func _compute_arms_down_reference(skeleton: Skeleton3D) -> Dictionary:
 	var result := {}
-	if not source_anim:
-		instance.queue_free()
-		return result
+	var world_to_skel: Basis = skeleton.global_transform.basis.inverse()
+	var target_dir: Vector3 = (world_to_skel * Vector3(0, -1, 0)).normalized()
 
-	var mid_time := source_anim.length * 0.5
-	for ti in range(source_anim.get_track_count()):
-		if source_anim.track_get_type(ti) != Animation.TYPE_ROTATION_3D:
-			continue
-		var track_path := str(source_anim.track_get_path(ti))
-		var bone_name := track_path.get_slice(":", 0).get_file()
-		if not ARM_CHAIN_BONES.has(bone_name) or not bone_names.has(bone_name):
+	for side in ARM_CHAIN_SIDES:
+		var arm_idx := skeleton.find_bone(side + "Arm")
+		var forearm_idx := skeleton.find_bone(side + "ForeArm")
+		var hand_idx := skeleton.find_bone(side + "Hand")
+		if arm_idx < 0 or forearm_idx < 0 or hand_idx < 0:
 			continue
 
-		var source_node := instance.find_child(bone_name, true, false)
-		if not source_node:
-			continue
-		var source_rest_rot: Quaternion = source_node.transform.basis.get_rotation_quaternion()
-		var bidx := skeleton.find_bone(bone_name)
-		if bidx < 0:
-			continue
-		var target_rest_rot: Quaternion = skeleton.get_bone_rest(bidx).basis.get_rotation_quaternion()
+		var arm_rest: Transform3D = skeleton.get_bone_global_rest(arm_idx)
+		var forearm_rest: Transform3D = skeleton.get_bone_global_rest(forearm_idx)
+		var hand_rest: Transform3D = skeleton.get_bone_global_rest(hand_idx)
 
-		# Nearest keyframe to the clip's midpoint.
-		var best_ki := 0
-		var best_dt := INF
-		for ki in range(source_anim.track_get_key_count(ti)):
-			var t: float = source_anim.track_get_key_time(ti, ki)
-			var dt: float = absf(t - mid_time)
-			if dt < best_dt:
-				best_dt = dt
-				best_ki = ki
-		var v: Quaternion = source_anim.track_get_key_value(ti, best_ki)
-		var delta: Quaternion = source_rest_rot.inverse() * v
-		result[bone_name] = target_rest_rot * delta
+		var arm_dir: Vector3 = (forearm_rest.origin - arm_rest.origin).normalized()
+		var forearm_dir: Vector3 = (hand_rest.origin - forearm_rest.origin).normalized()
 
-	instance.queue_free()
+		var arm_correction: Quaternion = Quaternion(arm_dir, target_dir)
+		var arm_new_global: Quaternion = arm_correction * arm_rest.basis.get_rotation_quaternion()
+
+		var parent_idx := skeleton.get_bone_parent(arm_idx)
+		var parent_rot: Quaternion = skeleton.get_bone_global_rest(parent_idx).basis.get_rotation_quaternion()
+		result[side + "Arm"] = parent_rot.inverse() * arm_new_global
+
+		# Forearm aims at the same target (keeps the whole arm straight),
+		# converted to local relative to the upper arm's NEW corrected
+		# global rotation (not its rest) since that's its actual parent
+		# pose now.
+		var forearm_correction: Quaternion = Quaternion(forearm_dir, target_dir)
+		var forearm_new_global: Quaternion = forearm_correction * forearm_rest.basis.get_rotation_quaternion()
+		result[side + "ForeArm"] = arm_new_global.inverse() * forearm_new_global
+
 	return result
 
 ## Rotation tracks store each bone's ABSOLUTE local rotation (relative to its
