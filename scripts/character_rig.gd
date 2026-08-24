@@ -121,8 +121,21 @@ static func _compute_run_arm_animated_reference(skeleton: Skeleton3D) -> Diction
 	var instance := packed.instantiate()
 	Engine.get_main_loop().root.add_child(instance)
 	var source_player := _find_animation_player(instance)
-	var source_anim := _find_real_animation(source_player)
+	var source_anim_name := _find_real_animation_name(source_player)
 	var result := {}
+	if source_anim_name == "":
+		instance.queue_free()
+		return result
+	# seek() only advances a playback that's actually assigned (via play());
+	# without this, every seek() below is a no-op and every sample reads the
+	# same untouched node transform (whatever the glTF importer set as each
+	# node's default transform, not any real point in the run cycle) -
+	# confirmed by dumping the built "run" animation's own keys, which showed
+	# all 25 arm/forearm keyframes holding one identical bent quaternion for
+	# the whole clip instead of animating, matching a real gameplay
+	# screenshot of the arm frozen wrapped across the torso mid-stride.
+	source_player.play(source_anim_name)
+	var source_anim := source_player.get_animation(source_anim_name)
 	if not source_anim:
 		instance.queue_free()
 		return result
@@ -302,6 +315,20 @@ static func _find_real_animation(player: AnimationPlayer) -> Animation:
 			if not anim_name.contains("Targeting"):
 				return lib.get_animation(anim_name)
 	return null
+
+## Same lookup as _find_real_animation, but returns the qualified name
+## (library-prefixed, as AnimationPlayer.play() expects) instead of the
+## Animation resource, so callers that need to seek() a real playback (which
+## requires an assigned/playing animation, not just the resource) can do so.
+static func _find_real_animation_name(player: AnimationPlayer) -> String:
+	if not player:
+		return ""
+	for lib_name in player.get_animation_library_list():
+		var lib := player.get_animation_library(lib_name)
+		for anim_name in lib.get_animation_list():
+			if not anim_name.contains("Targeting"):
+				return (lib_name + "/" + anim_name) if lib_name != "" else anim_name
+	return ""
 
 static func find_skeleton(n: Node) -> Skeleton3D:
 	if n is Skeleton3D:
