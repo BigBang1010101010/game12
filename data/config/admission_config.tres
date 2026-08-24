@@ -1,0 +1,19 @@
+[gd_resource type="Resource" script_class="AdmissionConfig" load_steps=2 format=3 uid="uid://g94b13298571bb"]
+
+[ext_resource type="Script" path="res://scripts/resources/admission_config.gd" id="1_cfg"]
+
+; Calibracion v1. Cada constante esta documentada en admission_config.gd.
+; Para recalibrar el juego entero se edita este archivo, nunca un .gd.
+[resource]
+script = ExtResource("1_cfg")
+fit_referencia = 0.55
+sensibilidad = 4.2
+penalizacion_umbral = 2.6
+exponente_umbral = 1.5
+peso_ensayo = 0.16
+ensayo_modificador_referencia = 45.0
+peso_carrera = 0.10
+peso_ajuste_carrera = 0.08
+probabilidad_maxima = 0.94
+probabilidad_minima = 0.001
+factor_aleatoriedad = 0.08
