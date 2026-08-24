@@ -10,39 +10,86 @@ extends Control
 ## preset keeps working when new attributes are added.
 const VALOR_NEUTRO := 50.0
 const PRESETS := {
-	"Perfil equilibrado": {
-		&"rigor_academico": 72, &"aptitud_cuantitativa": 68, &"aptitud_verbal": 70,
-		&"aptitud_cientifica": 65, &"aptitud_investigacion": 60, &"liderazgo": 65,
-		&"impacto_comunitario": 62, &"curiosidad_intelectual": 68, &"resiliencia": 65,
-		&"logro_atletico": 45, &"profundidad_extracurricular": 62, &"habilidad_artistica": 45,
-		&"red_social": 60, &"bienestar": 65, &"gestion_tiempo": 62,
+	"Perfil equilibrado": {"atributos": {
+			&"rigor_academico": 72, &"aptitud_cuantitativa": 68, &"aptitud_verbal": 70,
+			&"aptitud_cientifica": 65, &"aptitud_investigacion": 60, &"liderazgo": 65,
+			&"impacto_comunitario": 62, &"curiosidad_intelectual": 68, &"resiliencia": 65,
+			&"logro_atletico": 45, &"profundidad_extracurricular": 62, &"habilidad_artistica": 45,
+			&"red_social": 60, &"bienestar": 65, &"gestion_tiempo": 62,
+	}, "actividades": {}},
+	"Genio academico sin vida social": {"atributos": {
+			&"rigor_academico": 97, &"aptitud_cuantitativa": 96, &"aptitud_verbal": 88,
+			&"aptitud_cientifica": 94, &"aptitud_investigacion": 92, &"liderazgo": 18,
+			&"impacto_comunitario": 12, &"curiosidad_intelectual": 90, &"resiliencia": 55,
+			&"logro_atletico": 8, &"profundidad_extracurricular": 35, &"habilidad_artistica": 15,
+			&"red_social": 12, &"bienestar": 38, &"gestion_tiempo": 55,
+	}, "actividades": {}},
+	"Lider carismatico, promedio academico": {"atributos": {
+			&"rigor_academico": 62, &"aptitud_cuantitativa": 55, &"aptitud_verbal": 72,
+			&"aptitud_cientifica": 48, &"aptitud_investigacion": 35, &"liderazgo": 94,
+			&"impacto_comunitario": 88, &"curiosidad_intelectual": 55, &"resiliencia": 72,
+			&"logro_atletico": 45, &"profundidad_extracurricular": 78, &"habilidad_artistica": 40,
+			&"red_social": 92, &"bienestar": 70, &"gestion_tiempo": 75,
+	}, "actividades": {}},
+	"Atleta estrella": {"atributos": {
+			&"rigor_academico": 58, &"aptitud_cuantitativa": 50, &"aptitud_verbal": 52,
+			&"aptitud_cientifica": 45, &"aptitud_investigacion": 25, &"liderazgo": 68,
+			&"impacto_comunitario": 45, &"curiosidad_intelectual": 38, &"resiliencia": 92,
+			&"logro_atletico": 96, &"profundidad_extracurricular": 90, &"habilidad_artistica": 20,
+			&"red_social": 72, &"bienestar": 80, &"gestion_tiempo": 70,
+	}, "actividades": {}},
+	"Atleta de remo reclutable": {
+		"atributos": {
+			&"rigor_academico": 78, &"aptitud_cuantitativa": 74, &"aptitud_verbal": 76,
+			&"aptitud_cientifica": 72, &"aptitud_investigacion": 58, &"liderazgo": 62,
+			&"impacto_comunitario": 48, &"curiosidad_intelectual": 60, &"resiliencia": 70,
+			&"logro_atletico": 55, &"profundidad_extracurricular": 55, &"habilidad_artistica": 25,
+			&"red_social": 65, &"bienestar": 70, &"gestion_tiempo": 68,
+		},
+		"actividades": {
+			&"remo": {"anios": 4.0, "reconocimiento": &"estatal", "rol": &"oficial"},
+			&"trabajo_remunerado": {"anios": 2.0},
+			&"tutoria_pares": {"anios": 2.0},
+		},
 	},
-	"Genio academico sin vida social": {
-		&"rigor_academico": 97, &"aptitud_cuantitativa": 96, &"aptitud_verbal": 88,
-		&"aptitud_cientifica": 94, &"aptitud_investigacion": 92, &"liderazgo": 18,
-		&"impacto_comunitario": 12, &"curiosidad_intelectual": 90, &"resiliencia": 55,
-		&"logro_atletico": 8, &"profundidad_extracurricular": 35, &"habilidad_artistica": 15,
-		&"red_social": 12, &"bienestar": 38, &"gestion_tiempo": 55,
+	"Investigador STEM sin vida social": {
+		"atributos": {
+			&"rigor_academico": 94, &"aptitud_cuantitativa": 92, &"aptitud_verbal": 78,
+			&"aptitud_cientifica": 90, &"aptitud_investigacion": 88, &"liderazgo": 22,
+			&"impacto_comunitario": 15, &"curiosidad_intelectual": 88, &"resiliencia": 55,
+			&"logro_atletico": 10, &"profundidad_extracurricular": 40, &"habilidad_artistica": 18,
+			&"red_social": 15, &"bienestar": 42, &"gestion_tiempo": 58,
+		},
+		"actividades": {
+			&"investigacion_laboratorio": {"anios": 3.0, "reconocimiento": &"estatal", "rol": &"presidente", "impacto": 450.0},
+			&"olimpiada_matematicas": {"anios": 4.0, "reconocimiento": &"estatal", "rol": &"presidente", "impacto": 400.0},
+			&"club_astronomia": {"anios": 2.0},
+		},
 	},
-	"Lider carismatico, promedio academico": {
-		&"rigor_academico": 62, &"aptitud_cuantitativa": 55, &"aptitud_verbal": 72,
-		&"aptitud_cientifica": 48, &"aptitud_investigacion": 35, &"liderazgo": 94,
-		&"impacto_comunitario": 88, &"curiosidad_intelectual": 55, &"resiliencia": 72,
-		&"logro_atletico": 45, &"profundidad_extracurricular": 78, &"habilidad_artistica": 40,
-		&"red_social": 92, &"bienestar": 70, &"gestion_tiempo": 75,
-	},
-	"Atleta estrella": {
-		&"rigor_academico": 58, &"aptitud_cuantitativa": 50, &"aptitud_verbal": 52,
-		&"aptitud_cientifica": 45, &"aptitud_investigacion": 25, &"liderazgo": 68,
-		&"impacto_comunitario": 45, &"curiosidad_intelectual": 38, &"resiliencia": 92,
-		&"logro_atletico": 96, &"profundidad_extracurricular": 90, &"habilidad_artistica": 20,
-		&"red_social": 72, &"bienestar": 80, &"gestion_tiempo": 70,
+	"Lider equilibrado con club propio": {
+		"atributos": {
+			&"rigor_academico": 84, &"aptitud_cuantitativa": 78, &"aptitud_verbal": 86,
+			&"aptitud_cientifica": 74, &"aptitud_investigacion": 62, &"liderazgo": 80,
+			&"impacto_comunitario": 72, &"curiosidad_intelectual": 76, &"resiliencia": 70,
+			&"logro_atletico": 35, &"profundidad_extracurricular": 72, &"habilidad_artistica": 40,
+			&"red_social": 80, &"bienestar": 68, &"gestion_tiempo": 74,
+		},
+		"actividades": {
+			&"organizacion_propia": {"anios": 3.0, "reconocimiento": &"regional", "rol": &"fundador", "impacto": 600.0},
+			&"debate_competitivo": {"anios": 3.0, "reconocimiento": &"regional", "rol": &"oficial", "impacto": 120.0},
+			&"gobierno_estudiantil": {"anios": 2.0, "reconocimiento": &"escolar", "rol": &"presidente", "impacto": 150.0},
+			&"periodico_escolar": {"anios": 2.0, "rol": &"oficial"},
+		},
 	},
 }
 
 var _sliders: Dictionary = {}          # atributo_id -> HSlider
 var _etiquetas_valor: Dictionary = {}  # atributo_id -> Label
 var _filas: Dictionary = {}            # universidad_id -> Button
+var _controles_actividad: Dictionary = {}  # actividad_id -> {anios, rec, rol, impacto, etiqueta}
+var _etiqueta_presupuesto: Label
+var _etiqueta_indice: Label
+var _panel_slots: RichTextLabel
 var _carrera: OptionButton
 var _ensayo: OptionButton
 var _early: CheckBox
@@ -69,13 +116,24 @@ func _construir() -> void:
 		margen.add_theme_constant_override("margin_" + lado, 14)
 	add_child(margen)
 
+	# Four columns is more than a small window holds, so they live inside a
+	# horizontal scroll instead of being clipped.
+	var scroll_columnas := ScrollContainer.new()
+	scroll_columnas.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	scroll_columnas.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	# Vertical scrolling OFF so the columns are stretched to the full height
+	# instead of being given only their minimum; the horizontal one stays, for
+	# windows too narrow to hold four columns.
+	scroll_columnas.vertical_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
+	margen.add_child(scroll_columnas)
 	var columnas := HBoxContainer.new()
+	columnas.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	columnas.add_theme_constant_override("separation", 14)
-	margen.add_child(columnas)
+	scroll_columnas.add_child(columnas)
 
 	# --- Left: one slider per attribute, generated from the registry --------
 	var izquierda := VBoxContainer.new()
-	izquierda.custom_minimum_size = Vector2(330, 0)
+	izquierda.custom_minimum_size = Vector2(300, 0)
 	columnas.add_child(izquierda)
 
 	var titulo := Label.new()
@@ -118,9 +176,46 @@ func _construir() -> void:
 			_sliders[definicion.id] = slider
 			_etiquetas_valor[definicion.id] = valor
 
+	# --- Activities: one row per activity, generated from the registry ------
+	var actividades := VBoxContainer.new()
+	actividades.custom_minimum_size = Vector2(512, 0)
+	columnas.add_child(actividades)
+
+	var titulo_act := Label.new()
+	titulo_act.text = "Actividades  (años · reconocimiento · rol · impacto)"
+	titulo_act.add_theme_font_size_override("font_size", 15)
+	actividades.add_child(titulo_act)
+
+	# Both wrap rather than stretch: the overcommitment warning is a long line,
+	# and a Label that does not wrap widens its whole column, which pushed the
+	# breakdown off the screen.
+	_etiqueta_presupuesto = Label.new()
+	_etiqueta_presupuesto.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	_etiqueta_presupuesto.custom_minimum_size = Vector2(500, 0)
+	actividades.add_child(_etiqueta_presupuesto)
+	_etiqueta_indice = Label.new()
+	_etiqueta_indice.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	_etiqueta_indice.custom_minimum_size = Vector2(500, 0)
+	actividades.add_child(_etiqueta_indice)
+
+	var scroll_act := ScrollContainer.new()
+	scroll_act.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	actividades.add_child(scroll_act)
+	var lista_act := VBoxContainer.new()
+	lista_act.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	scroll_act.add_child(lista_act)
+
+	for categoria in ActivityRegistry.obtener_categorias():
+		var cabecera_act := Label.new()
+		cabecera_act.text = String(categoria).to_upper()
+		cabecera_act.add_theme_color_override("font_color", Color(0.55, 0.75, 1.0))
+		lista_act.add_child(cabecera_act)
+		for actividad_res in ActivityRegistry.obtener_por_categoria(categoria):
+			lista_act.add_child(_fila_actividad(actividad_res as ActivityData))
+
 	# --- Middle: choices, presets and the live table ------------------------
 	var centro := VBoxContainer.new()
-	centro.custom_minimum_size = Vector2(430, 0)
+	centro.custom_minimum_size = Vector2(380, 0)
 	columnas.add_child(centro)
 
 	var presets := HFlowContainer.new()
@@ -138,6 +233,9 @@ func _construir() -> void:
 	for carrera_res in CareerRegistry.obtener_todos():
 		_carrera.add_item((carrera_res as CareerData).nombre_display)
 		_carrera.set_item_metadata(_carrera.item_count - 1, (carrera_res as CareerData).id)
+	_carrera.clip_text = true
+	_carrera.custom_minimum_size = Vector2(255, 0)
+	_carrera.size_flags_horizontal = Control.SIZE_SHRINK_BEGIN
 	_carrera.item_selected.connect(func(_i): _recalcular())
 	elecciones.add_child(_carrera)
 
@@ -147,8 +245,14 @@ func _construir() -> void:
 	_ensayo = OptionButton.new()
 	for ensayo_res in EssayRegistry.obtener_todos():
 		var ensayo: EssayNarrative = ensayo_res
-		_ensayo.add_item("%s  [%s]" % [ensayo.titulo, ensayo.narrativa_tipo])
+		_ensayo.add_item(ensayo.titulo)
+		_ensayo.set_item_tooltip(_ensayo.item_count - 1, "tipo: %s" % ensayo.narrativa_tipo)
 		_ensayo.set_item_metadata(_ensayo.item_count - 1, ensayo.id)
+	# Clipped: an essay title long enough to widen this column would push the
+	# breakdown off the screen.
+	_ensayo.clip_text = true
+	_ensayo.custom_minimum_size = Vector2(255, 0)
+	_ensayo.size_flags_horizontal = Control.SIZE_SHRINK_BEGIN
 	_ensayo.item_selected.connect(func(_i): _recalcular())
 	elecciones2.add_child(_ensayo)
 
@@ -174,13 +278,96 @@ func _construir() -> void:
 
 	# --- Right: full breakdown of the selected school -----------------------
 	var derecha := VBoxContainer.new()
+	# A ScrollContainer gives its child its MINIMUM width, never more, so this
+	# column cannot expand into a wide window - it is sized to be readable on
+	# its own instead.
+	derecha.custom_minimum_size = Vector2(430, 0)
 	derecha.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	columnas.add_child(derecha)
+	_panel_slots = RichTextLabel.new()
+	_panel_slots.bbcode_enabled = true
+	_panel_slots.custom_minimum_size = Vector2(420, 200)
+	_panel_slots.add_theme_stylebox_override("normal", _caja())
+	derecha.add_child(_panel_slots)
+
 	_desglose = RichTextLabel.new()
 	_desglose.bbcode_enabled = true
 	_desglose.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	_desglose.add_theme_stylebox_override("normal", _caja())
 	derecha.add_child(_desglose)
+
+## One row of controls per activity, built from the activity's own data: the
+## dropdowns are filled from ActivityScales, so a new rung of recognition
+## would appear here without this file changing.
+func _fila_actividad(actividad: ActivityData) -> HBoxContainer:
+	var fila := HBoxContainer.new()
+	var nombre := Label.new()
+	nombre.text = actividad.nombre_display
+	nombre.custom_minimum_size = Vector2(118, 0)
+	nombre.clip_text = true
+	nombre.tooltip_text = "%s\n%d h/semana, techo tier %d" % [
+		actividad.descripcion, actividad.costo_horas_semana, actividad.tier_techo]
+	fila.add_child(nombre)
+
+	var anios := SpinBox.new()
+	anios.min_value = 0.0
+	anios.max_value = 4.0
+	anios.step = 0.5
+	anios.custom_minimum_size = Vector2(54, 0)
+	anios.value_changed.connect(func(_v): _recalcular())
+	fila.add_child(anios)
+
+	var reconocimiento := OptionButton.new()
+	for nivel in ActivityScales.RECONOCIMIENTO:
+		reconocimiento.add_item(String(nivel))
+		reconocimiento.set_item_metadata(reconocimiento.item_count - 1, nivel)
+	reconocimiento.custom_minimum_size = Vector2(100, 0)
+	reconocimiento.item_selected.connect(func(_i): _recalcular())
+	fila.add_child(reconocimiento)
+
+	var rol := OptionButton.new()
+	for nivel_rol in ActivityScales.ROL:
+		rol.add_item(String(nivel_rol))
+		rol.set_item_metadata(rol.item_count - 1, nivel_rol)
+	rol.selected = ActivityScales.indice_rol(&"miembro")
+	rol.custom_minimum_size = Vector2(84, 0)
+	rol.item_selected.connect(func(_i): _recalcular())
+	fila.add_child(rol)
+
+	var impacto := SpinBox.new()
+	impacto.min_value = 0.0
+	impacto.max_value = 5000.0
+	impacto.step = 50.0
+	impacto.custom_minimum_size = Vector2(64, 0)
+	impacto.value_changed.connect(func(_v): _recalcular())
+	fila.add_child(impacto)
+
+	var etiqueta := Label.new()
+	etiqueta.custom_minimum_size = Vector2(26, 0)
+	fila.add_child(etiqueta)
+
+	_controles_actividad[actividad.id] = {
+		"anios": anios, "rec": reconocimiento, "rol": rol,
+		"impacto": impacto, "etiqueta": etiqueta,
+	}
+	return fila
+
+## The activity profile the controls currently describe. Activities at zero
+## years are simply not in it - that IS "not doing it".
+func _perfil_actividades() -> Dictionary:
+	var perfil: Dictionary = {}
+	for actividad_id in _controles_actividad:
+		var controles: Dictionary = _controles_actividad[actividad_id]
+		var anios: float = (controles["anios"] as SpinBox).value
+		if anios <= 0.0:
+			continue
+		perfil[actividad_id] = {
+			"anios": anios,
+			"reconocimiento": (controles["rec"] as OptionButton).get_selected_metadata(),
+			"rol": (controles["rol"] as OptionButton).get_selected_metadata(),
+			"impacto": (controles["impacto"] as SpinBox).value,
+		}
+	return perfil
 
 func _hacer_etiqueta(texto: String) -> Label:
 	var etiqueta := Label.new()
@@ -197,10 +384,22 @@ func _caja() -> StyleBoxFlat:
 
 func _aplicar_preset(nombre: String) -> void:
 	var preset: Dictionary = PRESETS[nombre]
+	var atributos: Dictionary = preset.get("atributos", {})
 	for atributo_id in _sliders:
 		# Attributes a preset does not mention fall back to neutral, so adding
 		# an attribute never invalidates the presets.
-		(_sliders[atributo_id] as HSlider).value = float(preset.get(atributo_id, VALOR_NEUTRO))
+		(_sliders[atributo_id] as HSlider).value = float(atributos.get(atributo_id, VALOR_NEUTRO))
+
+	var actividades: Dictionary = preset.get("actividades", {})
+	for actividad_id in _controles_actividad:
+		var controles: Dictionary = _controles_actividad[actividad_id]
+		var entrada: Dictionary = actividades.get(actividad_id, {})
+		(controles["anios"] as SpinBox).set_value_no_signal(float(entrada.get("anios", 0.0)))
+		(controles["impacto"] as SpinBox).set_value_no_signal(float(entrada.get("impacto", 0.0)))
+		(controles["rec"] as OptionButton).selected = ActivityScales.indice_reconocimiento(
+			entrada.get("reconocimiento", &"ninguno"))
+		(controles["rol"] as OptionButton).selected = ActivityScales.indice_rol(
+			entrada.get("rol", &"miembro"))
 	_recalcular()
 
 func _valores_actuales() -> Dictionary:
@@ -210,27 +409,101 @@ func _valores_actuales() -> Dictionary:
 	return valores
 
 func _recalcular() -> void:
-	var valores: Dictionary = _valores_actuales()
+	var base: Dictionary = _valores_actuales()
+
+	# The activity profile is simulated FIRST: what an activity pays in
+	# attributes has to be part of the profile the schools then judge, or the
+	# lab would be showing a player who did four years of rowing and gained
+	# nothing from it.
+	var perfil: Dictionary = _perfil_actividades()
+	var simulacion: Dictionary = ActivityTracker.simular_perfil(perfil, base)
+	var valores: Dictionary = simulacion["valores"]
+	var indice: float = AcademicIndex.calcular_desde(valores)
+
 	for atributo_id in _etiquetas_valor:
-		(_etiquetas_valor[atributo_id] as Label).text = "%d" % int(valores[atributo_id])
+		var ganado: float = float(valores.get(atributo_id, 0.0)) - float(base.get(atributo_id, 0.0))
+		var etiqueta: Label = _etiquetas_valor[atributo_id]
+		etiqueta.text = "%d%s" % [int(valores.get(atributo_id, 0.0)),
+			"+%d" % int(round(ganado)) if ganado >= 0.5 else ""]
+
+	var estados: Dictionary = {}
+	for actividad_id in simulacion["actividades"]:
+		var detalle: Dictionary = simulacion["actividades"][actividad_id]
+		estados[actividad_id] = detalle["estado"]
+		var controles: Dictionary = _controles_actividad[actividad_id]
+		(controles["etiqueta"] as Label).text = "T%d" % detalle["tier"] if detalle["tier"] <= 4 else "-"
+	for actividad_id in _controles_actividad:
+		if not estados.has(actividad_id):
+			((_controles_actividad[actividad_id] as Dictionary)["etiqueta"] as Label).text = ""
+
+	_actualizar_presupuesto(estados.keys(), indice)
+
+	var detalles: Array[Dictionary] = ApplicationBuilder.detalle_desde_estados(estados, indice)
+	var seleccion: Array[Dictionary] = ApplicationBuilder.seleccionar(detalles)
+	_mostrar_slots(detalles, seleccion)
 
 	var carrera_id: StringName = _carrera.get_selected_metadata() if _carrera.selected >= 0 else &""
 	var ensayo_id: StringName = _ensayo.get_selected_metadata() if _ensayo.selected >= 0 else &""
 	var early: bool = _early.button_pressed
 
-	var resultados: Array[AdmissionResult] = AdmissionCalculator.calcular_todas(carrera_id, ensayo_id, early, valores)
+	var resultados: Array[AdmissionResult] = AdmissionCalculator.calcular_todas(
+		carrera_id, ensayo_id, early, valores, seleccion)
 	for resultado in resultados:
 		var boton: Button = _filas.get(resultado.universidad_id)
 		if not boton:
 			continue
 		var universidad: UniversityData = UniversityRegistry.obtener(resultado.universidad_id)
 		var marca: String = ">" if resultado.universidad_id == _seleccionada else " "
-		boton.text = "%s %-22s %5.1f%%  ->  %5.1f%%" % [
+		boton.text = "%s %-22s %5.1f%%  ->  %5.1f%%%s" % [
 			marca, universidad.nombre_display.substr(0, 22),
-			resultado.tasa_base * 100.0, resultado.probabilidad * 100.0]
+			resultado.tasa_base * 100.0, resultado.probabilidad * 100.0,
+			"  [reclutado]" if resultado.es_reclutado else ""]
 		boton.add_theme_color_override("font_color", universidad.color_primario.lightened(0.35))
 
-	_mostrar_desglose(AdmissionCalculator.calcular_probabilidad(_seleccionada, carrera_id, ensayo_id, early, valores))
+	_mostrar_desglose(AdmissionCalculator.calcular_probabilidad(
+		_seleccionada, carrera_id, ensayo_id, early, valores, seleccion))
+
+func _actualizar_presupuesto(ids: Array, indice: float) -> void:
+	var comprometidas: float = TimeBudget.horas_de(ids)
+	var totales: float = TimeBudget.horas_totales()
+	var exceso: float = maxf(comprometidas - totales, 0.0)
+	_etiqueta_presupuesto.text = "Tiempo: %.0f de %.0f h/semana" % [comprometidas, totales]
+	if exceso > 0.0:
+		var castigo: Dictionary = TimeBudget.penalizacion_semanal(ids)
+		var partes: Array = []
+		for atributo_id in castigo:
+			var definicion: AttributeDefinition = AttributeRegistry.get_definition(atributo_id)
+			partes.append("%s %.1f" % [
+				definicion.nombre_display if definicion else String(atributo_id), castigo[atributo_id]])
+		_etiqueta_presupuesto.text += "   SOBRECOMPROMISO +%.0f h  ->  por semana: %s" % [
+			exceso, ", ".join(partes)]
+		_etiqueta_presupuesto.add_theme_color_override("font_color", Color(1.0, 0.5, 0.5))
+	else:
+		_etiqueta_presupuesto.add_theme_color_override("font_color", Color(0.7, 0.9, 0.7))
+
+	var config: AdmissionConfig = AdmissionCalculator.obtener_config()
+	_etiqueta_indice.text = "Índice académico: %.0f   (regular %.0f · atlético %.0f)" % [
+		indice, config.umbral_indice_competitivo, config.umbral_indice_atletico]
+	_etiqueta_indice.add_theme_color_override("font_color",
+		Color(0.7, 0.9, 0.7) if indice >= config.umbral_indice_competitivo else Color(1.0, 0.75, 0.45))
+
+func _mostrar_slots(detalles: Array[Dictionary], seleccion: Array[Dictionary]) -> void:
+	var t := PackedStringArray()
+	t.append("[b]Common App: %d de %d slots[/b]" % [seleccion.size(), ApplicationBuilder.slots()])
+	if detalles.is_empty():
+		t.append("[i]sin actividades[/i]")
+	var dentro: Array = []
+	for entrada in seleccion:
+		dentro.append(entrada["actividad_id"])
+		t.append("  T%d  %-24s %.1f a  pts %.2f%s" % [
+			entrada["tier"], String(entrada["nombre"]).substr(0, 24), entrada["anios"],
+			entrada["puntaje"], "  [color=#88ddaa]reclutable[/color]" if entrada["reclutable"] else ""])
+	for entrada in detalles:
+		if dentro.has(entrada["actividad_id"]):
+			continue
+		t.append("  [color=#888888]T%d  %-24s %.1f a  pts %.2f  (fuera)[/color]" % [
+			entrada["tier"], String(entrada["nombre"]).substr(0, 24), entrada["anios"], entrada["puntaje"]])
+	_panel_slots.text = "\n".join(t)
 
 func _mostrar_desglose(r: AdmissionResult) -> void:
 	var universidad: UniversityData = UniversityRegistry.obtener(r.universidad_id)
@@ -246,9 +519,12 @@ func _mostrar_desglose(r: AdmissionResult) -> void:
 	t.append("Odds x%.3f sobre esa tasa   |   aleatoriedad al resolver: +-%.0f%%" % [
 		r.multiplicador_odds, r.factor_aleatoriedad * 100.0])
 	t.append("")
-	t.append("[b]Puntaje %.4f[/b] = fit %.4f + ensayo %.4f + carrera %.4f - umbrales %.4f" % [
+	t.append("[b]Puntaje %.4f[/b] = fit %.4f + ensayo %.4f + carrera %.4f + actividades %.4f + atlético %.4f - umbrales %.4f - índice %.4f" % [
 		r.puntaje_final, r.fit_score, r.efecto_ensayo,
-		r.efecto_carrera + r.efecto_ajuste_carrera, r.penalizacion_umbrales])
+		r.efecto_carrera + r.efecto_ajuste_carrera, r.efecto_actividades,
+		r.efecto_atletico, r.penalizacion_umbrales, r.penalizacion_indice])
+	t.append("Índice académico %.0f contra el umbral %.0f de esta ruta%s" % [
+		r.academic_index, r.umbral_indice, "  [ATLETA RECLUTADO]" if r.es_reclutado else ""])
 	t.append("")
 
 	t.append("[b]Aporte de cada atributo al fit[/b]")
@@ -277,6 +553,27 @@ func _mostrar_desglose(r: AdmissionResult) -> void:
 		t.append("[b]Ensayo[/b]: %s" % ensayo.titulo)
 		t.append("  tipo '%s', afinidad de esta escuela x%.2f  ->  %+.4f" % [
 			ensayo.narrativa_tipo, r.afinidad_ensayo, r.efecto_ensayo])
+
+	if not r.aportes_actividad.is_empty():
+		t.append("")
+		t.append("[b]Aporte de cada actividad a esta carrera[/b]")
+		for a in r.aportes_actividad:
+			t.append("  T%d %-24s x%.2f afinidad, %.1f años (x%.2f)  ->  %+.4f" % [
+				a["tier"], String(a["nombre"]).substr(0, 24), a["afinidad"],
+				a["anios"], a["continuidad"], a["aporte"]])
+		t.append("  [i]suma %.3f / referencia  ->  %+.4f al puntaje[/i]" % [
+			r.afinidad_actividades, r.efecto_actividades])
+
+	if not r.deportes_no_reclutables.is_empty():
+		t.append("")
+		t.append("[b][color=#ffcc80]Ruta atlética cerrada[/color][/b]")
+		for d in r.deportes_no_reclutables:
+			if d["motivo"] == "reconocimiento":
+				t.append("  [color=#ffcc80]%s: reconocimiento '%s', necesita '%s'[/color]" % [
+					d["nombre"], d["reconocimiento"], d["umbral"]])
+			else:
+				t.append("  [color=#ffcc80]%s: índice académico %.0f, necesita %.0f[/color]" % [
+					d["nombre"], d["indice"], d["minimo"]])
 
 	var carrera: CareerData = CareerRegistry.obtener(r.carrera_id)
 	if carrera:
