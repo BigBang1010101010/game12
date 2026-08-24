@@ -33,10 +33,17 @@ const MODEL_SCALE := 1.8 / 4.841251
 ## character model's own feet sit at ~0 in its local space (measured), so
 ## it's offset down by the same amount to match.
 const MODEL_FEET_OFFSET := -0.9
-## Measured directly: with rotation.y=0, a camera placed at +Z looking
-## toward -Z (Godot's default forward) sees this model's face, not its back
-## - so unlike the previous model, no yaw correction is needed here.
-const MODEL_FRONT_CORRECTION := 0.0
+## This model is authored facing +Z, the opposite of Godot's -Z forward
+## convention, so the CharacterModel container node is rotated by PI to turn
+## it around. Confirmed by two independent anatomical measurements on its own
+## skeleton rest pose (see the toe/arm checks that produced these numbers):
+##   - toe direction (Foot.L_end minus Foot.L) = (0.000, -0.032, +0.999):
+##     the feet point toward +Z.
+##   - UpperArm.L sits at x=+0.467 and UpperArm.R at x=-0.453. For a body
+##     facing -Z with +Y up, left = up x forward = -X, so a LEFT arm on the
+##     +X side only makes sense for a body facing +Z.
+## Without this, the character runs backwards with its face toward the camera.
+const MODEL_FRONT_CORRECTION := PI
 
 ## Max raycast distance for Shift-drag object picking.
 const DRAG_RAY_LENGTH := 100.0
