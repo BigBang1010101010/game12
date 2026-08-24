@@ -8,6 +8,7 @@ var panel: PanelContainer
 var clock_label: Label
 var awake_label: Label
 var hearts_row: HBoxContainer
+var stamina_bar: ProgressBar
 
 func _ready() -> void:
 	layer = 15
@@ -17,6 +18,7 @@ func _ready() -> void:
 	_build_ui()
 	PlayerStats.awake_changed.connect(_on_awake_changed)
 	PlayerStats.health_changed.connect(_on_health_changed)
+	PlayerStats.stamina_changed.connect(_on_stamina_changed)
 	_refresh_hearts()
 	_refresh()
 
@@ -44,6 +46,18 @@ func _build_ui() -> void:
 	hearts_row.add_theme_constant_override("separation", 4)
 	column.add_child(hearts_row)
 
+	# Stamina sits directly under the hearts inside the same panel, so the
+	# whole readout reads as one block rather than a loose extra widget.
+	stamina_bar = ProgressBar.new()
+	stamina_bar.min_value = 0.0
+	stamina_bar.max_value = PlayerStats.MAX_STAMINA
+	stamina_bar.value = PlayerStats.stamina
+	stamina_bar.show_percentage = false
+	stamina_bar.custom_minimum_size = Vector2(HEART_SIZE * 2 + 4, 10)
+	stamina_bar.add_theme_stylebox_override("background", _bar_box(STAMINA_BACK_COLOR))
+	stamina_bar.add_theme_stylebox_override("fill", _bar_box(STAMINA_FILL_COLOR))
+	column.add_child(stamina_bar)
+
 func _process(_delta: float) -> void:
 	_refresh()
 
@@ -52,6 +66,25 @@ func _on_awake_changed(_hours: float) -> void:
 
 func _on_health_changed(_half_hearts: int) -> void:
 	_refresh_hearts()
+
+const STAMINA_FILL_COLOR := Color(0.35, 0.78, 0.45)
+## Shown instead of the normal fill while sprint is locked out after hitting
+## zero, so the "you cannot sprint yet" state is visible rather than guessed.
+const STAMINA_LOCKED_COLOR := Color(0.80, 0.55, 0.20)
+const STAMINA_BACK_COLOR := Color(0.12, 0.13, 0.15)
+
+func _bar_box(color: Color) -> StyleBoxFlat:
+	var box := StyleBoxFlat.new()
+	box.bg_color = color
+	box.set_corner_radius_all(3)
+	return box
+
+func _on_stamina_changed(value: float) -> void:
+	if not stamina_bar:
+		return
+	stamina_bar.value = value
+	stamina_bar.add_theme_stylebox_override(
+		"fill", _bar_box(STAMINA_LOCKED_COLOR if PlayerStats.is_sprint_locked() else STAMINA_FILL_COLOR))
 
 ## One icon per full heart, each drawn full, half or empty from the half-heart
 ## count, so 2 hearts read as 4 states rather than as a number.

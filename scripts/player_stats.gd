@@ -7,6 +7,7 @@ extends Node
 
 signal awake_changed(hours: float)
 signal health_changed(half_hearts: int)
+signal stamina_changed(stamina: float)
 
 ## Health is counted in HALF hearts, so a half-heart loss is a whole unit of
 ## the underlying value and nothing has to deal in fractions.
@@ -17,6 +18,23 @@ const MAX_HALF_HEARTS := 4 # 2 full hearts
 ## change_health() like any other source would, so adding real damage later
 ## means calling that rather than editing this system.
 const HOURS_AWAKE_PER_HALF_HEART := 0.5
+
+## Stamina, 0-100, spent by sprinting and regained by not sprinting. Unlike
+## awake time (which is measured in game hours off the day/night clock), this
+## is a physical gameplay resource, so it runs on real seconds and is ticked
+## from the player's _physics_process - which means it correctly freezes when
+## the inventory pauses the tree, instead of draining behind a menu.
+const MAX_STAMINA := 100.0
+const STAMINA_DRAIN_PER_SECOND := 20.0
+const STAMINA_REGEN_PER_SECOND := 12.0
+## After stamina bottoms out, sprint stays locked until this much has been
+## regained. Without it, sprint would re-enable the instant a sliver of
+## stamina appeared and flicker on and off every frame.
+const STAMINA_SPRINT_RESUME := 20.0
+
+var stamina: float = MAX_STAMINA
+## Set when stamina hits 0, cleared once STAMINA_SPRINT_RESUME is back.
+var _sprint_locked := false
 
 ## In-game hours since the player last woke up. Advances off the day/night
 ## cycle's own rate rather than an independent one, so "awake time" and the
@@ -66,9 +84,42 @@ func change_health(delta_half_hearts: int) -> void:
 
 func restore_full_health() -> void:
 	change_health(MAX_HALF_HEARTS - health_half_hearts)
+	# Waking up rested covers stamina too.
+	restore_full_stamina()
 
 func get_full_hearts() -> float:
 	return health_half_hearts * 0.5
+
+## Advances stamina for one frame. `sprinting` is whether the player is
+## actually sprinting right now (holding the key AND moving AND allowed to),
+## not merely whether the key is down.
+func tick_stamina(delta: float, sprinting: bool) -> void:
+	var before := stamina
+	if sprinting:
+		stamina = maxf(stamina - STAMINA_DRAIN_PER_SECOND * delta, 0.0)
+		if stamina <= 0.0:
+			_sprint_locked = true
+	else:
+		stamina = minf(stamina + STAMINA_REGEN_PER_SECOND * delta, MAX_STAMINA)
+		if _sprint_locked and stamina >= STAMINA_SPRINT_RESUME:
+			_sprint_locked = false
+	if stamina != before:
+		stamina_changed.emit(stamina)
+
+## Whether sprinting is currently allowed at all.
+func can_sprint() -> bool:
+	return not _sprint_locked and stamina > 0.0
+
+func is_sprint_locked() -> bool:
+	return _sprint_locked
+
+func get_stamina_ratio() -> float:
+	return stamina / MAX_STAMINA
+
+func restore_full_stamina() -> void:
+	stamina = MAX_STAMINA
+	_sprint_locked = false
+	stamina_changed.emit(stamina)
 
 ## Called when the player sleeps.
 func reset_awake() -> void:

@@ -3,6 +3,20 @@ extends CharacterBody3D
 const SPEED := 5.0
 const JUMP_VELOCITY := 4.5
 
+## Sprint multiplier on SPEED while the sprint key is held, the player is
+## moving, and stamina allows it. Sprint is bound to Left Ctrl (and Q as a
+## browser-safe alternative) rather than Shift, which the camera rig already
+## uses for object dragging.
+const SPRINT_MULTIPLIER := 1.6
+## The model has no dedicated sprint clip, so sprinting reuses "run" played
+## faster. Applied through AnimationPlayer.speed_scale rather than by
+## re-calling play(), because play() restarts the clip from frame 0 and would
+## make the legs stutter every time sprint is tapped.
+const SPRINT_ANIM_SPEED := 1.35
+
+## True while the player is actually sprinting (not merely holding the key).
+var is_sprinting := false
+
 ## How fast the visual model turns to face its movement direction (radians/sec-ish, via lerp_angle factor).
 const MODEL_ROTATION_SPEED := 10.0
 
@@ -60,12 +74,20 @@ func _physics_process(delta: float) -> void:
 	# only - pitch is ignored so moving forward never sends the player into
 	# the ground or the sky).
 	var direction := (camera_yaw.global_transform.basis * Vector3(input_dir.x, 0, input_dir.y)).normalized()
+
+	# Sprinting needs all three: the key held, actual movement input, and
+	# enough stamina. Holding the key while standing still neither speeds
+	# anything up nor drains anything.
+	is_sprinting = Input.is_action_pressed("sprint") and direction != Vector3.ZERO and PlayerStats.can_sprint()
+	PlayerStats.tick_stamina(delta, is_sprinting)
+
+	var speed: float = SPEED * (SPRINT_MULTIPLIER if is_sprinting else 1.0)
 	if direction:
-		velocity.x = direction.x * SPEED
-		velocity.z = direction.z * SPEED
+		velocity.x = direction.x * speed
+		velocity.z = direction.z * speed
 	else:
-		velocity.x = move_toward(velocity.x, 0, SPEED)
-		velocity.z = move_toward(velocity.z, 0, SPEED)
+		velocity.x = move_toward(velocity.x, 0, speed)
+		velocity.z = move_toward(velocity.z, 0, speed)
 
 	move_and_slide()
 	_update_model_facing(direction, delta)
@@ -138,5 +160,12 @@ func _update_animation() -> void:
 	else:
 		next_animation = ANIM_IDLE
 	if animation_player.current_animation != next_animation:
-		var speed: float = jump_anim_speed if next_animation == ANIM_JUMP else 1.0
-		animation_player.play(next_animation, 0.1, speed)
+		var play_speed: float = jump_anim_speed if next_animation == ANIM_JUMP else 1.0
+		animation_player.play(next_animation, 0.1, play_speed)
+
+	# Sprint speeds up the run clip via speed_scale, which multiplies whatever
+	# play() set. It is only applied while actually running on the ground, so
+	# the jump clip keeps the exact rate task 2 calibrated for it.
+	var target_scale: float = SPRINT_ANIM_SPEED if (next_animation == ANIM_RUN and is_sprinting) else 1.0
+	if not is_equal_approx(animation_player.speed_scale, target_scale):
+		animation_player.speed_scale = target_scale
