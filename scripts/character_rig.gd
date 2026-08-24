@@ -45,11 +45,12 @@ static func build_animation_player(skeleton: Skeleton3D) -> AnimationPlayer:
 	for i in skeleton.get_bone_count():
 		bone_names[skeleton.get_bone_name(i)] = true
 
-	var arm_pose_override := _compute_arms_down_reference(skeleton)
+	var static_arms_down := _compute_arms_down_reference(skeleton)
+	var run_arm_animated := _compute_run_arm_animated_reference(skeleton)
 
 	var library := AnimationLibrary.new()
 	for anim_name in ANIM_PATHS:
-		var override := arm_pose_override if anim_name != "run" else {}
+		var override := run_arm_animated if anim_name == "run" else static_arms_down
 		var anim := _load_and_retarget(ANIM_PATHS[anim_name], bone_names, skeleton, override)
 		if anim:
 			library.add_animation(anim_name, anim)
@@ -70,10 +71,10 @@ static func build_animation_player(skeleton: Skeleton3D) -> AnimationPlayer:
 ## via skeleton.global_transform before comparing against any rest-pose
 ## direction vectors, which are already in that same local space.
 static func _compute_arms_down_reference(skeleton: Skeleton3D) -> Dictionary:
-	var result := {}
 	var world_to_skel: Basis = skeleton.global_transform.basis.inverse()
 	var target_dir: Vector3 = (world_to_skel * Vector3(0, -1, 0)).normalized()
 
+	var result := {}
 	for side in ARM_CHAIN_SIDES:
 		var arm_idx := skeleton.find_bone(side + "Arm")
 		var forearm_idx := skeleton.find_bone(side + "ForeArm")
@@ -84,26 +85,124 @@ static func _compute_arms_down_reference(skeleton: Skeleton3D) -> Dictionary:
 		var arm_rest: Transform3D = skeleton.get_bone_global_rest(arm_idx)
 		var forearm_rest: Transform3D = skeleton.get_bone_global_rest(forearm_idx)
 		var hand_rest: Transform3D = skeleton.get_bone_global_rest(hand_idx)
-
 		var arm_dir: Vector3 = (forearm_rest.origin - arm_rest.origin).normalized()
 		var forearm_dir: Vector3 = (hand_rest.origin - forearm_rest.origin).normalized()
 
-		var arm_correction: Quaternion = Quaternion(arm_dir, target_dir)
-		var arm_new_global: Quaternion = arm_correction * arm_rest.basis.get_rotation_quaternion()
-
-		var parent_idx := skeleton.get_bone_parent(arm_idx)
-		var parent_rot: Quaternion = skeleton.get_bone_global_rest(parent_idx).basis.get_rotation_quaternion()
-		result[side + "Arm"] = parent_rot.inverse() * arm_new_global
-
-		# Forearm aims at the same target (keeps the whole arm straight),
-		# converted to local relative to the upper arm's NEW corrected
-		# global rotation (not its rest) since that's its actual parent
-		# pose now.
-		var forearm_correction: Quaternion = Quaternion(forearm_dir, target_dir)
-		var forearm_new_global: Quaternion = forearm_correction * forearm_rest.basis.get_rotation_quaternion()
-		result[side + "ForeArm"] = arm_new_global.inverse() * forearm_new_global
+		var pose := _point_arm_at(skeleton, arm_idx, arm_rest, arm_dir, forearm_rest, forearm_dir, target_dir, target_dir)
+		result[side + "Arm"] = pose[0]
+		result[side + "ForeArm"] = pose[1]
 
 	return result
+
+## "run" is the one clip with real arm-swing data (measured directly from
+## its own raw keyframes: 51-91 degrees of genuine motion, vs. idle/jump's
+## 1-8 degrees), so unlike idle/jump it can't just hold a fixed pose - but
+## naively retargeting it with the plain delta-quaternion formula (see
+## _load_and_retarget) looked visibly wrong once actually rendered: elbows
+## bending up toward the head instead of a natural running arm swing, even
+## though the numeric rotation *magnitude* matched the source. The
+## quaternion delta only corrects for source and target disagreeing on
+## what "zero rotation" is - it does NOT correct for source and target
+## disagreeing on which axis a bone's local rotation happens around, and
+## that mismatch is invisible at idle/jump's few-degree motions but very
+## visible at run's 50-90 degree swings.
+##
+## Fix: resample the SOURCE's own posed arm/forearm/hand positions across
+## the whole cycle - letting Godot's normal scene-tree FK do the work via
+## the source clip's own embedded AnimationPlayer - and at each sample
+## point, use the same world-direction-matching technique as
+## _compute_arms_down_reference to compute what LOCAL target rotation
+## makes the target bone point the same real-world direction the source's
+## bone is *actually* pointing at that moment. This is immune to the
+## axis-convention mismatch because it never compares raw quaternions
+## between the two rigs - only 3D positions, in a shared world frame.
+static func _compute_run_arm_animated_reference(skeleton: Skeleton3D) -> Dictionary:
+	var packed: PackedScene = load(ANIM_PATHS["run"])
+	var instance := packed.instantiate()
+	Engine.get_main_loop().root.add_child(instance)
+	var source_player := _find_animation_player(instance)
+	var source_anim := _find_real_animation(source_player)
+	var result := {}
+	if not source_anim:
+		instance.queue_free()
+		return result
+
+	var rest_dirs := {}
+	for side in ARM_CHAIN_SIDES:
+		var arm_idx := skeleton.find_bone(side + "Arm")
+		var forearm_idx := skeleton.find_bone(side + "ForeArm")
+		var hand_idx := skeleton.find_bone(side + "Hand")
+		if arm_idx < 0 or forearm_idx < 0 or hand_idx < 0:
+			continue
+		var arm_rest: Transform3D = skeleton.get_bone_global_rest(arm_idx)
+		var forearm_rest: Transform3D = skeleton.get_bone_global_rest(forearm_idx)
+		var hand_rest: Transform3D = skeleton.get_bone_global_rest(hand_idx)
+		rest_dirs[side] = {
+			"arm_idx": arm_idx, "arm_rest": arm_rest, "arm_dir": (forearm_rest.origin - arm_rest.origin).normalized(),
+			"forearm_rest": forearm_rest, "forearm_dir": (hand_rest.origin - forearm_rest.origin).normalized(),
+		}
+
+	# _point_arm_at expects both the "from" and "to" directions in the same
+	# space; arm_dir/forearm_dir above are skeleton-local (from
+	# get_bone_global_rest), so the source's world-space directions need
+	# the same world->skeleton-local conversion _compute_arms_down_reference
+	# uses.
+	var world_to_skel: Basis = skeleton.global_transform.basis.inverse()
+
+	var samples := 24
+	for side in ARM_CHAIN_SIDES:
+		result[side + "Arm"] = {"times": PackedFloat32Array(), "quats": []}
+		result[side + "ForeArm"] = {"times": PackedFloat32Array(), "quats": []}
+
+	for si in range(samples + 1):
+		var t: float = source_anim.length * float(si) / float(samples)
+		source_player.seek(t, true)
+
+		for side in ARM_CHAIN_SIDES:
+			var arm_node := instance.find_child(side + "Arm", true, false)
+			var forearm_node := instance.find_child(side + "ForeArm", true, false)
+			var hand_node := instance.find_child(side + "Hand", true, false)
+			if not arm_node or not forearm_node or not hand_node:
+				continue
+			var arm_world_dir: Vector3 = (forearm_node.global_transform.origin - arm_node.global_transform.origin).normalized()
+			var forearm_world_dir: Vector3 = (hand_node.global_transform.origin - forearm_node.global_transform.origin).normalized()
+			var arm_target: Vector3 = (world_to_skel * arm_world_dir).normalized()
+			var forearm_target: Vector3 = (world_to_skel * forearm_world_dir).normalized()
+
+			var rd: Dictionary = rest_dirs[side]
+			var pose := _point_arm_at(
+				skeleton, rd["arm_idx"], rd["arm_rest"], rd["arm_dir"], rd["forearm_rest"], rd["forearm_dir"],
+				arm_target, forearm_target
+			)
+			result[side + "Arm"]["times"].append(t)
+			result[side + "Arm"]["quats"].append(pose[0])
+			result[side + "ForeArm"]["times"].append(t)
+			result[side + "ForeArm"]["quats"].append(pose[1])
+
+	instance.queue_free()
+	return result
+
+## Shared math for both the static (arms-down) and animated (run) cases:
+## given the upper arm's and forearm's own rest-pose direction vectors
+## (skeleton-local space) and two TARGET directions to point them at
+## (already in skeleton-local space, or world space - see below), returns
+## [arm_local_rotation, forearm_local_rotation].
+static func _point_arm_at(
+	skeleton: Skeleton3D, arm_idx: int, arm_rest: Transform3D, arm_dir: Vector3,
+	forearm_rest: Transform3D, forearm_dir: Vector3, arm_target_dir: Vector3, forearm_target_dir: Vector3
+) -> Array:
+	var arm_correction: Quaternion = Quaternion(arm_dir, arm_target_dir)
+	var arm_new_global: Quaternion = arm_correction * arm_rest.basis.get_rotation_quaternion()
+
+	var parent_idx := skeleton.get_bone_parent(arm_idx)
+	var parent_rot: Quaternion = skeleton.get_bone_global_rest(parent_idx).basis.get_rotation_quaternion()
+	var arm_local: Quaternion = parent_rot.inverse() * arm_new_global
+
+	var forearm_correction: Quaternion = Quaternion(forearm_dir, forearm_target_dir)
+	var forearm_new_global: Quaternion = forearm_correction * forearm_rest.basis.get_rotation_quaternion()
+	var forearm_local: Quaternion = arm_new_global.inverse() * forearm_new_global
+
+	return [arm_local, forearm_local]
 
 ## Rotation tracks store each bone's ABSOLUTE local rotation (relative to its
 ## parent bone), not a delta. Copying that value verbatim only works if the
@@ -153,7 +252,17 @@ static func _load_and_retarget(path: String, bone_names: Dictionary, skeleton: S
 			if bidx >= 0:
 				target_rest_rot = skeleton.get_bone_rest(bidx).basis.get_rotation_quaternion()
 
-		var held_pose: Variant = arm_pose_override.get(bone_name) if ttype == Animation.TYPE_ROTATION_3D else null
+		var override_value: Variant = arm_pose_override.get(bone_name) if ttype == Animation.TYPE_ROTATION_3D else null
+
+		if override_value is Dictionary:
+			# Animated override (run's arm chain): replace this track's
+			# keys entirely with the pre-sampled world-direction-matched
+			# ones, ignoring the source's own (axis-mismatched) keys.
+			var times: PackedFloat32Array = override_value["times"]
+			var quats: Array = override_value["quats"]
+			for i in range(times.size()):
+				out.rotation_track_insert_key(new_track, times[i], quats[i])
+			continue
 
 		for ki in source_anim.track_get_key_count(ti):
 			var t: float = source_anim.track_get_key_time(ti, ki)
@@ -163,8 +272,8 @@ static func _load_and_retarget(path: String, bone_names: Dictionary, skeleton: S
 					out.position_track_insert_key(new_track, t, v)
 				Animation.TYPE_ROTATION_3D:
 					var retargeted: Quaternion
-					if held_pose != null:
-						retargeted = held_pose
+					if override_value != null:
+						retargeted = override_value
 					else:
 						var delta: Quaternion = source_rest_rot.inverse() * v
 						retargeted = target_rest_rot * delta
