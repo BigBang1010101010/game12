@@ -89,6 +89,10 @@ AdmissionCalculator="*res://scripts/progression/admission_calculator.gd"
 ; so the three come in that order.
 AcademicIndex="*res://scripts/progression/academic_index.gd"
 ActivityTracker="*res://scripts/progression/activity_tracker.gd"
+; TimeBudget charges burnout through PlayerState and reads the activities
+; the tracker holds, so it comes after both.
+TimeBudget="*res://scripts/progression/time_budget.gd"
+ApplicationBuilder="*res://scripts/progression/application_builder.gd"
 SaveSystem="*res://scripts/progression/save_system.gd"
 AdmissionsLab="*res://scripts/debug/admissions_lab_toggle.gd"
 Inventory="*res://scripts/inventory.gd"

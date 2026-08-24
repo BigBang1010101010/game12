@@ -35,6 +35,31 @@ class_name AdmissionResult
 ## [{atributo, valor, umbral, deficit, penalizacion}]
 @export var umbrales_incumplidos: Array[Dictionary] = []
 
+## --- Activities ------------------------------------------------------------
+## Fit contribution from the activities ON THE APPLICATION matching the career
+## applied to, and the raw summed affinity behind it.
+@export var efecto_actividades: float = 0.0
+@export var afinidad_actividades: float = 0.0
+## Per-activity detail: [{actividad_id, nombre, tier, anios, continuidad,
+## afinidad, aporte}]. This is what lets the game show the player exactly how
+## much each activity was worth at each school.
+@export var aportes_actividad: Array[Dictionary] = []
+
+## The athletic route, kept as its own term precisely so it can be shown - or
+## shown as zero, with the reason attached.
+@export var es_reclutado: bool = false
+@export var efecto_atletico: float = 0.0
+## Sports that would be recruitable but failed a gate, with which gate:
+## [{actividad_id, nombre, motivo, reconocimiento, umbral, indice, minimo}]
+@export var deportes_no_reclutables: Array[Dictionary] = []
+
+## --- Academic Index --------------------------------------------------------
+@export var academic_index: float = 0.0
+## The floor that applies to THIS applicant: the athletic one when recruited,
+## the competitive one otherwise.
+@export var umbral_indice: float = 0.0
+@export var penalizacion_indice: float = 0.0
+
 ## fit + essay + career - penalty, i.e. what actually drives the odds.
 @export var puntaje_final: float = 0.0
 ## Multiplicative effect on the odds versus the published rate. 1.0 means the
@@ -49,7 +74,8 @@ class_name AdmissionResult
 
 ## One-line human summary for logs and tooltips.
 func resumen() -> String:
-	return "%s%s: %.1f%% (base %.1f%%, fit %.3f, ensayo %+.3f, carrera %+.3f, umbrales %-.3f)" % [
+	return "%s%s: %.1f%% (base %.1f%%, fit %.3f, ensayo %+.3f, carrera %+.3f, actividades %+.3f, atletico %+.3f, umbrales -%.3f, indice %.0f -%.3f)" % [
 		universidad_id, " [early]" if es_early else "", probabilidad * 100.0,
 		tasa_base * 100.0, fit_score, efecto_ensayo,
-		efecto_carrera + efecto_ajuste_carrera, penalizacion_umbrales]
+		efecto_carrera + efecto_ajuste_carrera, efecto_actividades, efecto_atletico,
+		penalizacion_umbrales, academic_index, penalizacion_indice]
