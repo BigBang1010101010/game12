@@ -1,0 +1,12 @@
+[gd_resource type="Resource" script_class="SynergyRule" load_steps=2 format=3 uid="uid://cadaa408d1c9a2"]
+
+[ext_resource type="Script" path="res://scripts/resources/synergy_rule.gd" id="1_syn"]
+
+[resource]
+script = ExtResource("1_syn")
+id = &"red_social_impulsa_liderazgo"
+descripcion = "No se lidera en abstracto: se lidera a gente que ya te conoce y te sigue."
+atributo_origen = &"red_social"
+atributo_afectado = &"liderazgo"
+umbral_activacion = 50.0
+factor = 1.3

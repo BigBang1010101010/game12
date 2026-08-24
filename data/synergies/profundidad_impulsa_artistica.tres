@@ -1,0 +1,12 @@
+[gd_resource type="Resource" script_class="SynergyRule" load_steps=2 format=3 uid="uid://c62750469acfe1"]
+
+[ext_resource type="Script" path="res://scripts/resources/synergy_rule.gd" id="1_syn"]
+
+[resource]
+script = ExtResource("1_syn")
+id = &"profundidad_impulsa_artistica"
+descripcion = "La maestría artística viene de insistir años en una sola disciplina."
+atributo_origen = &"profundidad_extracurricular"
+atributo_afectado = &"habilidad_artistica"
+umbral_activacion = 50.0
+factor = 1.25

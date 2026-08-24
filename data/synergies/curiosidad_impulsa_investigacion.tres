@@ -1,0 +1,12 @@
+[gd_resource type="Resource" script_class="SynergyRule" load_steps=2 format=3 uid="uid://c035fea5915f1d"]
+
+[ext_resource type="Script" path="res://scripts/resources/synergy_rule.gd" id="1_syn"]
+
+[resource]
+script = ExtResource("1_syn")
+id = &"curiosidad_impulsa_investigacion"
+descripcion = "Quien ya estudia por cuenta propia convierte tiempo de investigación en resultados con mucha menos fricción."
+atributo_origen = &"curiosidad_intelectual"
+atributo_afectado = &"aptitud_investigacion"
+umbral_activacion = 50.0
+factor = 1.3

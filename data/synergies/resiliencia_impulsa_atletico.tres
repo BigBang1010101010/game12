@@ -1,0 +1,12 @@
+[gd_resource type="Resource" script_class="SynergyRule" load_steps=2 format=3 uid="uid://c4d02af576304e"]
+
+[ext_resource type="Script" path="res://scripts/resources/synergy_rule.gd" id="1_syn"]
+
+[resource]
+script = ExtResource("1_syn")
+id = &"resiliencia_impulsa_atletico"
+descripcion = "El progreso deportivo se decide en los meses malos, no en los buenos."
+atributo_origen = &"resiliencia"
+atributo_afectado = &"logro_atletico"
+umbral_activacion = 45.0
+factor = 1.25

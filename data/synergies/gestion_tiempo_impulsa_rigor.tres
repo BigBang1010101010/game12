@@ -1,0 +1,12 @@
+[gd_resource type="Resource" script_class="SynergyRule" load_steps=2 format=3 uid="uid://c5bf5a300837c2"]
+
+[ext_resource type="Script" path="res://scripts/resources/synergy_rule.gd" id="1_syn"]
+
+[resource]
+script = ExtResource("1_syn")
+id = &"gestion_tiempo_impulsa_rigor"
+descripcion = "Sostener una carga académica dura depende menos de talento que de administrar las horas."
+atributo_origen = &"gestion_tiempo"
+atributo_afectado = &"rigor_academico"
+umbral_activacion = 45.0
+factor = 1.25

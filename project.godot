@@ -70,8 +70,15 @@ sprint={
 
 [autoload]
 
-AttributeRegistry="*res://scripts/registries/attribute_registry.gd"
+; Order matters: PlayerState connects to DayNightCycle's day_passed signal in
+; _ready(), and the registries must exist before PlayerState builds its value
+; table from them, so those all come first.
 DayNightCycle="*res://scripts/day_night_cycle.gd"
+EventBus="*res://scripts/progression/event_bus.gd"
+AttributeRegistry="*res://scripts/registries/attribute_registry.gd"
+SynergyRegistry="*res://scripts/registries/synergy_registry.gd"
+ModifierEngine="*res://scripts/progression/modifier_engine.gd"
+PlayerState="*res://scripts/progression/player_state.gd"
 Inventory="*res://scripts/inventory.gd"
 PlayerStats="*res://scripts/player_stats.gd"
 InteractionUI="*res://scripts/interaction_ui.gd"

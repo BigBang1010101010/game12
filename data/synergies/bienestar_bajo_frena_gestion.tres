@@ -1,0 +1,12 @@
+[gd_resource type="Resource" script_class="SynergyRule" load_steps=2 format=3 uid="uid://c9e354d151d10e"]
+
+[ext_resource type="Script" path="res://scripts/resources/synergy_rule.gd" id="1_syn"]
+
+[resource]
+script = ExtResource("1_syn")
+id = &"bienestar_bajo_frena_gestion"
+descripcion = "Con energía se planifica; agotado se improvisa."
+atributo_origen = &"bienestar"
+atributo_afectado = &"gestion_tiempo"
+umbral_activacion = 40.0
+factor = 1.2

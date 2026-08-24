@@ -1,0 +1,12 @@
+[gd_resource type="Resource" script_class="SynergyRule" load_steps=2 format=3 uid="uid://ccdc096e153e24"]
+
+[ext_resource type="Script" path="res://scripts/resources/synergy_rule.gd" id="1_syn"]
+
+[resource]
+script = ExtResource("1_syn")
+id = &"rigor_impulsa_investigacion"
+descripcion = "Un currículum exigente enseña a trabajar con fuentes y método; sobre esa base, la investigación propia avanza mucho más rápido."
+atributo_origen = &"rigor_academico"
+atributo_afectado = &"aptitud_investigacion"
+umbral_activacion = 55.0
+factor = 1.35
