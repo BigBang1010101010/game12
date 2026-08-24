@@ -75,6 +75,14 @@ var rider: CharacterBody3D = null
 var _speed := 0.0
 var _model: Node3D = null
 
+## How close to an end of the handlebar a vertex has to be, in the mesh's own
+## units, to count as part of that grip. The bar's own half-width is 0.136, so
+## this band covers the grip without reaching the stem.
+const GRIP_END_BAND := 0.02
+
+## One Marker3D per handlebar end, measured from the mesh in _cache_grips().
+var _grips: Array[Node3D] = []
+
 ## Wheel spin state.
 var _wheel_nodes: Array[Node3D] = []
 var _wheel_rest_bases: Array[Basis] = []
@@ -116,6 +124,7 @@ func _spawn_model() -> void:
 	_model.position.y = MODEL_WHEEL_DROP - _capsule_half_height()
 	add_child(_model)
 	call_deferred("_cache_wheels")
+	call_deferred("_cache_grips")
 
 ## Half the height of this body's collision capsule, i.e. how far its lowest
 ## point sits below the origin.
@@ -137,6 +146,56 @@ func _cache_wheels() -> void:
 		_wheel_rest_bases.append(node.transform.basis)
 		var axis: Vector3 = (node.global_transform.basis.inverse() * global_transform.basis.x).normalized()
 		_wheel_axes.append(axis)
+
+## Marks where the rider's hands go, by MEASURING the ends of the handlebar
+## mesh instead of assuming a width. Both grips are found the same way and
+## deliberately not labelled left/right here - which hand takes which is
+## decided by the rider, from its own shoulders (see player.gd), so this keeps
+## working whatever way the bike or the rig happens to face.
+func _cache_grips() -> void:
+	_grips.clear()
+	if not _model:
+		return
+	var handle := _model.find_child("Handle", true, false) as MeshInstance3D
+	if not handle or not handle.mesh:
+		return
+	# The bike's own left-right axis, brought into the handlebar's local space,
+	# so the extremes are measured along the bar rather than along whatever
+	# axis the mesh happens to be authored on.
+	var lateral: Vector3 = (handle.global_transform.basis.inverse() * global_transform.basis.x).normalized()
+	var vertices := PackedVector3Array()
+	for surface in range(handle.mesh.get_surface_count()):
+		vertices.append_array(handle.mesh.surface_get_arrays(surface)[Mesh.ARRAY_VERTEX])
+	if vertices.is_empty():
+		return
+	var menor: float = INF
+	var mayor: float = -INF
+	for v in vertices:
+		var d: float = v.dot(lateral)
+		menor = minf(menor, d)
+		mayor = maxf(mayor, d)
+	# One marker per end, placed at the centroid of the vertices within
+	# GRIP_END_BAND of that end: the centroid lands in the middle of the grip
+	# rather than on the outermost point of the bar cap, and it carries the
+	# grip's real height and sweep, not just its width.
+	for extremo in [menor, mayor]:
+		var suma := Vector3.ZERO
+		var contados: int = 0
+		for v in vertices:
+			if absf(v.dot(lateral) - extremo) < GRIP_END_BAND:
+				suma += v
+				contados += 1
+		if contados == 0:
+			continue
+		var marcador := Marker3D.new()
+		marcador.name = "Grip%d" % _grips.size()
+		handle.add_child(marcador)
+		marcador.position = suma / float(contados)
+		_grips.append(marcador)
+
+## World positions of the two handlebar grips, for whoever is riding.
+func get_grip_nodes() -> Array[Node3D]:
+	return _grips
 
 func _on_interacted() -> void:
 	# The same E press both mounts and dismounts.
@@ -163,8 +222,15 @@ func mount(player: CharacterBody3D) -> void:
 	# at 32.8 u/s against a 10.0 top speed) instead of the intended cruise.
 	add_collision_exception_with(player)
 	player.add_collision_exception_with(self)
-	if player.has_method("set_handlebar_target") and _model:
-		player.set_handlebar_target(_model.find_child("Handle", true, false))
+	if player.has_method("set_handlebar_targets") and _model:
+		var objetivos: Array[Node3D] = get_grip_nodes()
+		if objetivos.is_empty():
+			# Measuring failed (no mesh, or a model without a Handle): fall
+			# back to the bar's own origin so the arms still reach forward.
+			var handle := _model.find_child("Handle", true, false) as Node3D
+			if handle:
+				objetivos = [handle]
+		player.set_handlebar_targets(objetivos)
 	if player.has_method("set_mounted"):
 		player.set_mounted(self)
 	_set_camera_ride_view(true)

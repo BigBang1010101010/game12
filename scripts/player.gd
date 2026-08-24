@@ -128,10 +128,13 @@ var flashlight: SpotLight3D = null
 
 ## The node the rider's hands reach for while mounted, supplied by the
 ## vehicle (the bike passes its handlebar).
-var _handlebar_target: Node3D = null
+var _handlebar_targets: Array[Node3D] = []
 
-func set_handlebar_target(node: Node3D) -> void:
-	_handlebar_target = node
+## The vehicle hands over one node per grip. Two of them means one hand each;
+## one means there is only a single point to hold (the fallback), and the arms
+## converge on it as they used to.
+func set_handlebar_targets(nodes: Array[Node3D]) -> void:
+	_handlebar_targets = nodes
 
 ## Called by a vehicle when the player gets on or off it.
 func set_mounted(vehicle: Node3D) -> void:
@@ -145,7 +148,7 @@ func set_mounted(vehicle: Node3D) -> void:
 			animation_player.active = true
 			animation_player.play(ANIM_IDLE)
 	if not vehicle:
-		_handlebar_target = null
+		_handlebar_targets = []
 	if not vehicle and skeleton:
 		# reset_bone_pose clears position as well as rotation, which matters
 		# for the feet: they are the only bones whose POSITION is overridden.
@@ -199,16 +202,53 @@ func apply_riding_pose(pedal_phase: float) -> void:
 	# bar is at z=-0.42), because the arm's swing plane under that axis is not
 	# the sagittal one. Aiming solves it directly and keeps working if the
 	# seat or the bike changes.
-	if _handlebar_target:
-		_aim_bone_at("UpperArm.L", "LowerArm.L", _handlebar_target.global_position)
-		_aim_bone_at("UpperArm.R", "LowerArm.R", _handlebar_target.global_position)
-		_aim_bone_at("LowerArm.L", "Palm.L", _handlebar_target.global_position)
-		_aim_bone_at("LowerArm.R", "Palm.R", _handlebar_target.global_position)
+	if not _handlebar_targets.is_empty():
+		# One grip per hand. Aiming both arms at the same node put both hands
+		# on the middle of the bar: measured, they ended up 0.105 apart while
+		# the bar's own grips are 0.452 apart.
+		var lados: Array[Vector3] = _grips_por_lado()
+		_aim_bone_at("UpperArm.L", "LowerArm.L", lados[0])
+		_aim_bone_at("UpperArm.R", "LowerArm.R", lados[1])
+		_aim_bone_at("LowerArm.L", "Palm.L", lados[0])
+		_aim_bone_at("LowerArm.R", "Palm.R", lados[1])
 	else:
 		_set_bone_x("UpperArm.L", RIDE_SHOULDER)
 		_set_bone_x("UpperArm.R", RIDE_SHOULDER)
 		_set_bone_x("LowerArm.L", RIDE_ELBOW)
 		_set_bone_x("LowerArm.R", RIDE_ELBOW)
+
+## Sorts the handlebar grips into [for the left arm, for the right arm].
+##
+## The side is decided by projecting each grip onto the RIG'S OWN left-right
+## axis - the vector from one shoulder to the other - so nothing here assumes
+## which end of the bar is which, nor which way the model faces.
+##
+## Picking the grip nearest each shoulder looks equivalent and is not: mid-turn
+## the rider sits at an angle to the bar and both shoulders come out nearer the
+## same end (measured, the right shoulder sat 0.540 from the left grip against
+## 0.603 from its own), so both hands landed on one grip. A projection has no
+## such failure mode - it only asks which side, never how far.
+func _grips_por_lado() -> Array[Vector3]:
+	var lados: Array[Vector3] = []
+	var a: Vector3 = _handlebar_targets[0].global_position
+	if _handlebar_targets.size() < 2:
+		lados.append(a)
+		lados.append(a)
+		return lados
+	var b: Vector3 = _handlebar_targets[1].global_position
+	var izq := skeleton.find_bone("UpperArm.L")
+	var der := skeleton.find_bone("UpperArm.R")
+	var invertir: bool = false
+	if izq >= 0 and der >= 0:
+		skeleton.force_update_all_bone_transforms()
+		var hombro_izq: Vector3 = skeleton.global_transform * skeleton.get_bone_global_pose(izq).origin
+		var hombro_der: Vector3 = skeleton.global_transform * skeleton.get_bone_global_pose(der).origin
+		# Positive along the shoulder-to-shoulder axis is the right-hand side,
+		# by construction, so this asks nothing but "which side is b on".
+		invertir = (b - a).dot(hombro_der - hombro_izq) < 0.0
+	lados.append(b if invertir else a)
+	lados.append(a if invertir else b)
+	return lados
 
 ## Moves a foot bone to sit at the end of its shin and tilts it like a foot
 ## resting on a pedal. Position is set as well as rotation, because the bone
