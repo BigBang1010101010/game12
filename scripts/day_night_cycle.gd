@@ -162,6 +162,10 @@ func _apply() -> void:
 		_light.rotation = Vector3(-sun_angle, deg_to_rad(-30.0), 0.0)
 		_light.light_color = _phase_color()
 		_light.light_energy = _phase_energy()
+		# Directional shadows only while the sun is actually up: once it is
+		# below the horizon the shadows it casts are meaningless, and the
+		# cascade is pure cost. Cheap win, no visual change at night.
+		_light.shadow_enabled = _night_blend() < 0.5
 
 	if _environment:
 		var night_blend: float = _night_blend()

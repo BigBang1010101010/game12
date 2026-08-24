@@ -97,7 +97,7 @@ func _build_ui() -> void:
 	notebook_panel.visible = false
 
 	hint_label = Label.new()
-	hint_label.text = "I para cerrar - selecciona un objeto para usarlo"
+	hint_label.text = "I para cerrar - clic en un objeto para equiparlo, clic de nuevo para guardarlo"
 	hint_label.modulate = Color(1, 1, 1, 0.65)
 	column.add_child(hint_label)
 
@@ -157,9 +157,24 @@ func _on_item_selected(index: int) -> void:
 		return
 	_use_item(Inventory.items[index])
 
-## Dispatch point for using an item. New item kinds get a branch here; the
-## rest of the menu needs no changes.
+## Dispatch point for using an item. Selecting an item equips it into the
+## character's hand; selecting the one already held puts it away again. New
+## item kinds get a branch here; the rest of the menu needs no changes.
 func _use_item(item: Dictionary) -> void:
+	var player := _get_player()
+	var item_id: String = str(item.get("id", ""))
+	var already_held: bool = player != null and player.has_method("is_holding") and player.is_holding(item_id)
+
+	if player and player.has_method("equip_item"):
+		if already_held:
+			player.unequip_item()
+		else:
+			player.equip_item(item)
+
+	if already_held:
+		notebook_panel.visible = false
+		return
+
 	match str(item.get("kind", "")):
 		Inventory.KIND_NOTEBOOK:
 			notebook_panel.visible = true
@@ -167,6 +182,10 @@ func _use_item(item: Dictionary) -> void:
 			notebook_edit.grab_focus()
 		_:
 			notebook_panel.visible = false
+
+func _get_player() -> Node:
+	var players := get_tree().get_nodes_in_group("player")
+	return players[0] if not players.is_empty() else null
 
 func _on_notebook_text_changed() -> void:
 	Inventory.set_notebook_text(notebook_edit.text)

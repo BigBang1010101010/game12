@@ -98,6 +98,28 @@ const RIDE_ELBOW := 24.0          # elbows bent, not locked straight
 const RIDE_BONES := ["UpperLeg.L", "UpperLeg.R", "LowerLeg.L", "LowerLeg.R",
 	"UpperArm.L", "UpperArm.R", "LowerArm.L", "LowerArm.R"]
 
+## Bone the held item hangs off. Read from the model's own skeleton, where
+## the right hand is "Palm.R" (index 23, parented to LowerArm.R).
+const HAND_BONE := "Palm.R"
+
+## Where the item sits relative to that bone, in real world units. The
+## skeleton's global basis carries a 37.18x scale (the FBX 100x times
+## MODEL_SCALE), which a BoneAttachment3D inherits, so the held model is
+## divided by that at runtime - reading the live scale rather than hardcoding
+## it, so it survives any change to MODEL_SCALE.
+const HELD_ITEM_OFFSET := Vector3(0.0, -0.03, -0.06)
+const HELD_ITEM_ROTATION := Vector3(0.0, 0.0, 0.0)
+
+## Spot light shone by the flashlight.
+const FLASHLIGHT_RANGE := 22.0
+const FLASHLIGHT_ANGLE := 26.0
+const FLASHLIGHT_ENERGY := 6.0
+
+var hand_attachment: BoneAttachment3D = null
+var held_item_node: Node3D = null
+var held_item_id := ""
+var flashlight: SpotLight3D = null
+
 ## The node the rider's hands reach for while mounted, supplied by the
 ## vehicle (the bike passes its handlebar).
 var _handlebar_target: Node3D = null
@@ -291,6 +313,83 @@ func _spawn_character_model() -> void:
 		jump_anim_speed = jump_clip.length / air_time
 
 	animation_player.play(ANIM_IDLE)
+
+	_create_hand_attachment()
+
+## One BoneAttachment3D on the hand bone, created once. Anything equipped is
+## parented to it, so it follows the hand through every animation rather than
+## being repositioned by hand each frame.
+func _create_hand_attachment() -> void:
+	if not skeleton or hand_attachment:
+		return
+	if skeleton.find_bone(HAND_BONE) < 0:
+		push_warning("Player: no '%s' bone to attach held items to" % HAND_BONE)
+		return
+	hand_attachment = BoneAttachment3D.new()
+	hand_attachment.name = "HandAttachment"
+	hand_attachment.bone_name = HAND_BONE
+	skeleton.add_child(hand_attachment)
+
+## Shows `item` in the character's hand. Passing an empty dictionary, or an
+## item with nothing holdable, clears whatever is held.
+func equip_item(item: Dictionary) -> void:
+	unequip_item()
+	if item.is_empty() or not hand_attachment:
+		return
+	var kind: String = str(item.get("kind", ""))
+	var model := HeldItemBuilder.build(kind)
+	if not model:
+		return
+
+	held_item_id = str(item.get("id", ""))
+	held_item_node = model
+	hand_attachment.add_child(model)
+	# Undo the skeleton's baked scale so the item is its real size in the world.
+	var skel_scale: float = skeleton.global_transform.basis.get_scale().x
+	model.scale = Vector3.ONE / maxf(skel_scale, 0.0001)
+	model.position = HELD_ITEM_OFFSET / maxf(skel_scale, 0.0001)
+	model.rotation = HELD_ITEM_ROTATION
+
+	if kind == Inventory.KIND_FLASHLIGHT:
+		flashlight = SpotLight3D.new()
+		flashlight.name = "FlashlightBeam"
+		flashlight.spot_range = FLASHLIGHT_RANGE
+		flashlight.spot_angle = FLASHLIGHT_ANGLE
+		flashlight.light_energy = FLASHLIGHT_ENERGY
+		flashlight.light_color = Color(1.0, 0.96, 0.85)
+		flashlight.shadow_enabled = false
+		# Parented to the player, not the bone: its POSITION is snapped to the
+		# hand each frame, but its AIM follows where the character is facing.
+		# Hanging it off the bone instead would point it along whatever
+		# arbitrary axis the rig gave that bone.
+		add_child(flashlight)
+
+func unequip_item() -> void:
+	held_item_id = ""
+	if held_item_node:
+		held_item_node.queue_free()
+		held_item_node = null
+	if flashlight:
+		flashlight.queue_free()
+		flashlight = null
+
+func is_holding(item_id: String) -> bool:
+	return held_item_id == item_id
+
+## Keeps the flashlight beam at the hand and pointed where the character
+## looks. Runs in _process (not _physics_process) so it tracks the rendered
+## pose rather than lagging a physics tick behind it.
+func _process(_delta: float) -> void:
+	if not flashlight or not hand_attachment or not character_model:
+		return
+	flashlight.global_position = hand_attachment.global_position
+	var forward: Vector3 = -character_model.global_transform.basis.z
+	# The model is built facing +Z and turned by MODEL_FRONT_CORRECTION, so
+	# its own -Z is the direction it visually faces.
+	if forward.is_zero_approx():
+		return
+	var aim: Vector3 = flashlight.global_position + forward * 6.0 + Vector3(0, -1.2, 0)
+	flashlight.look_at(aim, Vector3.UP)
 
 func _update_animation() -> void:
 	if not animation_player:

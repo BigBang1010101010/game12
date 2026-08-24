@@ -14,6 +14,7 @@ extends Node
 signal items_changed
 
 const KIND_NOTEBOOK := "notebook"
+const KIND_FLASHLIGHT := "flashlight"
 
 var items: Array[Dictionary] = []
 
@@ -26,6 +27,12 @@ func _ready() -> void:
 		"kind": KIND_NOTEBOOK,
 		# Notes live here for the session. Not written to disk yet.
 		"data": {"text": ""},
+	})
+	add_item({
+		"id": "flashlight",
+		"name": "Linterna",
+		"kind": KIND_FLASHLIGHT,
+		"data": {},
 	})
 
 func add_item(item: Dictionary) -> void:
