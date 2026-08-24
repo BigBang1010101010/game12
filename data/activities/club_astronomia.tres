@@ -1,0 +1,46 @@
+[gd_resource type="Resource" script_class="ActivityData" load_steps=5 format=3]
+
+[ext_resource type="Script" path="res://scripts/resources/activity_data.gd" id="1_act"]
+[ext_resource type="Script" path="res://scripts/resources/activity_level.gd" id="2_niv"]
+
+; RAZONAMIENTO
+;   Tier techo 3: es una actividad de interes genuino sin circuito competitivo, asi que aporta curiosidad y textura al perfil, no una credencial.
+
+[sub_resource type="Resource" id="Nivel0"]
+script = ExtResource("2_niv")
+nombre = "Miembro"
+tier = 4
+modificadores_atributo = {
+&"curiosidad_intelectual": 3.0
+}
+condiciones_ascenso = []
+
+[sub_resource type="Resource" id="Nivel1"]
+script = ExtResource("2_niv")
+nombre = "Divulgador"
+tier = 3
+modificadores_atributo = {
+&"curiosidad_intelectual": 4.0,
+&"aptitud_cientifica": 3.0
+}
+condiciones_ascenso = [{
+"palanca": "anios_continuidad",
+"valor": 1.0
+}, {
+"palanca": "rol_liderazgo",
+"valor": &"miembro"
+}]
+
+[resource]
+script = ExtResource("1_act")
+id = &"club_astronomia"
+nombre_display = "Club de astronomía"
+descripcion = "Observación, divulgación y noches de telescopio."
+categoria = &"stem"
+tier_techo = 3
+costo_horas_semana = 3
+niveles = [SubResource("Nivel0"), SubResource("Nivel1")]
+carreras_afinidad = {
+&"ingenieria": 1.1,
+&"ciencias_computacion": 1.1
+}

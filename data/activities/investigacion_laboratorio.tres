@@ -1,0 +1,91 @@
+[gd_resource type="Resource" script_class="ActivityData" load_steps=7 format=3]
+
+[ext_resource type="Script" path="res://scripts/resources/activity_data.gd" id="1_act"]
+[ext_resource type="Script" path="res://scripts/resources/activity_level.gd" id="2_niv"]
+
+; RAZONAMIENTO
+;   Tier techo 1: una publicacion con coautoria es de los pocos logros de secundaria que sobrevive la lectura escepticaposible de un comite.
+;   Cuesta 12 horas porque el laboratorio no admite medias jornadas.
+
+[sub_resource type="Resource" id="Nivel0"]
+script = ExtResource("2_niv")
+nombre = "Asistente de laboratorio"
+tier = 4
+modificadores_atributo = {
+&"aptitud_investigacion": 5.0,
+&"curiosidad_intelectual": 3.0
+}
+condiciones_ascenso = []
+
+[sub_resource type="Resource" id="Nivel1"]
+script = ExtResource("2_niv")
+nombre = "Proyecto propio"
+tier = 3
+modificadores_atributo = {
+&"aptitud_investigacion": 6.0,
+&"aptitud_cientifica": 4.0
+}
+condiciones_ascenso = [{
+"palanca": "anios_continuidad",
+"valor": 1.0
+}, {
+"palanca": "rol_liderazgo",
+"valor": &"miembro"
+}]
+
+[sub_resource type="Resource" id="Nivel2"]
+script = ExtResource("2_niv")
+nombre = "Presentación en congreso"
+tier = 2
+modificadores_atributo = {
+&"aptitud_investigacion": 8.0,
+&"rigor_academico": 5.0
+}
+condiciones_ascenso = [{
+"palanca": "anios_continuidad",
+"valor": 2.0
+}, {
+"palanca": "rol_liderazgo",
+"valor": &"oficial"
+}, {
+"palanca": "reconocimiento_externo",
+"valor": &"escolar"
+}]
+
+[sub_resource type="Resource" id="Nivel3"]
+script = ExtResource("2_niv")
+nombre = "Publicación con coautoría"
+tier = 1
+modificadores_atributo = {
+&"aptitud_investigacion": 13.0,
+&"aptitud_cientifica": 8.0
+}
+condiciones_ascenso = [{
+"palanca": "anios_continuidad",
+"valor": 3.0
+}, {
+"palanca": "rol_liderazgo",
+"valor": &"presidente"
+}, {
+"palanca": "reconocimiento_externo",
+"valor": &"estatal"
+}, {
+"palanca": "impacto_medible",
+"valor": 400.0
+}]
+
+[resource]
+script = ExtResource("1_act")
+id = &"investigacion_laboratorio"
+nombre_display = "Investigación en laboratorio"
+descripcion = "Trabajo de investigación con un mentor universitario, con posible publicación."
+categoria = &"stem"
+tier_techo = 1
+costo_horas_semana = 12
+niveles = [SubResource("Nivel0"), SubResource("Nivel1"), SubResource("Nivel2"), SubResource("Nivel3")]
+carreras_afinidad = {
+&"medicina": 1.4,
+&"ingenieria": 1.2,
+&"ciencias_computacion": 1.2,
+&"psicologia": 1.1
+}

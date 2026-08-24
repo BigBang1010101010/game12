@@ -1,0 +1,88 @@
+[gd_resource type="Resource" script_class="ActivityData" load_steps=7 format=3]
+
+[ext_resource type="Script" path="res://scripts/resources/activity_data.gd" id="1_act"]
+[ext_resource type="Script" path="res://scripts/resources/activity_level.gd" id="2_niv"]
+
+; RAZONAMIENTO
+;   Umbral 'estatal' y solo 8 horas: es el deporte de nicho por excelencia, donde un ranking estatal ya interesa a un entrenador Ivy.
+;   A cambio pide un Academic Index mas alto (180), porque el reclutamiento de nicho no compra tanto margen academico.
+
+[sub_resource type="Resource" id="Nivel0"]
+script = ExtResource("2_niv")
+nombre = "Miembro del equipo"
+tier = 4
+modificadores_atributo = {
+&"logro_atletico": 4.0,
+&"bienestar": 3.0
+}
+condiciones_ascenso = []
+
+[sub_resource type="Resource" id="Nivel1"]
+script = ExtResource("2_niv")
+nombre = "Titular"
+tier = 3
+modificadores_atributo = {
+&"logro_atletico": 6.0,
+&"resiliencia": 4.0
+}
+condiciones_ascenso = [{
+"palanca": "anios_continuidad",
+"valor": 1.0
+}, {
+"palanca": "reconocimiento_externo",
+"valor": &"escolar"
+}]
+
+[sub_resource type="Resource" id="Nivel2"]
+script = ExtResource("2_niv")
+nombre = "Capitán / medalla regional"
+tier = 2
+modificadores_atributo = {
+&"logro_atletico": 8.0,
+&"resiliencia": 5.0,
+&"liderazgo": 4.0
+}
+condiciones_ascenso = [{
+"palanca": "anios_continuidad",
+"valor": 2.0
+}, {
+"palanca": "reconocimiento_externo",
+"valor": &"regional"
+}, {
+"palanca": "rol_liderazgo",
+"valor": &"miembro"
+}]
+
+[sub_resource type="Resource" id="Nivel3"]
+script = ExtResource("2_niv")
+nombre = "Nivel estatal o superior"
+tier = 1
+modificadores_atributo = {
+&"logro_atletico": 12.0,
+&"resiliencia": 8.0,
+&"profundidad_extracurricular": 7.0
+}
+condiciones_ascenso = [{
+"palanca": "anios_continuidad",
+"valor": 3.0
+}, {
+"palanca": "reconocimiento_externo",
+"valor": &"estatal"
+}, {
+"palanca": "rol_liderazgo",
+"valor": &"oficial"
+}]
+
+[resource]
+script = ExtResource("1_act")
+id = &"esgrima"
+nombre_display = "Esgrima"
+descripcion = "Club de esgrima con circuito de ranking."
+categoria = &"deporte"
+tier_techo = 1
+costo_horas_semana = 8
+niveles = [SubResource("Nivel0"), SubResource("Nivel1"), SubResource("Nivel2"), SubResource("Nivel3")]
+carreras_afinidad = {}
+es_deporte = true
+umbral_reclutamiento = 3
+academic_index_minimo = 180

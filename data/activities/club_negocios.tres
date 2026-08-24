@@ -1,0 +1,67 @@
+[gd_resource type="Resource" script_class="ActivityData" load_steps=6 format=3]
+
+[ext_resource type="Script" path="res://scripts/resources/activity_data.gd" id="1_act"]
+[ext_resource type="Script" path="res://scripts/resources/activity_level.gd" id="2_niv"]
+
+; RAZONAMIENTO
+;   Tier techo 2: hay circuito nacional, pero es un circuito de simulacion; un titulo pesa menos que un negocio real de la mitad del tamano.
+
+[sub_resource type="Resource" id="Nivel0"]
+script = ExtResource("2_niv")
+nombre = "Miembro"
+tier = 4
+modificadores_atributo = {
+&"aptitud_verbal": 3.0,
+&"red_social": 3.0
+}
+condiciones_ascenso = []
+
+[sub_resource type="Resource" id="Nivel1"]
+script = ExtResource("2_niv")
+nombre = "Finalista estatal"
+tier = 3
+modificadores_atributo = {
+&"liderazgo": 4.0,
+&"aptitud_cuantitativa": 3.0
+}
+condiciones_ascenso = [{
+"palanca": "anios_continuidad",
+"valor": 1.0
+}, {
+"palanca": "rol_liderazgo",
+"valor": &"miembro"
+}]
+
+[sub_resource type="Resource" id="Nivel2"]
+script = ExtResource("2_niv")
+nombre = "Capitán del capítulo"
+tier = 2
+modificadores_atributo = {
+&"liderazgo": 6.0,
+&"aptitud_verbal": 5.0
+}
+condiciones_ascenso = [{
+"palanca": "anios_continuidad",
+"valor": 2.0
+}, {
+"palanca": "rol_liderazgo",
+"valor": &"oficial"
+}, {
+"palanca": "reconocimiento_externo",
+"valor": &"escolar"
+}]
+
+[resource]
+script = ExtResource("1_act")
+id = &"club_negocios"
+nombre_display = "Club de negocios (DECA/FBLA)"
+descripcion = "Competencias de casos de negocio y emprendimiento."
+categoria = &"negocios"
+tier_techo = 2
+costo_horas_semana = 6
+niveles = [SubResource("Nivel0"), SubResource("Nivel1"), SubResource("Nivel2")]
+carreras_afinidad = {
+&"negocios": 1.4,
+&"finanzas": 1.3,
+&"economia": 1.1
+}

@@ -1,0 +1,48 @@
+[gd_resource type="Resource" script_class="ActivityData" load_steps=5 format=3]
+
+[ext_resource type="Script" path="res://scripts/resources/activity_data.gd" id="1_act"]
+[ext_resource type="Script" path="res://scripts/resources/activity_level.gd" id="2_niv"]
+
+; RAZONAMIENTO
+;   Tier techo 3: es valiosa y sostenible pero invisible fuera del colegio; su mejor uso es alimentar un ensayo, no ocupar un slot alto.
+
+[sub_resource type="Resource" id="Nivel0"]
+script = ExtResource("2_niv")
+nombre = "Tutor"
+tier = 4
+modificadores_atributo = {
+&"impacto_comunitario": 3.0,
+&"aptitud_verbal": 2.0
+}
+condiciones_ascenso = []
+
+[sub_resource type="Resource" id="Nivel1"]
+script = ExtResource("2_niv")
+nombre = "Tutor de referencia"
+tier = 3
+modificadores_atributo = {
+&"aptitud_verbal": 4.0,
+&"red_social": 3.0
+}
+condiciones_ascenso = [{
+"palanca": "anios_continuidad",
+"valor": 1.0
+}, {
+"palanca": "rol_liderazgo",
+"valor": &"miembro"
+}]
+
+[resource]
+script = ExtResource("1_act")
+id = &"tutoria_pares"
+nombre_display = "Tutoría entre pares"
+descripcion = "Enseñanza a compañeros más jóvenes o con dificultades."
+categoria = &"transversal"
+tier_techo = 3
+costo_horas_semana = 4
+niveles = [SubResource("Nivel0"), SubResource("Nivel1")]
+carreras_afinidad = {
+&"psicologia": 1.2,
+&"medicina": 1.1,
+&"artes_comunicacion": 1.1
+}

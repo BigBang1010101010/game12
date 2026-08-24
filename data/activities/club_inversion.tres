@@ -1,0 +1,48 @@
+[gd_resource type="Resource" script_class="ActivityData" load_steps=5 format=3]
+
+[ext_resource type="Script" path="res://scripts/resources/activity_data.gd" id="1_act"]
+[ext_resource type="Script" path="res://scripts/resources/activity_level.gd" id="2_niv"]
+
+; RAZONAMIENTO
+;   Tier techo 3: senal clara de interes en finanzas, pero sin dinero real ni resultado auditable no pasa de contexto.
+
+[sub_resource type="Resource" id="Nivel0"]
+script = ExtResource("2_niv")
+nombre = "Miembro"
+tier = 4
+modificadores_atributo = {
+&"aptitud_cuantitativa": 3.0,
+&"curiosidad_intelectual": 2.0
+}
+condiciones_ascenso = []
+
+[sub_resource type="Resource" id="Nivel1"]
+script = ExtResource("2_niv")
+nombre = "Gestor de cartera"
+tier = 3
+modificadores_atributo = {
+&"aptitud_cuantitativa": 5.0,
+&"gestion_tiempo": 3.0
+}
+condiciones_ascenso = [{
+"palanca": "anios_continuidad",
+"valor": 1.0
+}, {
+"palanca": "rol_liderazgo",
+"valor": &"miembro"
+}]
+
+[resource]
+script = ExtResource("1_act")
+id = &"club_inversion"
+nombre_display = "Club de inversión"
+descripcion = "Cartera simulada, análisis y competencias de trading."
+categoria = &"negocios"
+tier_techo = 3
+costo_horas_semana = 4
+niveles = [SubResource("Nivel0"), SubResource("Nivel1")]
+carreras_afinidad = {
+&"finanzas": 1.4,
+&"economia": 1.3,
+&"negocios": 1.1
+}

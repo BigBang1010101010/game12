@@ -1,0 +1,67 @@
+[gd_resource type="Resource" script_class="ActivityData" load_steps=6 format=3]
+
+[ext_resource type="Script" path="res://scripts/resources/activity_data.gd" id="1_act"]
+[ext_resource type="Script" path="res://scripts/resources/activity_level.gd" id="2_niv"]
+
+; RAZONAMIENTO
+;   Tier techo 2: la Common App tiene una casilla explicita para esto y los comites la leen con seriedad; no da credenciales pero explica el tiempo ausente y paga en resiliencia real.
+;   Sin afinidad de carrera fuerte a proposito: no es una vocacion, es una circunstancia.
+
+[sub_resource type="Resource" id="Nivel0"]
+script = ExtResource("2_niv")
+nombre = "Apoyo en casa"
+tier = 4
+modificadores_atributo = {
+&"resiliencia": 4.0,
+&"gestion_tiempo": 3.0
+}
+condiciones_ascenso = []
+
+[sub_resource type="Resource" id="Nivel1"]
+script = ExtResource("2_niv")
+nombre = "Responsable diario"
+tier = 3
+modificadores_atributo = {
+&"resiliencia": 6.0,
+&"gestion_tiempo": 5.0
+}
+condiciones_ascenso = [{
+"palanca": "anios_continuidad",
+"valor": 1.0
+}, {
+"palanca": "rol_liderazgo",
+"valor": &"miembro"
+}]
+
+[sub_resource type="Resource" id="Nivel2"]
+script = ExtResource("2_niv")
+nombre = "Sostén principal"
+tier = 2
+modificadores_atributo = {
+&"resiliencia": 8.0,
+&"impacto_comunitario": 5.0
+}
+condiciones_ascenso = [{
+"palanca": "anios_continuidad",
+"valor": 2.0
+}, {
+"palanca": "rol_liderazgo",
+"valor": &"oficial"
+}, {
+"palanca": "reconocimiento_externo",
+"valor": &"escolar"
+}]
+
+[resource]
+script = ExtResource("1_act")
+id = &"responsabilidad_familiar"
+nombre_display = "Responsabilidad familiar"
+descripcion = "Cuidado de hermanos o de un familiar, con horario real."
+categoria = &"transversal"
+tier_techo = 2
+costo_horas_semana = 12
+niveles = [SubResource("Nivel0"), SubResource("Nivel1"), SubResource("Nivel2")]
+carreras_afinidad = {
+&"psicologia": 1.2,
+&"medicina": 1.1
+}

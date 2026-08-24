@@ -1,0 +1,67 @@
+[gd_resource type="Resource" script_class="ActivityData" load_steps=6 format=3]
+
+[ext_resource type="Script" path="res://scripts/resources/activity_data.gd" id="1_act"]
+[ext_resource type="Script" path="res://scripts/resources/activity_level.gd" id="2_niv"]
+
+; RAZONAMIENTO
+;   Tier techo 2: el cargo se lee como popularidad tanto como liderazgo, salvo que traiga impacto medible; por eso el nivel alto exige impacto, no solo el puesto.
+
+[sub_resource type="Resource" id="Nivel0"]
+script = ExtResource("2_niv")
+nombre = "Representante de clase"
+tier = 4
+modificadores_atributo = {
+&"red_social": 4.0,
+&"liderazgo": 3.0
+}
+condiciones_ascenso = []
+
+[sub_resource type="Resource" id="Nivel1"]
+script = ExtResource("2_niv")
+nombre = "Miembro del consejo"
+tier = 3
+modificadores_atributo = {
+&"liderazgo": 5.0,
+&"gestion_tiempo": 4.0
+}
+condiciones_ascenso = [{
+"palanca": "anios_continuidad",
+"valor": 1.0
+}, {
+"palanca": "rol_liderazgo",
+"valor": &"miembro"
+}]
+
+[sub_resource type="Resource" id="Nivel2"]
+script = ExtResource("2_niv")
+nombre = "Presidente estudiantil"
+tier = 2
+modificadores_atributo = {
+&"liderazgo": 8.0,
+&"impacto_comunitario": 5.0
+}
+condiciones_ascenso = [{
+"palanca": "anios_continuidad",
+"valor": 2.0
+}, {
+"palanca": "rol_liderazgo",
+"valor": &"oficial"
+}, {
+"palanca": "reconocimiento_externo",
+"valor": &"escolar"
+}]
+
+[resource]
+script = ExtResource("1_act")
+id = &"gobierno_estudiantil"
+nombre_display = "Gobierno estudiantil"
+descripcion = "Representación estudiantil electa."
+categoria = &"derecho_politica"
+tier_techo = 2
+costo_horas_semana = 7
+niveles = [SubResource("Nivel0"), SubResource("Nivel1"), SubResource("Nivel2")]
+carreras_afinidad = {
+&"ciencias_politicas": 1.4,
+&"negocios": 1.2,
+&"derecho": 1.1
+}

@@ -1,0 +1,88 @@
+[gd_resource type="Resource" script_class="ActivityData" load_steps=7 format=3]
+
+[ext_resource type="Script" path="res://scripts/resources/activity_data.gd" id="1_act"]
+[ext_resource type="Script" path="res://scripts/resources/activity_level.gd" id="2_niv"]
+
+; RAZONAMIENTO
+;   Umbral 'nacional': la pista es el deporte con marcas objetivas y comparables en todo el pais, asi que ser bueno en el estado no distingue.
+;   Es el deporte mas dificil de convertir en reclutamiento de esta lista.
+
+[sub_resource type="Resource" id="Nivel0"]
+script = ExtResource("2_niv")
+nombre = "Miembro del equipo"
+tier = 4
+modificadores_atributo = {
+&"logro_atletico": 4.0,
+&"bienestar": 3.0
+}
+condiciones_ascenso = []
+
+[sub_resource type="Resource" id="Nivel1"]
+script = ExtResource("2_niv")
+nombre = "Titular"
+tier = 3
+modificadores_atributo = {
+&"logro_atletico": 6.0,
+&"resiliencia": 4.0
+}
+condiciones_ascenso = [{
+"palanca": "anios_continuidad",
+"valor": 1.0
+}, {
+"palanca": "reconocimiento_externo",
+"valor": &"escolar"
+}]
+
+[sub_resource type="Resource" id="Nivel2"]
+script = ExtResource("2_niv")
+nombre = "Capitán / medalla regional"
+tier = 2
+modificadores_atributo = {
+&"logro_atletico": 8.0,
+&"resiliencia": 5.0,
+&"liderazgo": 4.0
+}
+condiciones_ascenso = [{
+"palanca": "anios_continuidad",
+"valor": 2.0
+}, {
+"palanca": "reconocimiento_externo",
+"valor": &"regional"
+}, {
+"palanca": "rol_liderazgo",
+"valor": &"miembro"
+}]
+
+[sub_resource type="Resource" id="Nivel3"]
+script = ExtResource("2_niv")
+nombre = "Nivel estatal o superior"
+tier = 1
+modificadores_atributo = {
+&"logro_atletico": 12.0,
+&"resiliencia": 8.0,
+&"profundidad_extracurricular": 7.0
+}
+condiciones_ascenso = [{
+"palanca": "anios_continuidad",
+"valor": 3.0
+}, {
+"palanca": "reconocimiento_externo",
+"valor": &"estatal"
+}, {
+"palanca": "rol_liderazgo",
+"valor": &"oficial"
+}]
+
+[resource]
+script = ExtResource("1_act")
+id = &"atletismo"
+nombre_display = "Atletismo"
+descripcion = "Pista y campo, con marcas oficiales."
+categoria = &"deporte"
+tier_techo = 1
+costo_horas_semana = 12
+niveles = [SubResource("Nivel0"), SubResource("Nivel1"), SubResource("Nivel2"), SubResource("Nivel3")]
+carreras_afinidad = {}
+es_deporte = true
+umbral_reclutamiento = 4
+academic_index_minimo = 176

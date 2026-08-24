@@ -1,0 +1,89 @@
+[gd_resource type="Resource" script_class="ActivityData" load_steps=7 format=3]
+
+[ext_resource type="Script" path="res://scripts/resources/activity_data.gd" id="1_act"]
+[ext_resource type="Script" path="res://scripts/resources/activity_level.gd" id="2_niv"]
+
+; RAZONAMIENTO
+;   Tier techo 1: el circuito de audiciones es brutalmente jerarquico y verificable; una silla en una orquesta juvenil nacional se lee sola.
+;   Cuesta 12 horas porque el instrumento no perdona.
+
+[sub_resource type="Resource" id="Nivel0"]
+script = ExtResource("2_niv")
+nombre = "Estudiante de instrumento"
+tier = 4
+modificadores_atributo = {
+&"habilidad_artistica": 5.0,
+&"gestion_tiempo": 3.0
+}
+condiciones_ascenso = []
+
+[sub_resource type="Resource" id="Nivel1"]
+script = ExtResource("2_niv")
+nombre = "Orquesta escolar"
+tier = 3
+modificadores_atributo = {
+&"habilidad_artistica": 6.0,
+&"resiliencia": 4.0
+}
+condiciones_ascenso = [{
+"palanca": "anios_continuidad",
+"valor": 1.0
+}, {
+"palanca": "rol_liderazgo",
+"valor": &"miembro"
+}]
+
+[sub_resource type="Resource" id="Nivel2"]
+script = ExtResource("2_niv")
+nombre = "Primer atril"
+tier = 2
+modificadores_atributo = {
+&"habilidad_artistica": 8.0,
+&"profundidad_extracurricular": 6.0
+}
+condiciones_ascenso = [{
+"palanca": "anios_continuidad",
+"valor": 2.0
+}, {
+"palanca": "rol_liderazgo",
+"valor": &"oficial"
+}, {
+"palanca": "reconocimiento_externo",
+"valor": &"escolar"
+}]
+
+[sub_resource type="Resource" id="Nivel3"]
+script = ExtResource("2_niv")
+nombre = "Orquesta juvenil nacional"
+tier = 1
+modificadores_atributo = {
+&"habilidad_artistica": 13.0,
+&"resiliencia": 7.0
+}
+condiciones_ascenso = [{
+"palanca": "anios_continuidad",
+"valor": 3.0
+}, {
+"palanca": "rol_liderazgo",
+"valor": &"presidente"
+}, {
+"palanca": "reconocimiento_externo",
+"valor": &"estatal"
+}, {
+"palanca": "impacto_medible",
+"valor": 400.0
+}]
+
+[resource]
+script = ExtResource("1_act")
+id = &"orquesta_conservatorio"
+nombre_display = "Orquesta / conservatorio"
+descripcion = "Formación instrumental seria con audiciones y orquesta juvenil."
+categoria = &"artes"
+tier_techo = 1
+costo_horas_semana = 12
+niveles = [SubResource("Nivel0"), SubResource("Nivel1"), SubResource("Nivel2"), SubResource("Nivel3")]
+carreras_afinidad = {
+&"artes_comunicacion": 1.5,
+&"psicologia": 1.1
+}

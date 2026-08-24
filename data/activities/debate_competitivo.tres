@@ -1,0 +1,88 @@
+[gd_resource type="Resource" script_class="ActivityData" load_steps=7 format=3]
+
+[ext_resource type="Script" path="res://scripts/resources/activity_data.gd" id="1_act"]
+[ext_resource type="Script" path="res://scripts/resources/activity_level.gd" id="2_niv"]
+
+; RAZONAMIENTO
+;   Tier techo 1: el debate tiene circuito nacional con ranking publico, y es la credencial que mejor predice el perfil verbal que buscan derecho y ciencias politicas.
+
+[sub_resource type="Resource" id="Nivel0"]
+script = ExtResource("2_niv")
+nombre = "Novato"
+tier = 4
+modificadores_atributo = {
+&"aptitud_verbal": 5.0
+}
+condiciones_ascenso = []
+
+[sub_resource type="Resource" id="Nivel1"]
+script = ExtResource("2_niv")
+nombre = "Competidor regular"
+tier = 3
+modificadores_atributo = {
+&"aptitud_verbal": 6.0,
+&"resiliencia": 3.0
+}
+condiciones_ascenso = [{
+"palanca": "anios_continuidad",
+"valor": 1.0
+}, {
+"palanca": "rol_liderazgo",
+"valor": &"miembro"
+}]
+
+[sub_resource type="Resource" id="Nivel2"]
+script = ExtResource("2_niv")
+nombre = "Finalista regional"
+tier = 2
+modificadores_atributo = {
+&"aptitud_verbal": 8.0,
+&"liderazgo": 5.0
+}
+condiciones_ascenso = [{
+"palanca": "anios_continuidad",
+"valor": 2.0
+}, {
+"palanca": "rol_liderazgo",
+"valor": &"oficial"
+}, {
+"palanca": "reconocimiento_externo",
+"valor": &"escolar"
+}]
+
+[sub_resource type="Resource" id="Nivel3"]
+script = ExtResource("2_niv")
+nombre = "Circuito nacional"
+tier = 1
+modificadores_atributo = {
+&"aptitud_verbal": 12.0,
+&"liderazgo": 8.0
+}
+condiciones_ascenso = [{
+"palanca": "anios_continuidad",
+"valor": 3.0
+}, {
+"palanca": "rol_liderazgo",
+"valor": &"presidente"
+}, {
+"palanca": "reconocimiento_externo",
+"valor": &"estatal"
+}, {
+"palanca": "impacto_medible",
+"valor": 400.0
+}]
+
+[resource]
+script = ExtResource("1_act")
+id = &"debate_competitivo"
+nombre_display = "Debate competitivo"
+descripcion = "Circuito de debate con torneos regionales y nacionales."
+categoria = &"derecho_politica"
+tier_techo = 1
+costo_horas_semana = 9
+niveles = [SubResource("Nivel0"), SubResource("Nivel1"), SubResource("Nivel2"), SubResource("Nivel3")]
+carreras_afinidad = {
+&"derecho": 1.5,
+&"ciencias_politicas": 1.4,
+&"negocios": 1.1
+}

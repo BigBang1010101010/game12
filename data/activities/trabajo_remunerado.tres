@@ -1,0 +1,76 @@
+[gd_resource type="Resource" script_class="ActivityData" load_steps=6 format=3]
+
+[ext_resource type="Script" path="res://scripts/resources/activity_data.gd" id="1_act"]
+[ext_resource type="Script" path="res://scripts/resources/activity_level.gd" id="2_niv"]
+
+; RAZONAMIENTO
+;   BOOST UNIVERSAL, IDENTICO EN LAS 8: en el Common Data Set seccion C7 las ocho Ivies marcan 'work experience' como factor CONSIDERADO, sin que ninguna lo suba a importante ni lo baje a no considerado.
+;   Por eso la afinidad de carrera aqui es plana (1.15 en todas) en vez de apuntar a un campo: el trabajo no habla de vocacion, habla de responsabilidad.
+;   Tier techo 2 porque un empleo sostenido con horas altas pesa de verdad, pero no existe un 'campeonato nacional de trabajar'.
+
+[sub_resource type="Resource" id="Nivel0"]
+script = ExtResource("2_niv")
+nombre = "Empleado"
+tier = 4
+modificadores_atributo = {
+&"resiliencia": 4.0,
+&"gestion_tiempo": 4.0
+}
+condiciones_ascenso = []
+
+[sub_resource type="Resource" id="Nivel1"]
+script = ExtResource("2_niv")
+nombre = "Empleado con antigüedad"
+tier = 3
+modificadores_atributo = {
+&"gestion_tiempo": 5.0,
+&"red_social": 3.0
+}
+condiciones_ascenso = [{
+"palanca": "anios_continuidad",
+"valor": 1.0
+}, {
+"palanca": "rol_liderazgo",
+"valor": &"miembro"
+}]
+
+[sub_resource type="Resource" id="Nivel2"]
+script = ExtResource("2_niv")
+nombre = "Supervisor de turno"
+tier = 2
+modificadores_atributo = {
+&"resiliencia": 7.0,
+&"gestion_tiempo": 6.0
+}
+condiciones_ascenso = [{
+"palanca": "anios_continuidad",
+"valor": 2.0
+}, {
+"palanca": "rol_liderazgo",
+"valor": &"oficial"
+}, {
+"palanca": "reconocimiento_externo",
+"valor": &"escolar"
+}]
+
+[resource]
+script = ExtResource("1_act")
+id = &"trabajo_remunerado"
+nombre_display = "Trabajo remunerado"
+descripcion = "Empleo real con horario, jefe y nómina."
+categoria = &"transversal"
+tier_techo = 2
+costo_horas_semana = 15
+niveles = [SubResource("Nivel0"), SubResource("Nivel1"), SubResource("Nivel2")]
+carreras_afinidad = {
+&"derecho": 1.1,
+&"medicina": 1.1,
+&"ingenieria": 1.1,
+&"finanzas": 1.1,
+&"negocios": 1.1,
+&"ciencias_politicas": 1.1,
+&"ciencias_computacion": 1.1,
+&"economia": 1.1,
+&"psicologia": 1.1,
+&"artes_comunicacion": 1.1
+}

@@ -1,0 +1,67 @@
+[gd_resource type="Resource" script_class="ActivityData" load_steps=6 format=3]
+
+[ext_resource type="Script" path="res://scripts/resources/activity_data.gd" id="1_act"]
+[ext_resource type="Script" path="res://scripts/resources/activity_level.gd" id="2_niv"]
+
+; RAZONAMIENTO
+;   Tier techo 2: es una certificacion verificable y poco comun en secundaria, lo que la vuelve mucho mas legible que el voluntariado generico.
+;   Paga resiliencia porque el turno de ambulancia la exige literalmente.
+
+[sub_resource type="Resource" id="Nivel0"]
+script = ExtResource("2_niv")
+nombre = "En formación"
+tier = 4
+modificadores_atributo = {
+&"resiliencia": 4.0,
+&"gestion_tiempo": 3.0
+}
+condiciones_ascenso = []
+
+[sub_resource type="Resource" id="Nivel1"]
+script = ExtResource("2_niv")
+nombre = "Certificado"
+tier = 3
+modificadores_atributo = {
+&"resiliencia": 6.0,
+&"aptitud_cientifica": 3.0
+}
+condiciones_ascenso = [{
+"palanca": "anios_continuidad",
+"valor": 1.0
+}, {
+"palanca": "rol_liderazgo",
+"valor": &"miembro"
+}]
+
+[sub_resource type="Resource" id="Nivel2"]
+script = ExtResource("2_niv")
+nombre = "Turnos regulares"
+tier = 2
+modificadores_atributo = {
+&"resiliencia": 8.0,
+&"impacto_comunitario": 6.0
+}
+condiciones_ascenso = [{
+"palanca": "anios_continuidad",
+"valor": 2.0
+}, {
+"palanca": "rol_liderazgo",
+"valor": &"oficial"
+}, {
+"palanca": "reconocimiento_externo",
+"valor": &"escolar"
+}]
+
+[resource]
+script = ExtResource("1_act")
+id = &"certificacion_emt"
+nombre_display = "Certificación de paramédico (EMT)"
+descripcion = "Certificación y turnos reales en servicios de emergencia."
+categoria = &"medicina"
+tier_techo = 2
+costo_horas_semana = 8
+niveles = [SubResource("Nivel0"), SubResource("Nivel1"), SubResource("Nivel2")]
+carreras_afinidad = {
+&"medicina": 1.4,
+&"psicologia": 1.1
+}
