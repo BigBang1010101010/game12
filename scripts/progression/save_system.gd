@@ -13,7 +13,7 @@ extends Node
 
 ## Bump this whenever the saved SHAPE changes, and add a matching entry to
 ## _MIGRACIONES so old files keep loading.
-const VERSION_ESQUEMA := 1
+const VERSION_ESQUEMA := 2
 const RUTA_POR_DEFECTO := "user://progresion.save"
 
 ## version_origen -> Callable(datos) -> datos, taking a save from that version
@@ -21,9 +21,16 @@ const RUTA_POR_DEFECTO := "user://progresion.save"
 ## loaded by a future version 4 build runs 1->2, 2->3, 3->4 in order and no
 ## single migration ever has to know the whole history.
 ##
-## Empty today because only version 1 exists; the machinery is here so adding
-## the first real migration is adding one entry, not building the system then.
-var _MIGRACIONES: Dictionary = {}
+var _MIGRACIONES: Dictionary = {
+	# 1 -> 2: activities arrived. A version 1 save simply has none, which is
+	# exactly what an empty table means, so the migration states that rather
+	# than leaving the key missing for _aplicar to guess at.
+	1: func(datos: Dictionary) -> Dictionary:
+		datos["actividades"] = {}
+		datos["seleccion_common_app"] = []
+		datos["version_esquema"] = 2
+		return datos,
+}
 
 func guardar(ruta: String = RUTA_POR_DEFECTO) -> bool:
 	var datos: Dictionary = {
@@ -36,6 +43,8 @@ func guardar(ruta: String = RUTA_POR_DEFECTO) -> bool:
 		"reloj_total_segundos": DayNightCycle.total_elapsed_seconds,
 		"elecciones": elecciones.duplicate(true),
 		"hitos": hitos.duplicate(),
+		"actividades": ActivityTracker.obtener_todos_los_estados(),
+		"seleccion_common_app": _ids_seleccionados(),
 	}
 	var archivo := FileAccess.open(ruta, FileAccess.WRITE)
 	if not archivo:
@@ -114,9 +123,33 @@ func _aplicar(datos: Dictionary) -> void:
 	elecciones = datos.get("elecciones", {})
 	hitos = datos.get("hitos", [])
 
+	# Activities: same discipline as attributes. One that no longer exists is
+	# dropped with a warning instead of poisoning the state, and the manual
+	# Common App choice is restored only for activities that survived.
+	ActivityTracker.reiniciar()
+	ActivityTracker.cargar_estado(datos.get("actividades", {}))
+	var seleccion: Array = datos.get("seleccion_common_app", [])
+	if seleccion.is_empty():
+		ApplicationBuilder.limpiar_seleccion_manual()
+	else:
+		var vigentes: Array = []
+		for id in seleccion:
+			if ActivityTracker.esta_activa(StringName(id)):
+				vigentes.append(StringName(id))
+		ApplicationBuilder.fijar_seleccion_manual(vigentes)
+
 ## JSON turns StringNames into plain strings and ints into floats; restore the
 ## types the rest of the code expects so a loaded ledger behaves exactly like a
 ## live one.
+## Ids of the manual Common App choice, empty when it is automatic.
+func _ids_seleccionados() -> Array:
+	if not ApplicationBuilder.hay_seleccion_manual():
+		return []
+	var ids: Array = []
+	for entrada in ApplicationBuilder.obtener_seleccion():
+		ids.append(String(entrada["actividad_id"]))
+	return ids
+
 func _normalizar_ledger(crudo: Variant) -> Array[Dictionary]:
 	var salida: Array[Dictionary] = []
 	if typeof(crudo) != TYPE_ARRAY:

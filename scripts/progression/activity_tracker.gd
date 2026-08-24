@@ -313,4 +313,9 @@ func cargar_estado(datos: Dictionary) -> void:
 			continue
 		var entrada: Dictionary = _estado_inicial()
 		entrada.merge(datos[actividad_id], true)
+		# JSON gives strings back where StringNames went in, and the scales are
+		# compared by name, so the two ordinal fields are restored explicitly.
+		entrada["reconocimiento"] = StringName(entrada["reconocimiento"])
+		entrada["rol"] = StringName(entrada["rol"])
+		entrada["nivel_indice"] = int(entrada["nivel_indice"])
 		_estado[StringName(actividad_id)] = entrada
