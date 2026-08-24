@@ -11,8 +11,8 @@ script = ExtResource("2_niv")
 nombre = "Obra propia"
 tier = 4
 modificadores_atributo = {
-&"habilidad_artistica": 5.0,
-&"curiosidad_intelectual": 3.0
+&"habilidad_artistica": 5.00,
+&"curiosidad_intelectual": 3.00
 }
 condiciones_ascenso = []
 
@@ -21,8 +21,8 @@ script = ExtResource("2_niv")
 nombre = "Exposición escolar"
 tier = 3
 modificadores_atributo = {
-&"habilidad_artistica": 6.0,
-&"profundidad_extracurricular": 4.0
+&"habilidad_artistica": 6.00,
+&"profundidad_extracurricular": 4.00
 }
 condiciones_ascenso = [{
 "palanca": "anios_continuidad",
@@ -37,8 +37,8 @@ script = ExtResource("2_niv")
 nombre = "Premio regional"
 tier = 2
 modificadores_atributo = {
-&"habilidad_artistica": 8.0,
-&"resiliencia": 4.0
+&"habilidad_artistica": 8.00,
+&"resiliencia": 4.00
 }
 condiciones_ascenso = [{
 "palanca": "anios_continuidad",
@@ -56,8 +56,8 @@ script = ExtResource("2_niv")
 nombre = "Reconocimiento nacional"
 tier = 1
 modificadores_atributo = {
-&"habilidad_artistica": 13.0,
-&"profundidad_extracurricular": 8.0
+&"habilidad_artistica": 13.00,
+&"profundidad_extracurricular": 8.00
 }
 condiciones_ascenso = [{
 "palanca": "anios_continuidad",
@@ -83,5 +83,5 @@ tier_techo = 1
 costo_horas_semana = 10
 niveles = [SubResource("Nivel0"), SubResource("Nivel1"), SubResource("Nivel2"), SubResource("Nivel3")]
 carreras_afinidad = {
-&"artes_comunicacion": 1.5
+&"artes_comunicacion": 1.50
 }

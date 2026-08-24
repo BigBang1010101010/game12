@@ -11,8 +11,8 @@ script = ExtResource("2_niv")
 nombre = "Practicante"
 tier = 4
 modificadores_atributo = {
-&"gestion_tiempo": 4.0,
-&"profundidad_extracurricular": 3.0
+&"gestion_tiempo": 4.00,
+&"profundidad_extracurricular": 3.00
 }
 condiciones_ascenso = []
 
@@ -21,8 +21,8 @@ script = ExtResource("2_niv")
 nombre = "Proyecto propio"
 tier = 3
 modificadores_atributo = {
-&"gestion_tiempo": 5.0,
-&"red_social": 4.0
+&"gestion_tiempo": 5.00,
+&"red_social": 4.00
 }
 condiciones_ascenso = [{
 "palanca": "anios_continuidad",
@@ -37,8 +37,8 @@ script = ExtResource("2_niv")
 nombre = "Proyecto adoptado por la empresa"
 tier = 2
 modificadores_atributo = {
-&"profundidad_extracurricular": 7.0,
-&"liderazgo": 4.0
+&"profundidad_extracurricular": 7.00,
+&"liderazgo": 4.00
 }
 condiciones_ascenso = [{
 "palanca": "anios_continuidad",
@@ -61,8 +61,8 @@ tier_techo = 2
 costo_horas_semana = 10
 niveles = [SubResource("Nivel0"), SubResource("Nivel1"), SubResource("Nivel2")]
 carreras_afinidad = {
-&"negocios": 1.3,
-&"finanzas": 1.3,
-&"economia": 1.2,
-&"ingenieria": 1.1
+&"negocios": 1.30,
+&"finanzas": 1.30,
+&"economia": 1.20,
+&"ingenieria": 1.15
 }

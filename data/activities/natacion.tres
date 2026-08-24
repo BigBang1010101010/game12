@@ -11,8 +11,8 @@ script = ExtResource("2_niv")
 nombre = "Miembro del equipo"
 tier = 4
 modificadores_atributo = {
-&"logro_atletico": 4.0,
-&"bienestar": 3.0
+&"logro_atletico": 4.00,
+&"bienestar": 3.00
 }
 condiciones_ascenso = []
 
@@ -21,8 +21,8 @@ script = ExtResource("2_niv")
 nombre = "Titular"
 tier = 3
 modificadores_atributo = {
-&"logro_atletico": 6.0,
-&"resiliencia": 4.0
+&"logro_atletico": 6.00,
+&"resiliencia": 4.00
 }
 condiciones_ascenso = [{
 "palanca": "anios_continuidad",
@@ -37,9 +37,9 @@ script = ExtResource("2_niv")
 nombre = "Capitán / medalla regional"
 tier = 2
 modificadores_atributo = {
-&"logro_atletico": 8.0,
-&"resiliencia": 5.0,
-&"liderazgo": 4.0
+&"logro_atletico": 8.00,
+&"resiliencia": 5.00,
+&"liderazgo": 4.00
 }
 condiciones_ascenso = [{
 "palanca": "anios_continuidad",
@@ -57,9 +57,9 @@ script = ExtResource("2_niv")
 nombre = "Nivel estatal o superior"
 tier = 1
 modificadores_atributo = {
-&"logro_atletico": 12.0,
-&"resiliencia": 8.0,
-&"profundidad_extracurricular": 7.0
+&"logro_atletico": 12.00,
+&"resiliencia": 8.00,
+&"profundidad_extracurricular": 7.00
 }
 condiciones_ascenso = [{
 "palanca": "anios_continuidad",

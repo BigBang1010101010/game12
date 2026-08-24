@@ -12,8 +12,8 @@ script = ExtResource("2_niv")
 nombre = "Miembro del equipo"
 tier = 4
 modificadores_atributo = {
-&"aptitud_cuantitativa": 4.0,
-&"profundidad_extracurricular": 3.0
+&"aptitud_cuantitativa": 4.00,
+&"profundidad_extracurricular": 3.00
 }
 condiciones_ascenso = []
 
@@ -22,8 +22,8 @@ script = ExtResource("2_niv")
 nombre = "Subsistema propio"
 tier = 3
 modificadores_atributo = {
-&"aptitud_cientifica": 5.0,
-&"gestion_tiempo": 3.0
+&"aptitud_cientifica": 5.00,
+&"gestion_tiempo": 3.00
 }
 condiciones_ascenso = [{
 "palanca": "anios_continuidad",
@@ -38,8 +38,8 @@ script = ExtResource("2_niv")
 nombre = "Líder técnico"
 tier = 2
 modificadores_atributo = {
-&"aptitud_cuantitativa": 7.0,
-&"liderazgo": 5.0
+&"aptitud_cuantitativa": 7.00,
+&"liderazgo": 5.00
 }
 condiciones_ascenso = [{
 "palanca": "anios_continuidad",
@@ -57,8 +57,8 @@ script = ExtResource("2_niv")
 nombre = "Campeón nacional"
 tier = 1
 modificadores_atributo = {
-&"aptitud_cientifica": 11.0,
-&"profundidad_extracurricular": 9.0
+&"aptitud_cientifica": 11.00,
+&"profundidad_extracurricular": 9.00
 }
 condiciones_ascenso = [{
 "palanca": "anios_continuidad",
@@ -84,7 +84,7 @@ tier_techo = 1
 costo_horas_semana = 10
 niveles = [SubResource("Nivel0"), SubResource("Nivel1"), SubResource("Nivel2"), SubResource("Nivel3")]
 carreras_afinidad = {
-&"ingenieria": 1.4,
-&"ciencias_computacion": 1.4,
-&"economia": 1.1
+&"ingenieria": 1.45,
+&"ciencias_computacion": 1.35,
+&"economia": 1.05
 }

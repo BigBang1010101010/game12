@@ -12,8 +12,8 @@ script = ExtResource("2_niv")
 nombre = "Idea y primeros voluntarios"
 tier = 4
 modificadores_atributo = {
-&"liderazgo": 4.0,
-&"impacto_comunitario": 3.0
+&"liderazgo": 4.00,
+&"impacto_comunitario": 3.00
 }
 condiciones_ascenso = []
 
@@ -22,8 +22,8 @@ script = ExtResource("2_niv")
 nombre = "Organización establecida"
 tier = 3
 modificadores_atributo = {
-&"liderazgo": 5.0,
-&"impacto_comunitario": 5.0
+&"liderazgo": 5.00,
+&"impacto_comunitario": 5.00
 }
 condiciones_ascenso = [{
 "palanca": "anios_continuidad",
@@ -38,8 +38,8 @@ script = ExtResource("2_niv")
 nombre = "Equipo y programa propio"
 tier = 2
 modificadores_atributo = {
-&"liderazgo": 7.0,
-&"impacto_comunitario": 7.0
+&"liderazgo": 7.00,
+&"impacto_comunitario": 7.00
 }
 condiciones_ascenso = [{
 "palanca": "anios_continuidad",
@@ -60,8 +60,8 @@ script = ExtResource("2_niv")
 nombre = "Alcance regional"
 tier = 1
 modificadores_atributo = {
-&"liderazgo": 10.0,
-&"impacto_comunitario": 11.0
+&"liderazgo": 10.00,
+&"impacto_comunitario": 11.00
 }
 condiciones_ascenso = [{
 "palanca": "anios_continuidad",
@@ -87,7 +87,7 @@ tier_techo = 1
 costo_horas_semana = 10
 niveles = [SubResource("Nivel0"), SubResource("Nivel1"), SubResource("Nivel2"), SubResource("Nivel3")]
 carreras_afinidad = {
-&"negocios": 1.3,
-&"ciencias_politicas": 1.2,
-&"psicologia": 1.1
+&"negocios": 1.30,
+&"ciencias_politicas": 1.25,
+&"psicologia": 1.15
 }

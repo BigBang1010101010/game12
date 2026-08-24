@@ -11,7 +11,7 @@ script = ExtResource("2_niv")
 nombre = "Novato"
 tier = 4
 modificadores_atributo = {
-&"aptitud_verbal": 5.0
+&"aptitud_verbal": 5.00
 }
 condiciones_ascenso = []
 
@@ -20,8 +20,8 @@ script = ExtResource("2_niv")
 nombre = "Competidor regular"
 tier = 3
 modificadores_atributo = {
-&"aptitud_verbal": 6.0,
-&"resiliencia": 3.0
+&"aptitud_verbal": 6.00,
+&"resiliencia": 3.00
 }
 condiciones_ascenso = [{
 "palanca": "anios_continuidad",
@@ -36,8 +36,8 @@ script = ExtResource("2_niv")
 nombre = "Finalista regional"
 tier = 2
 modificadores_atributo = {
-&"aptitud_verbal": 8.0,
-&"liderazgo": 5.0
+&"aptitud_verbal": 8.00,
+&"liderazgo": 5.00
 }
 condiciones_ascenso = [{
 "palanca": "anios_continuidad",
@@ -55,8 +55,8 @@ script = ExtResource("2_niv")
 nombre = "Circuito nacional"
 tier = 1
 modificadores_atributo = {
-&"aptitud_verbal": 12.0,
-&"liderazgo": 8.0
+&"aptitud_verbal": 12.00,
+&"liderazgo": 8.00
 }
 condiciones_ascenso = [{
 "palanca": "anios_continuidad",
@@ -82,7 +82,7 @@ tier_techo = 1
 costo_horas_semana = 9
 niveles = [SubResource("Nivel0"), SubResource("Nivel1"), SubResource("Nivel2"), SubResource("Nivel3")]
 carreras_afinidad = {
-&"derecho": 1.5,
-&"ciencias_politicas": 1.4,
-&"negocios": 1.1
+&"derecho": 1.50,
+&"ciencias_politicas": 1.40,
+&"negocios": 1.15
 }

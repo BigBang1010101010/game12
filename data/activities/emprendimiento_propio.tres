@@ -12,8 +12,8 @@ script = ExtResource("2_niv")
 nombre = "Idea y primeros clientes"
 tier = 4
 modificadores_atributo = {
-&"liderazgo": 4.0,
-&"gestion_tiempo": 3.0
+&"liderazgo": 4.00,
+&"gestion_tiempo": 3.00
 }
 condiciones_ascenso = []
 
@@ -22,8 +22,8 @@ script = ExtResource("2_niv")
 nombre = "Ingresos sostenidos"
 tier = 3
 modificadores_atributo = {
-&"liderazgo": 5.0,
-&"red_social": 4.0
+&"liderazgo": 5.00,
+&"red_social": 4.00
 }
 condiciones_ascenso = [{
 "palanca": "anios_continuidad",
@@ -38,8 +38,8 @@ script = ExtResource("2_niv")
 nombre = "Equipo a cargo"
 tier = 2
 modificadores_atributo = {
-&"liderazgo": 7.0,
-&"gestion_tiempo": 6.0
+&"liderazgo": 7.00,
+&"gestion_tiempo": 6.00
 }
 condiciones_ascenso = [{
 "palanca": "anios_continuidad",
@@ -57,9 +57,9 @@ script = ExtResource("2_niv")
 nombre = "Negocio consolidado"
 tier = 1
 modificadores_atributo = {
-&"liderazgo": 11.0,
-&"impacto_comunitario": 7.0,
-&"red_social": 6.0
+&"liderazgo": 11.00,
+&"impacto_comunitario": 7.00,
+&"red_social": 6.00
 }
 condiciones_ascenso = [{
 "palanca": "anios_continuidad",
@@ -85,8 +85,8 @@ tier_techo = 1
 costo_horas_semana = 12
 niveles = [SubResource("Nivel0"), SubResource("Nivel1"), SubResource("Nivel2"), SubResource("Nivel3")]
 carreras_afinidad = {
-&"negocios": 1.5,
-&"finanzas": 1.3,
-&"economia": 1.2,
-&"ciencias_computacion": 1.1
+&"negocios": 1.50,
+&"finanzas": 1.30,
+&"economia": 1.20,
+&"ciencias_computacion": 1.10
 }

@@ -11,8 +11,8 @@ script = ExtResource("2_niv")
 nombre = "Miembro"
 tier = 4
 modificadores_atributo = {
-&"aptitud_cuantitativa": 4.0,
-&"curiosidad_intelectual": 3.0
+&"aptitud_cuantitativa": 4.00,
+&"curiosidad_intelectual": 3.00
 }
 condiciones_ascenso = []
 
@@ -21,8 +21,8 @@ script = ExtResource("2_niv")
 nombre = "Proyecto publicado"
 tier = 3
 modificadores_atributo = {
-&"aptitud_cuantitativa": 5.0,
-&"profundidad_extracurricular": 4.0
+&"aptitud_cuantitativa": 5.00,
+&"profundidad_extracurricular": 4.00
 }
 condiciones_ascenso = [{
 "palanca": "anios_continuidad",
@@ -37,8 +37,8 @@ script = ExtResource("2_niv")
 nombre = "Organizador de hackathon"
 tier = 2
 modificadores_atributo = {
-&"aptitud_cuantitativa": 7.0,
-&"liderazgo": 4.0
+&"aptitud_cuantitativa": 7.00,
+&"liderazgo": 4.00
 }
 condiciones_ascenso = [{
 "palanca": "anios_continuidad",
@@ -61,6 +61,6 @@ tier_techo = 2
 costo_horas_semana = 6
 niveles = [SubResource("Nivel0"), SubResource("Nivel1"), SubResource("Nivel2")]
 carreras_afinidad = {
-&"ciencias_computacion": 1.4,
-&"ingenieria": 1.2
+&"ciencias_computacion": 1.45,
+&"ingenieria": 1.25
 }

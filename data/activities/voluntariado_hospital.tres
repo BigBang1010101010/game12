@@ -11,7 +11,7 @@ script = ExtResource("2_niv")
 nombre = "Voluntario"
 tier = 4
 modificadores_atributo = {
-&"impacto_comunitario": 4.0
+&"impacto_comunitario": 4.00
 }
 condiciones_ascenso = []
 
@@ -20,8 +20,8 @@ script = ExtResource("2_niv")
 nombre = "Voluntario de planta"
 tier = 3
 modificadores_atributo = {
-&"impacto_comunitario": 5.0,
-&"resiliencia": 3.0
+&"impacto_comunitario": 5.00,
+&"resiliencia": 3.00
 }
 condiciones_ascenso = [{
 "palanca": "anios_continuidad",
@@ -36,8 +36,8 @@ script = ExtResource("2_niv")
 nombre = "Coordinador de voluntarios"
 tier = 2
 modificadores_atributo = {
-&"impacto_comunitario": 7.0,
-&"liderazgo": 4.0
+&"impacto_comunitario": 7.00,
+&"liderazgo": 4.00
 }
 condiciones_ascenso = [{
 "palanca": "anios_continuidad",
@@ -60,6 +60,6 @@ tier_techo = 2
 costo_horas_semana = 6
 niveles = [SubResource("Nivel0"), SubResource("Nivel1"), SubResource("Nivel2")]
 carreras_afinidad = {
-&"medicina": 1.5,
-&"psicologia": 1.3
+&"medicina": 1.50,
+&"psicologia": 1.30
 }

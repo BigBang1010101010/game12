@@ -12,8 +12,8 @@ script = ExtResource("2_niv")
 nombre = "Estudiante de instrumento"
 tier = 4
 modificadores_atributo = {
-&"habilidad_artistica": 5.0,
-&"gestion_tiempo": 3.0
+&"habilidad_artistica": 5.00,
+&"gestion_tiempo": 3.00
 }
 condiciones_ascenso = []
 
@@ -22,8 +22,8 @@ script = ExtResource("2_niv")
 nombre = "Orquesta escolar"
 tier = 3
 modificadores_atributo = {
-&"habilidad_artistica": 6.0,
-&"resiliencia": 4.0
+&"habilidad_artistica": 6.00,
+&"resiliencia": 4.00
 }
 condiciones_ascenso = [{
 "palanca": "anios_continuidad",
@@ -38,8 +38,8 @@ script = ExtResource("2_niv")
 nombre = "Primer atril"
 tier = 2
 modificadores_atributo = {
-&"habilidad_artistica": 8.0,
-&"profundidad_extracurricular": 6.0
+&"habilidad_artistica": 8.00,
+&"profundidad_extracurricular": 6.00
 }
 condiciones_ascenso = [{
 "palanca": "anios_continuidad",
@@ -57,8 +57,8 @@ script = ExtResource("2_niv")
 nombre = "Orquesta juvenil nacional"
 tier = 1
 modificadores_atributo = {
-&"habilidad_artistica": 13.0,
-&"resiliencia": 7.0
+&"habilidad_artistica": 13.00,
+&"resiliencia": 7.00
 }
 condiciones_ascenso = [{
 "palanca": "anios_continuidad",
@@ -84,6 +84,6 @@ tier_techo = 1
 costo_horas_semana = 12
 niveles = [SubResource("Nivel0"), SubResource("Nivel1"), SubResource("Nivel2"), SubResource("Nivel3")]
 carreras_afinidad = {
-&"artes_comunicacion": 1.5,
-&"psicologia": 1.1
+&"artes_comunicacion": 1.50,
+&"psicologia": 1.05
 }

@@ -11,8 +11,8 @@ script = ExtResource("2_niv")
 nombre = "Miembro"
 tier = 4
 modificadores_atributo = {
-&"aptitud_cuantitativa": 3.0,
-&"curiosidad_intelectual": 2.0
+&"aptitud_cuantitativa": 3.00,
+&"curiosidad_intelectual": 2.00
 }
 condiciones_ascenso = []
 
@@ -21,8 +21,8 @@ script = ExtResource("2_niv")
 nombre = "Gestor de cartera"
 tier = 3
 modificadores_atributo = {
-&"aptitud_cuantitativa": 5.0,
-&"gestion_tiempo": 3.0
+&"aptitud_cuantitativa": 5.00,
+&"gestion_tiempo": 3.00
 }
 condiciones_ascenso = [{
 "palanca": "anios_continuidad",
@@ -42,7 +42,7 @@ tier_techo = 3
 costo_horas_semana = 4
 niveles = [SubResource("Nivel0"), SubResource("Nivel1")]
 carreras_afinidad = {
-&"finanzas": 1.4,
-&"economia": 1.3,
-&"negocios": 1.1
+&"finanzas": 1.45,
+&"economia": 1.30,
+&"negocios": 1.15
 }

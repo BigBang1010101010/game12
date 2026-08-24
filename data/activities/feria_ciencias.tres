@@ -11,8 +11,8 @@ script = ExtResource("2_niv")
 nombre = "Participante"
 tier = 4
 modificadores_atributo = {
-&"aptitud_cientifica": 4.0,
-&"curiosidad_intelectual": 3.0
+&"aptitud_cientifica": 4.00,
+&"curiosidad_intelectual": 3.00
 }
 condiciones_ascenso = []
 
@@ -21,8 +21,8 @@ script = ExtResource("2_niv")
 nombre = "Finalista escolar"
 tier = 3
 modificadores_atributo = {
-&"aptitud_cientifica": 5.0,
-&"aptitud_investigacion": 4.0
+&"aptitud_cientifica": 5.00,
+&"aptitud_investigacion": 4.00
 }
 condiciones_ascenso = [{
 "palanca": "anios_continuidad",
@@ -37,8 +37,8 @@ script = ExtResource("2_niv")
 nombre = "Premio regional"
 tier = 2
 modificadores_atributo = {
-&"aptitud_investigacion": 6.0,
-&"rigor_academico": 4.0
+&"aptitud_investigacion": 6.00,
+&"rigor_academico": 4.00
 }
 condiciones_ascenso = [{
 "palanca": "anios_continuidad",
@@ -61,7 +61,7 @@ tier_techo = 2
 costo_horas_semana = 5
 niveles = [SubResource("Nivel0"), SubResource("Nivel1"), SubResource("Nivel2")]
 carreras_afinidad = {
-&"medicina": 1.2,
-&"ingenieria": 1.2,
-&"ciencias_computacion": 1.1
+&"medicina": 1.20,
+&"ingenieria": 1.20,
+&"ciencias_computacion": 1.10
 }

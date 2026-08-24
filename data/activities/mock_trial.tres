@@ -11,8 +11,8 @@ script = ExtResource("2_niv")
 nombre = "Miembro del equipo"
 tier = 4
 modificadores_atributo = {
-&"aptitud_verbal": 4.0,
-&"rigor_academico": 3.0
+&"aptitud_verbal": 4.00,
+&"rigor_academico": 3.00
 }
 condiciones_ascenso = []
 
@@ -21,8 +21,8 @@ script = ExtResource("2_niv")
 nombre = "Abogado titular"
 tier = 3
 modificadores_atributo = {
-&"aptitud_verbal": 6.0,
-&"resiliencia": 3.0
+&"aptitud_verbal": 6.00,
+&"resiliencia": 3.00
 }
 condiciones_ascenso = [{
 "palanca": "anios_continuidad",
@@ -37,8 +37,8 @@ script = ExtResource("2_niv")
 nombre = "Capitán estatal"
 tier = 2
 modificadores_atributo = {
-&"aptitud_verbal": 7.0,
-&"liderazgo": 5.0
+&"aptitud_verbal": 7.00,
+&"liderazgo": 5.00
 }
 condiciones_ascenso = [{
 "palanca": "anios_continuidad",
@@ -61,6 +61,6 @@ tier_techo = 2
 costo_horas_semana = 7
 niveles = [SubResource("Nivel0"), SubResource("Nivel1"), SubResource("Nivel2")]
 carreras_afinidad = {
-&"derecho": 1.4,
-&"ciencias_politicas": 1.2
+&"derecho": 1.45,
+&"ciencias_politicas": 1.20
 }

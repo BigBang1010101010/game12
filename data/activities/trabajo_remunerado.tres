@@ -13,8 +13,8 @@ script = ExtResource("2_niv")
 nombre = "Empleado"
 tier = 4
 modificadores_atributo = {
-&"resiliencia": 4.0,
-&"gestion_tiempo": 4.0
+&"resiliencia": 4.00,
+&"gestion_tiempo": 4.00
 }
 condiciones_ascenso = []
 
@@ -23,8 +23,8 @@ script = ExtResource("2_niv")
 nombre = "Empleado con antigüedad"
 tier = 3
 modificadores_atributo = {
-&"gestion_tiempo": 5.0,
-&"red_social": 3.0
+&"gestion_tiempo": 5.00,
+&"red_social": 3.00
 }
 condiciones_ascenso = [{
 "palanca": "anios_continuidad",
@@ -39,8 +39,8 @@ script = ExtResource("2_niv")
 nombre = "Supervisor de turno"
 tier = 2
 modificadores_atributo = {
-&"resiliencia": 7.0,
-&"gestion_tiempo": 6.0
+&"resiliencia": 7.00,
+&"gestion_tiempo": 6.00
 }
 condiciones_ascenso = [{
 "palanca": "anios_continuidad",
@@ -63,14 +63,14 @@ tier_techo = 2
 costo_horas_semana = 15
 niveles = [SubResource("Nivel0"), SubResource("Nivel1"), SubResource("Nivel2")]
 carreras_afinidad = {
-&"derecho": 1.1,
-&"medicina": 1.1,
-&"ingenieria": 1.1,
-&"finanzas": 1.1,
-&"negocios": 1.1,
-&"ciencias_politicas": 1.1,
-&"ciencias_computacion": 1.1,
-&"economia": 1.1,
-&"psicologia": 1.1,
-&"artes_comunicacion": 1.1
+&"derecho": 1.15,
+&"medicina": 1.15,
+&"ingenieria": 1.15,
+&"finanzas": 1.15,
+&"negocios": 1.15,
+&"ciencias_politicas": 1.15,
+&"ciencias_computacion": 1.15,
+&"economia": 1.15,
+&"psicologia": 1.15,
+&"artes_comunicacion": 1.15
 }

@@ -11,8 +11,8 @@ script = ExtResource("2_niv")
 nombre = "Tutor"
 tier = 4
 modificadores_atributo = {
-&"impacto_comunitario": 3.0,
-&"aptitud_verbal": 2.0
+&"impacto_comunitario": 3.00,
+&"aptitud_verbal": 2.00
 }
 condiciones_ascenso = []
 
@@ -21,8 +21,8 @@ script = ExtResource("2_niv")
 nombre = "Tutor de referencia"
 tier = 3
 modificadores_atributo = {
-&"aptitud_verbal": 4.0,
-&"red_social": 3.0
+&"aptitud_verbal": 4.00,
+&"red_social": 3.00
 }
 condiciones_ascenso = [{
 "palanca": "anios_continuidad",
@@ -42,7 +42,7 @@ tier_techo = 3
 costo_horas_semana = 4
 niveles = [SubResource("Nivel0"), SubResource("Nivel1")]
 carreras_afinidad = {
-&"psicologia": 1.2,
-&"medicina": 1.1,
-&"artes_comunicacion": 1.1
+&"psicologia": 1.25,
+&"medicina": 1.10,
+&"artes_comunicacion": 1.05
 }

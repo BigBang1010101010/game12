@@ -11,8 +11,8 @@ script = ExtResource("2_niv")
 nombre = "Miembro"
 tier = 4
 modificadores_atributo = {
-&"aptitud_cientifica": 3.0,
-&"curiosidad_intelectual": 2.0
+&"aptitud_cientifica": 3.00,
+&"curiosidad_intelectual": 2.00
 }
 condiciones_ascenso = []
 
@@ -21,8 +21,8 @@ script = ExtResource("2_niv")
 nombre = "Oficial del club"
 tier = 3
 modificadores_atributo = {
-&"aptitud_cientifica": 4.0,
-&"red_social": 3.0
+&"aptitud_cientifica": 4.00,
+&"red_social": 3.00
 }
 condiciones_ascenso = [{
 "palanca": "anios_continuidad",
@@ -42,6 +42,6 @@ tier_techo = 3
 costo_horas_semana = 4
 niveles = [SubResource("Nivel0"), SubResource("Nivel1")]
 carreras_afinidad = {
-&"medicina": 1.4,
-&"psicologia": 1.1
+&"medicina": 1.35,
+&"psicologia": 1.15
 }

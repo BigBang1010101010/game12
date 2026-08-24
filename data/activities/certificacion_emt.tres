@@ -12,8 +12,8 @@ script = ExtResource("2_niv")
 nombre = "En formación"
 tier = 4
 modificadores_atributo = {
-&"resiliencia": 4.0,
-&"gestion_tiempo": 3.0
+&"resiliencia": 4.00,
+&"gestion_tiempo": 3.00
 }
 condiciones_ascenso = []
 
@@ -22,8 +22,8 @@ script = ExtResource("2_niv")
 nombre = "Certificado"
 tier = 3
 modificadores_atributo = {
-&"resiliencia": 6.0,
-&"aptitud_cientifica": 3.0
+&"resiliencia": 6.00,
+&"aptitud_cientifica": 3.00
 }
 condiciones_ascenso = [{
 "palanca": "anios_continuidad",
@@ -38,8 +38,8 @@ script = ExtResource("2_niv")
 nombre = "Turnos regulares"
 tier = 2
 modificadores_atributo = {
-&"resiliencia": 8.0,
-&"impacto_comunitario": 6.0
+&"resiliencia": 8.00,
+&"impacto_comunitario": 6.00
 }
 condiciones_ascenso = [{
 "palanca": "anios_continuidad",
@@ -62,6 +62,6 @@ tier_techo = 2
 costo_horas_semana = 8
 niveles = [SubResource("Nivel0"), SubResource("Nivel1"), SubResource("Nivel2")]
 carreras_afinidad = {
-&"medicina": 1.4,
-&"psicologia": 1.1
+&"medicina": 1.45,
+&"psicologia": 1.15
 }

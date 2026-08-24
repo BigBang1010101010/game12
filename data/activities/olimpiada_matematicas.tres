@@ -12,7 +12,7 @@ script = ExtResource("2_niv")
 nombre = "Club de olimpiada"
 tier = 4
 modificadores_atributo = {
-&"aptitud_cuantitativa": 5.0
+&"aptitud_cuantitativa": 5.00
 }
 condiciones_ascenso = []
 
@@ -21,8 +21,8 @@ script = ExtResource("2_niv")
 nombre = "Selectivo escolar"
 tier = 3
 modificadores_atributo = {
-&"aptitud_cuantitativa": 6.0,
-&"rigor_academico": 3.0
+&"aptitud_cuantitativa": 6.00,
+&"rigor_academico": 3.00
 }
 condiciones_ascenso = [{
 "palanca": "anios_continuidad",
@@ -37,8 +37,8 @@ script = ExtResource("2_niv")
 nombre = "Medalla regional"
 tier = 2
 modificadores_atributo = {
-&"aptitud_cuantitativa": 8.0,
-&"curiosidad_intelectual": 4.0
+&"aptitud_cuantitativa": 8.00,
+&"curiosidad_intelectual": 4.00
 }
 condiciones_ascenso = [{
 "palanca": "anios_continuidad",
@@ -56,8 +56,8 @@ script = ExtResource("2_niv")
 nombre = "Selección nacional"
 tier = 1
 modificadores_atributo = {
-&"aptitud_cuantitativa": 12.0,
-&"rigor_academico": 7.0
+&"aptitud_cuantitativa": 12.00,
+&"rigor_academico": 7.00
 }
 condiciones_ascenso = [{
 "palanca": "anios_continuidad",
@@ -83,8 +83,8 @@ tier_techo = 1
 costo_horas_semana = 8
 niveles = [SubResource("Nivel0"), SubResource("Nivel1"), SubResource("Nivel2"), SubResource("Nivel3")]
 carreras_afinidad = {
-&"ciencias_computacion": 1.4,
-&"economia": 1.3,
-&"ingenieria": 1.3,
-&"finanzas": 1.2
+&"ciencias_computacion": 1.35,
+&"economia": 1.30,
+&"ingenieria": 1.30,
+&"finanzas": 1.20
 }
