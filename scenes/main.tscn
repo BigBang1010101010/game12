@@ -1,6 +1,7 @@
 [gd_scene load_steps=52 format=4]
 
 [ext_resource type="Script" path="res://scripts/player.gd" id="1_player"]
+[ext_resource type="Script" path="res://scripts/camera_controller.gd" id="2_camera"]
 [ext_resource type="Script" path="res://scripts/demo_interactable_box.gd" id="2_box"]
 [ext_resource type="Script" path="res://scripts/interactable.gd" id="3_interactable"]
 [ext_resource type="Script" path="res://scripts/draggable_box.gd" id="4_draggable"]
@@ -337,6 +338,7 @@ shape = SubResource("CapsuleShape3D_1")
 
 [node name="CameraYaw" type="Node3D" parent="Player"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.3, 0)
+script = ExtResource("2_camera")
 
 [node name="CameraPitch" type="Node3D" parent="Player/CameraYaw"]
 
