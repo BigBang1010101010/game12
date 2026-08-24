@@ -15,24 +15,28 @@ const PITCH_MIN := deg_to_rad(-70.0) # how far down the camera can look
 const PITCH_MAX := deg_to_rad(40.0) # how far up the camera can look
 const PITCH_DEFAULT := deg_to_rad(-15.0) # initial look-slightly-down angle
 
-const CHARACTER_MODEL := "res://assets/characters/character_model.glb"
-## The imported model's rest-pose vertex data measures ~3.76 units tall (feet
-## to top of hair), reconstructed via manual linear-blend skinning
-## (bind-pose vertices + bone weights + skeleton pose) - about 2.1x taller
-## than the 1.8-tall collision capsule. Scaling it down to match the capsule
-## (rather than enlarging the capsule to match it) is what keeps the
-## character able to fit through the house's 2.4-tall door at all; a
-## 3.76-tall capsule couldn't fit through a 2.4 opening no matter the offset.
-const MODEL_SCALE := 0.465
+## Quaternius "Male_Casual" (CC0, see assets/characters/CREDITS.txt) - ships
+## with its own Skeleton3D and a native AnimationPlayer whose animations were
+## authored for that same skeleton, so there is no cross-rig retargeting
+## anywhere in this pipeline (the source of every earlier T-pose/broken-pose
+## bug in this project).
+const CHARACTER_MODEL := "res://assets/characters/character.fbx"
+## Measured directly (see scripts/verify_character.gd): the imported model's
+## world-space bounding box, before any scale of ours, is 4.841251 units
+## tall feet-to-hair-top (its FBX ancestor bakes in a 100x cm->m unit scale,
+## same quirk as the previous model). Scaled down to a 1.8-unit-tall human,
+## matching the existing collision capsule (radius 0.4, height 1.8) and
+## camera rig, both otherwise untouched.
+const MODEL_SCALE := 1.8 / 4.841251
 ## Feet-to-origin offset: the capsule collision (radius 0.4, height 1.8) is
 ## centered on the Player's origin, so its bottom sits 0.9 below it. The
-## character model's root is at its feet, so it's offset down to match.
+## character model's own feet sit at ~0 in its local space (measured), so
+## it's offset down by the same amount to match.
 const MODEL_FEET_OFFSET := -0.9
-## The source model's own front faces local +Z, the opposite of Godot's -Z
-## forward convention (confirmed via its skeleton rest pose: "LeftArm" sits
-## on +X, which only matches a +Z-facing rig). This constant rotation gets
-## added on top of the model's movement-facing yaw to correct for it.
-const MODEL_FRONT_CORRECTION := PI
+## Measured directly: with rotation.y=0, a camera placed at +Z looking
+## toward -Z (Godot's default forward) sees this model's face, not its back
+## - so unlike the previous model, no yaw correction is needed here.
+const MODEL_FRONT_CORRECTION := 0.0
 
 ## Max raycast distance for Shift-drag object picking.
 const DRAG_RAY_LENGTH := 100.0
@@ -193,6 +197,13 @@ func _update_model_facing(direction: Vector3, delta: float) -> void:
 	var target_yaw := atan2(-direction.x, -direction.z) + MODEL_FRONT_CORRECTION
 	character_model.rotation.y = lerp_angle(character_model.rotation.y, target_yaw, delta * MODEL_ROTATION_SPEED)
 
+## The model's own animation names, as authored (library-qualified with the
+## armature name, e.g. "HumanArmature|Man_Idle" - that's the literal string
+## AnimationPlayer.play() needs, not something to strip).
+const ANIM_IDLE := "HumanArmature|Man_Idle"
+const ANIM_RUN := "HumanArmature|Man_Run"
+const ANIM_JUMP := "HumanArmature|Man_Jump"
+
 func _spawn_character_model() -> void:
 	var packed: PackedScene = load(CHARACTER_MODEL)
 	var instance := packed.instantiate()
@@ -203,62 +214,28 @@ func _spawn_character_model() -> void:
 	add_child(instance)
 	character_model = instance
 
-	skeleton = CharacterRig.find_skeleton(instance)
+	skeleton = instance.find_child("Skeleton3D", true, false)
 	if not skeleton:
 		push_warning("Player: no Skeleton3D found in character model")
+
+	# The model ships with its own AnimationPlayer, already wired to this
+	# same Skeleton3D by the original author - used directly, with no
+	# retargeting step of any kind.
+	animation_player = instance.find_child("AnimationPlayer", true, false)
+	if not animation_player:
+		push_warning("Player: no AnimationPlayer found in character model")
 		return
-
-	_apply_skin(skeleton)
-
-	animation_player = CharacterRig.build_animation_player(skeleton)
-	# AnimationPlayer must be a sibling of the Skeleton3D (not its child): its
-	# default root_node is its own parent, and bone tracks are written as
-	# "Skeleton3D:BoneName" paths relative to that root.
-	skeleton.get_parent().add_child(animation_player)
-	animation_player.play("idle")
-	# CharacterRig retargets each track as a delta from the SOURCE clip's own
-	# rest pose (see character_rig.gd), which makes frame 0 of every
-	# retargeted clip land exactly on the TARGET skeleton's rest pose - i.e.
-	# literal T-pose (measured: 0.0000 degrees of bone delta on all 58 bones
-	# at t=0, still 0.0000 after 2 full process frames, only 0.37 degrees by
-	# frame 12). Starting playback at t=0 therefore holds a real, visible
-	# T-pose for several frames right as the character spawns. Skipping
-	# straight into the loop sidesteps that anchor point entirely.
-	var idle_anim: Animation = animation_player.get_animation_library("").get_animation("idle")
-	if idle_anim:
-		animation_player.seek(idle_anim.length * 0.5, true)
-
-func _apply_skin(skel: Skeleton3D) -> void:
-	var mesh_instance := _find_mesh_instance(skel)
-	if not mesh_instance:
-		push_warning("Player: no MeshInstance3D found in character model")
-		return
-	var skin_texture: Texture2D = load(GameState.selected_character)
-	if not skin_texture:
-		push_warning("Player: could not load skin texture %s" % GameState.selected_character)
-		return
-	var material := StandardMaterial3D.new()
-	material.albedo_texture = skin_texture
-	mesh_instance.material_override = material
-
-func _find_mesh_instance(n: Node) -> MeshInstance3D:
-	if n is MeshInstance3D:
-		return n
-	for c in n.get_children():
-		var r := _find_mesh_instance(c)
-		if r:
-			return r
-	return null
+	animation_player.play(ANIM_IDLE)
 
 func _update_animation() -> void:
 	if not animation_player:
 		return
 	var next_animation: String
 	if not is_on_floor():
-		next_animation = "jump"
+		next_animation = ANIM_JUMP
 	elif Vector2(velocity.x, velocity.z).length() > 0.1:
-		next_animation = "run"
+		next_animation = ANIM_RUN
 	else:
-		next_animation = "idle"
+		next_animation = ANIM_IDLE
 	if animation_player.current_animation != next_animation:
 		animation_player.play(next_animation, 0.1)

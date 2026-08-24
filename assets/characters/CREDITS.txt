@@ -1,33 +1,15 @@
-Character assets
-=================
+character.fbx
+--------------
+"Male_Casual" from the "Animated Men Characters - Feb 2019" pack
+by Quaternius (https://www.patreon.com/quaternius)
 
-Source: Kenney "Animated Characters 2" pack
-Mirror repo: https://github.com/ETdoFresh/kenney.nl (path: animated-characters-2/)
-Original: https://kenney.nl/assets/animated-characters-2
-Author: Kenney (Kay Lousberg) - https://kenney.nl / https://twitter.com/kaylousberg
+Mirrored via https://github.com/beep2bleep/FreeAssetsByKenneyNLandQuaternius
+(FreeModels by Quaternius[Patreon]/Characters and Animals/Animated Men
+Characters - Feb 2019/FBX/Male_Casual.fbx)
 
-License: CC0 1.0 Universal (Creative Commons Zero) - Public Domain
+License: CC0 1.0 Universal (CC0 1.0) - Public Domain Dedication
 https://creativecommons.org/publicdomain/zero/1.0/
 
-Attribution is not required, but credited here for the record.
-
-Files in this directory:
-- character_model.glb: rigged character mesh + 58-bone Skeleton3D, converted
-  from animated-characters-2/Model/characterMedium.fbx (source FBX) via
-  FBX2glTF (https://github.com/facebookincubator/FBX2glTF).
-- animations/idle.glb, animations/jump.glb, animations/run.glb: animation
-  clips converted the same way from animated-characters-2/Animations/*.fbx.
-  Bone tracks are retargeted at runtime onto character_model.glb's skeleton
-  (see scripts/character_rig.gd) since the source animation-only FBX files
-  don't carry skin/skeleton data of their own.
-- skins/character_01.png .. character_04.png: skin textures applied to the
-  shared model at runtime, renamed from the pack's original skin names:
-    character_01.png = skaterMaleA.png   (male)
-    character_02.png = criminalMaleA.png (male)
-    character_03.png = cyborgFemaleA.png (female)
-    character_04.png = skaterFemaleA.png (female)
-
-Note: the four "characters" share one mesh/rig (this is how the source pack
-is designed - a single base body with swappable skin textures), so the
-visual distinction between character_01..04 comes from the skin texture
-applied in scripts/player.gd, not from separate geometry.
+Ships with its own Skeleton3D and a native AnimationPlayer containing
+animations authored for that same skeleton (Man_Idle, Man_Walk, Man_Run,
+Man_Jump, and others) - no cross-rig retargeting involved.
