@@ -51,9 +51,23 @@ var _drag_mouse_pos := Vector2.ZERO
 @onready var camera_pitch: Node3D = $CameraPitch
 @onready var camera: Camera3D = $CameraPitch/Camera3D
 
+## The camera's resting local offset, captured at startup so a vehicle can
+## push the view back and restore it exactly rather than guessing.
+var _base_camera_z := 0.0
+var _base_yaw_y := 0.0
+
 func _ready() -> void:
 	Input.mouse_mode = Input.MOUSE_MODE_CAPTURED
 	camera_pitch.rotation.x = PITCH_DEFAULT
+	_base_camera_z = camera.position.z
+	_base_yaw_y = position.y
+
+## Pulls the camera back and up while riding a vehicle, and puts it back
+## where it was when getting off. Vehicles call this rather than writing the
+## camera's transform themselves.
+func set_ride_view(riding: bool, distance: float, height: float) -> void:
+	camera.position.z = distance if riding else _base_camera_z
+	position.y = height if riding else _base_yaw_y
 
 func _unhandled_input(event: InputEvent) -> void:
 	if event is InputEventKey and event.pressed and event.keycode == KEY_ESCAPE and not shift_held:

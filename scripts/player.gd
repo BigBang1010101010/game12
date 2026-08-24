@@ -17,6 +17,11 @@ const SPRINT_ANIM_SPEED := 1.35
 ## True while the player is actually sprinting (not merely holding the key).
 var is_sprinting := false
 
+## Set to the vehicle being ridden (see scripts/bicycle.gd) while mounted.
+## While non-null the player stops driving itself: the vehicle positions it
+## and the normal movement/animation path is skipped.
+var mounted_vehicle: Node3D = null
+
 ## How fast the visual model turns to face its movement direction (radians/sec-ish, via lerp_angle factor).
 const MODEL_ROTATION_SPEED := 10.0
 
@@ -62,7 +67,39 @@ func _ready() -> void:
 	add_to_group("player")
 	call_deferred("_spawn_character_model")
 
+## Called by a vehicle when the player gets on or off it.
+## While riding, the model simply holds its idle pose, placed on the saddle
+## by the vehicle. Bending the legs into a real sitting posture was tried and
+## abandoned: this rig is IK-style (Foot.L is bone 1, a separate IK target,
+## not a child of LowerLeg.L), so rotating the hip bone moved nothing -
+## measured at 0.000 units of knee displacement for +/-70 degrees about every
+## local axis. Posing it properly means driving the IK targets, which is a
+## much larger job than this task warrants.
+## Forward lean applied to the whole model while riding. This is a rotation
+## of the model's container node, not a bone pose, so it carries none of the
+## risk of touching the rig - it just stops the rider reading as standing
+## bolt upright on the frame.
+const RIDING_LEAN_DEGREES := -14.0
+
+func set_mounted(vehicle: Node3D) -> void:
+	mounted_vehicle = vehicle
+	if animation_player:
+		# Idle rather than the run cycle, so the legs are not mid-stride.
+		animation_player.play(ANIM_IDLE)
+	if character_model:
+		character_model.rotation.x = deg_to_rad(RIDING_LEAN_DEGREES) if vehicle else 0.0
+
+## Lets a vehicle point the rider the way it is heading.
+func face_direction(direction: Vector3) -> void:
+	if not character_model or direction == Vector3.ZERO:
+		return
+	character_model.rotation.y = atan2(-direction.x, -direction.z) + MODEL_FRONT_CORRECTION
+
 func _physics_process(delta: float) -> void:
+	# While riding, the vehicle owns movement and posture entirely.
+	if mounted_vehicle:
+		return
+
 	if not is_on_floor():
 		velocity += get_gravity() * delta
 

@@ -3,6 +3,7 @@
 [ext_resource type="Script" path="res://scripts/player.gd" id="1_player"]
 [ext_resource type="Script" path="res://scripts/camera_controller.gd" id="2_camera"]
 [ext_resource type="Script" path="res://scripts/city_generator.gd" id="6_city"]
+[ext_resource type="Script" path="res://scripts/bicycle.gd" id="7_bike"]
 [ext_resource type="Script" path="res://scripts/demo_interactable_box.gd" id="2_box"]
 [ext_resource type="Script" path="res://scripts/interactable.gd" id="3_interactable"]
 [ext_resource type="Script" path="res://scripts/draggable_box.gd" id="4_draggable"]
@@ -50,6 +51,13 @@ albedo_color = Color(0.85, 0.78, 0.65, 1)
 
 [sub_resource type="BoxShape3D" id="BoxShape3D_wallSN"]
 size = Vector3(2.6, 3.2, 0.3)
+
+[sub_resource type="CapsuleShape3D" id="CapsuleShape3D_bike"]
+radius = 0.42
+height = 1.1
+
+[sub_resource type="SphereShape3D" id="SphereShape3D_bike_range"]
+radius = 2.4
 
 [sub_resource type="BoxMesh" id="BoxMesh_lintel"]
 size = Vector3(1.4, 0.8, 0.3)
@@ -637,3 +645,17 @@ shape = SubResource("CylinderShape3D_r7q28")
 
 [node name="City" type="Node3D" parent="."]
 script = ExtResource("6_city")
+
+[node name="Bicycle" type="CharacterBody3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 44, 0.55, 44)
+script = ExtResource("7_bike")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Bicycle"]
+shape = SubResource("CapsuleShape3D_bike")
+
+[node name="Area3D" type="Area3D" parent="Bicycle"]
+script = ExtResource("3_interactable")
+prompt_text = "Presiona E para montar"
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Bicycle/Area3D"]
+shape = SubResource("SphereShape3D_bike_range")

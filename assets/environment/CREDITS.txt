@@ -16,3 +16,15 @@ Files in this directory:
   kenney_natureKit_2.1/Models/GLTF format/tree_default.glb. Instanced
   multiple times across the terrain in scenes/main.tscn with varied
   position/rotation/scale.
+
+bicycle.fbx
+--------------
+"Bicycle" from the "Public Transport Pack - Feb 2017" pack
+by Quaternius (https://www.patreon.com/quaternius)
+
+Mirrored via https://github.com/beep2bleep/FreeAssetsByKenneyNLandQuaternius
+(FreeModels by Quaternius[Patreon]/Vehicles/Public Transport Pack -
+Feb 2017/FBX/Bicycle.fbx)
+
+License: CC0 1.0 Universal (CC0 1.0) - Public Domain Dedication
+https://creativecommons.org/publicdomain/zero/1.0/
