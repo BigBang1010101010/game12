@@ -68,6 +68,7 @@ PlayerStats="*res://scripts/player_stats.gd"
 InteractionUI="*res://scripts/interaction_ui.gd"
 InventoryUI="*res://scripts/inventory_ui.gd"
 HUD="*res://scripts/hud.gd"
+SleepController="*res://scripts/sleep_controller.gd"
 
 [rendering]
 
