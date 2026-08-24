@@ -4,6 +4,7 @@
 [ext_resource type="Script" path="res://scripts/camera_controller.gd" id="2_camera"]
 [ext_resource type="Script" path="res://scripts/city_generator.gd" id="6_city"]
 [ext_resource type="Script" path="res://scripts/bicycle.gd" id="7_bike"]
+[ext_resource type="Script" path="res://scripts/bed.gd" id="8_bed"]
 [ext_resource type="Script" path="res://scripts/demo_interactable_box.gd" id="2_box"]
 [ext_resource type="Script" path="res://scripts/interactable.gd" id="3_interactable"]
 [ext_resource type="Script" path="res://scripts/draggable_box.gd" id="4_draggable"]
@@ -58,6 +59,9 @@ metallic_specular = 0.15
 
 [sub_resource type="BoxShape3D" id="BoxShape3D_wallSN"]
 size = Vector3(2.6, 3.2, 0.3)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_bed_range"]
+size = Vector3(3.2, 2.4, 4.0)
 
 [sub_resource type="CapsuleShape3D" id="CapsuleShape3D_bike"]
 radius = 0.42
@@ -671,3 +675,14 @@ prompt_text = "Presiona E para montar"
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="Bicycle/Area3D"]
 shape = SubResource("SphereShape3D_bike_range")
+
+[node name="Bed" type="StaticBody3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 51.6, 0, 51.6)
+script = ExtResource("8_bed")
+
+[node name="Area3D" type="Area3D" parent="Bed"]
+script = ExtResource("3_interactable")
+prompt_text = "Presiona E (o Z) para dormir"
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Bed/Area3D"]
+shape = SubResource("BoxShape3D_bed_range")

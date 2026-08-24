@@ -17,6 +17,12 @@ signal interacted
 
 var _player_in_range: Node3D = null
 
+## Whether the player is currently inside this object's range. Read by
+## systems that gate an action on proximity without going through the E
+## press (the bed does this for sleeping).
+func is_player_in_range() -> bool:
+	return _player_in_range != null
+
 func _ready() -> void:
 	body_entered.connect(_on_body_entered)
 	body_exited.connect(_on_body_exited)

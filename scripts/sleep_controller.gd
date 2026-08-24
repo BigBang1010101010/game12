@@ -4,8 +4,10 @@ extends CanvasLayer
 ## day/night clock forward to the next morning, resets how long the player has
 ## been awake, and fades back in.
 ##
-## Available anywhere for now - it does not require a bed. When beds are added,
-## the only change needed is a check in try_sleep().
+## Requires standing next to a bed: try_sleep() asks the "bed" group whether
+## any bed has the player in range, so more beds can be added anywhere with no
+## change here. Pressing Z out of range shows a short message instead of
+## silently doing nothing.
 ##
 ## Restoring health is deliberately routed through PlayerStats rather than
 ## done here, so that whatever else ends up affecting health goes through the
@@ -41,13 +43,23 @@ func _unhandled_input(event: InputEvent) -> void:
 		try_sleep()
 		get_viewport().set_input_as_handled()
 
-## Sleeps if possible. Returns false when already sleeping (later: when not
-## next to a bed).
+## Sleeps if possible. Returns false when already sleeping, or when the
+## player is not next to a bed.
 func try_sleep() -> bool:
 	if is_sleeping:
 		return false
+	if not is_near_bed():
+		InteractionUI.show_message("Necesitas estar cerca de una cama para dormir")
+		return false
 	_do_sleep()
 	return true
+
+## True when any bed in the scene currently has the player within range.
+func is_near_bed() -> bool:
+	for bed in get_tree().get_nodes_in_group("bed"):
+		if bed.has_method("is_player_near") and bed.is_player_near():
+			return true
+	return false
 
 func _do_sleep() -> void:
 	is_sleeping = true
