@@ -13,6 +13,15 @@ class_name CameraController
 ## Yaw turns this node; pitch turns the child; the Camera3D just sits at a
 ## fixed local offset behind the pivot.
 ##
+## Browser note (this is the bug that made mouse-look silently dead in the
+## web build twice): pointer lock cannot be granted outside a user gesture,
+## so the Input.mouse_mode = CAPTURED in _ready() SUCCEEDS on desktop and
+## FAILS in a browser. Mouse look is gated on the cursor actually being
+## captured, so in the web build the gate was never true and every mouse
+## motion was discarded - while desktop and headless tests passed. Any mouse
+## click now captures the cursor (a click is a user gesture, which is exactly
+## what the browser requires), and a hint says so while it is free.
+##
 ## Modes:
 ##   - default: mouse captured, motion orbits the camera.
 ##   - Shift held: cursor released so objects can be dragged with left-click
@@ -48,6 +57,11 @@ var drag_plane_y := 0.0
 ## body and is what caused the drag to stutter.
 var _drag_mouse_pos := Vector2.ZERO
 
+## On-screen "click to look around" hint, shown whenever the cursor is not
+## captured and we are not deliberately in drag mode.
+var _hint_layer: CanvasLayer = null
+var _hint_label: Label = null
+
 @onready var camera_pitch: Node3D = $CameraPitch
 @onready var camera: Camera3D = $CameraPitch/Camera3D
 
@@ -57,10 +71,39 @@ var _base_camera_z := 0.0
 var _base_yaw_y := 0.0
 
 func _ready() -> void:
+	# Works on desktop; a no-op in a browser, where the click handler below
+	# is what actually gets the cursor captured.
 	Input.mouse_mode = Input.MOUSE_MODE_CAPTURED
 	camera_pitch.rotation.x = PITCH_DEFAULT
 	_base_camera_z = camera.position.z
 	_base_yaw_y = position.y
+	_build_hint()
+
+func _build_hint() -> void:
+	_hint_layer = CanvasLayer.new()
+	_hint_layer.layer = 12
+	add_child(_hint_layer)
+	_hint_label = Label.new()
+	_hint_label.text = "Haz clic para controlar la camara"
+	_hint_label.set_anchors_preset(Control.PRESET_CENTER)
+	_hint_label.grow_horizontal = Control.GROW_DIRECTION_BOTH
+	_hint_label.grow_vertical = Control.GROW_DIRECTION_BOTH
+	_hint_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	# Must not eat the very click it is asking the player to make.
+	_hint_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	var box := StyleBoxFlat.new()
+	box.bg_color = Color(0, 0, 0, 0.55)
+	box.set_corner_radius_all(6)
+	box.set_content_margin_all(10)
+	_hint_label.add_theme_stylebox_override("normal", box)
+	_hint_layer.add_child(_hint_label)
+	_hint_label.visible = false
+
+func _process(_delta: float) -> void:
+	# The hint is driven off the real cursor state rather than a flag, so it
+	# is honest about whether looking around will actually work right now.
+	if _hint_label:
+		_hint_label.visible = Input.mouse_mode != Input.MOUSE_MODE_CAPTURED and not shift_held
 
 ## Pulls the camera back and up while riding a vehicle, and puts it back
 ## where it was when getting off. Vehicles call this rather than writing the
@@ -79,10 +122,15 @@ func _unhandled_input(event: InputEvent) -> void:
 		_set_shift_held(event.pressed)
 		return
 
-	if escaped:
+	# Any click while the cursor is free re-captures it. This covers Escape
+	# having released it AND the browser case where the startup capture never
+	# succeeded, and it runs inside a real user gesture, which is the only
+	# context a browser will grant pointer lock in.
+	if not shift_held and Input.mouse_mode != Input.MOUSE_MODE_CAPTURED:
 		if event is InputEventMouseButton and event.pressed:
 			escaped = false
 			Input.mouse_mode = Input.MOUSE_MODE_CAPTURED
+			get_viewport().set_input_as_handled()
 		return
 
 	if shift_held:

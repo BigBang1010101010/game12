@@ -25,6 +25,11 @@ func _ready() -> void:
 func _build_ui() -> void:
 	panel = PanelContainer.new()
 	panel.position = Vector2(16, 16)
+	# A passive readout must never swallow clicks: with the default STOP
+	# filter this panel ate any click landing on it, which stopped the camera
+	# rig from capturing the cursor (its capture runs in _unhandled_input,
+	# and GUI-consumed events never get there).
+	panel.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	var box := StyleBoxFlat.new()
 	box.bg_color = Color(0, 0, 0, 0.45)
 	box.set_corner_radius_all(6)
