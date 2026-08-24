@@ -16,6 +16,14 @@ const PITCH_MAX := deg_to_rad(40.0) # how far up the camera can look
 const PITCH_DEFAULT := deg_to_rad(-15.0) # initial look-slightly-down angle
 
 const CHARACTER_MODEL := "res://assets/characters/character_model.glb"
+## The imported model's rest-pose vertex data measures ~3.76 units tall (feet
+## to top of hair), reconstructed via manual linear-blend skinning
+## (bind-pose vertices + bone weights + skeleton pose) - about 2.1x taller
+## than the 1.8-tall collision capsule. Scaling it down to match the capsule
+## (rather than enlarging the capsule to match it) is what keeps the
+## character able to fit through the house's 2.4-tall door at all; a
+## 3.76-tall capsule couldn't fit through a 2.4 opening no matter the offset.
+const MODEL_SCALE := 0.465
 ## Feet-to-origin offset: the capsule collision (radius 0.4, height 1.8) is
 ## centered on the Player's origin, so its bottom sits 0.9 below it. The
 ## character model's root is at its feet, so it's offset down to match.
@@ -191,6 +199,7 @@ func _spawn_character_model() -> void:
 	instance.name = "CharacterModel"
 	instance.transform.origin.y = MODEL_FEET_OFFSET
 	instance.rotation.y = MODEL_FRONT_CORRECTION
+	instance.scale = Vector3.ONE * MODEL_SCALE
 	add_child(instance)
 	character_model = instance
 

@@ -20,7 +20,7 @@ static func build_animation_player(skeleton: Skeleton3D) -> AnimationPlayer:
 
 	var library := AnimationLibrary.new()
 	for anim_name in ANIM_PATHS:
-		var anim := _load_and_retarget(ANIM_PATHS[anim_name], bone_names)
+		var anim := _load_and_retarget(ANIM_PATHS[anim_name], bone_names, skeleton)
 		if anim:
 			library.add_animation(anim_name, anim)
 
@@ -29,7 +29,18 @@ static func build_animation_player(skeleton: Skeleton3D) -> AnimationPlayer:
 	player.add_animation_library("", library)
 	return player
 
-static func _load_and_retarget(path: String, bone_names: Dictionary) -> Animation:
+## Rotation tracks store each bone's ABSOLUTE local rotation (relative to its
+## parent bone), not a delta. Copying that value verbatim only works if the
+## source and target skeletons define the same "zero rotation" (rest pose)
+## for a same-named bone. They don't here - the source clip rig's rest pose
+## differs from this model's, so raw copies escalate down each kinematic
+## chain (confirmed by measurement: the retargeted "idle" clip put the
+## Arm/ForeArm/Hand bones at 65-95 degrees off this model's rest, and finger
+## bones past 150 degrees, flinging the hands out wide and up above the
+## head). The fix is to re-express each keyframe as a delta from the
+## SOURCE's own rest rotation, then reapply that same delta on top of the
+## TARGET's rest rotation, so both sides agree on what "no rotation" means.
+static func _load_and_retarget(path: String, bone_names: Dictionary, skeleton: Skeleton3D) -> Animation:
 	var packed: PackedScene = load(path)
 	if not packed:
 		push_warning("CharacterRig: could not load %s" % path)
@@ -55,6 +66,17 @@ static func _load_and_retarget(path: String, bone_names: Dictionary) -> Animatio
 			continue
 		var new_track := out.add_track(ttype)
 		out.track_set_path(new_track, NodePath("Skeleton3D:" + bone_name))
+
+		var source_rest_rot := Quaternion.IDENTITY
+		var target_rest_rot := Quaternion.IDENTITY
+		if ttype == Animation.TYPE_ROTATION_3D:
+			var source_node := instance.find_child(bone_name, true, false)
+			if source_node:
+				source_rest_rot = source_node.transform.basis.get_rotation_quaternion()
+			var bidx := skeleton.find_bone(bone_name)
+			if bidx >= 0:
+				target_rest_rot = skeleton.get_bone_rest(bidx).basis.get_rotation_quaternion()
+
 		for ki in source_anim.track_get_key_count(ti):
 			var t: float = source_anim.track_get_key_time(ti, ki)
 			var v = source_anim.track_get_key_value(ti, ki)
@@ -62,7 +84,9 @@ static func _load_and_retarget(path: String, bone_names: Dictionary) -> Animatio
 				Animation.TYPE_POSITION_3D:
 					out.position_track_insert_key(new_track, t, v)
 				Animation.TYPE_ROTATION_3D:
-					out.rotation_track_insert_key(new_track, t, v)
+					var delta: Quaternion = source_rest_rot.inverse() * v
+					var retargeted: Quaternion = target_rest_rot * delta
+					out.rotation_track_insert_key(new_track, t, retargeted)
 				Animation.TYPE_SCALE_3D:
 					out.scale_track_insert_key(new_track, t, v)
 
