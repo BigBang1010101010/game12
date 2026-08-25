@@ -90,6 +90,8 @@ ActivityRegistry="*res://scripts/registries/activity_registry.gd"
 LocationRegistry="*res://scripts/registries/location_registry.gd"
 ParentRegistry="*res://scripts/registries/parent_registry.gd"
 GiftRegistry="*res://scripts/registries/gift_registry.gd"
+SpendingRegistry="*res://scripts/registries/spending_registry.gd"
+ConsultingRegistry="*res://scripts/registries/consulting_registry.gd"
 AdmissionCalculator="*res://scripts/progression/admission_calculator.gd"
 ; AcademicIndex reads the config that AdmissionCalculator owns, and
 ; ActivityTracker asks AcademicIndex whether an athlete is recruitable,
@@ -106,6 +108,13 @@ PlayerOrigin="*res://scripts/progression/player_origin.gd"
 ; FamilyRelationship escribe en el ledger de PlayerState y se engancha al
 ; ciclo dia/noche, asi que llega despues de ambos.
 FamilyRelationship="*res://scripts/progression/family_relationship.gd"
+; El dinero llega despues del origen (que siembra el bolsillo familiar) y de
+; PlayerState (que audita cada movimiento); el credito, despues del dinero y
+; de la relacion familiar, que son sus dos entradas.
+Wallet="*res://scripts/progression/wallet.gd"
+FamilyCredit="*res://scripts/progression/family_credit.gd"
+InfoPolicy="*res://scripts/progression/information_policy.gd"
+ConsultingService="*res://scripts/progression/consulting_service.gd"
 AdmissionsLab="*res://scripts/debug/admissions_lab_toggle.gd"
 Inventory="*res://scripts/inventory.gd"
 PlayerStats="*res://scripts/player_stats.gd"

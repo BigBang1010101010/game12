@@ -13,7 +13,7 @@ extends Node
 
 ## Bump this whenever the saved SHAPE changes, and add a matching entry to
 ## _MIGRACIONES so old files keep loading.
-const VERSION_ESQUEMA := 3
+const VERSION_ESQUEMA := 4
 const RUTA_POR_DEFECTO := "user://progresion.save"
 
 ## version_origen -> Callable(datos) -> datos, taking a save from that version
@@ -38,6 +38,14 @@ var _MIGRACIONES: Dictionary = {
 		datos["familia"] = {}
 		datos["version_esquema"] = 3
 		return datos,
+	# 3 -> 4: money arrived. A save from before it has no balances, and the
+	# right reading of that is not "zero": it is "this run never had a wallet",
+	# so the wallet re-seeds itself from the birthplace on load instead.
+	3: func(datos: Dictionary) -> Dictionary:
+		datos["dinero"] = {}
+		datos["credito"] = {}
+		datos["version_esquema"] = 4
+		return datos,
 }
 
 func guardar(ruta: String = RUTA_POR_DEFECTO) -> bool:
@@ -53,6 +61,8 @@ func guardar(ruta: String = RUTA_POR_DEFECTO) -> bool:
 		"hitos": hitos.duplicate(),
 		"actividades": ActivityTracker.obtener_todos_los_estados(),
 		"familia": FamilyRelationship.obtener_estado(),
+		"dinero": Wallet.obtener_estado(),
+		"credito": FamilyCredit.obtener_estado(),
 		"seleccion_common_app": _ids_seleccionados(),
 	}
 	var archivo := FileAccess.open(ruta, FileAccess.WRITE)
@@ -143,6 +153,16 @@ func _aplicar(datos: Dictionary) -> void:
 	PlayerOrigin.reiniciar()
 	PlayerOrigin.cargar_desde_guardado()
 	FamilyRelationship.cargar_estado(datos.get("familia", {}))
+
+	# Money: a save that predates the wallet re-seeds from the birthplace, so
+	# an old run does not silently start broke.
+	var dinero: Dictionary = datos.get("dinero", {})
+	if dinero.is_empty():
+		Wallet.reiniciar_desde_origen()
+	else:
+		Wallet.cargar_estado(dinero)
+	FamilyCredit.cargar_estado(datos.get("credito", {}))
+	ConsultingService.reiniciar()
 
 	var seleccion: Array = datos.get("seleccion_common_app", [])
 	if seleccion.is_empty():

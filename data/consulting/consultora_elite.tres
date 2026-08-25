@@ -1,0 +1,20 @@
+[gd_resource type="Resource" script_class="ConsultingTier" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/resources/consulting_tier.gd" id="1_tier"]
+
+; RAZONAMIENTO
+;   750 de costo y 8% de margen. Se acerca mucho a la verdad y NUNCA la alcanza:
+;   el margen no puede ser 0 y la validacion lo impide, porque una asesoria que
+;   diera el numero exacto eliminaria la incertidumbre que es el juego entero.
+;   750 es tambien casi el techo de un prestamo familiar en Nueva Jersey, asi
+;   que pagarla es endeudarse - que es exactamente lo que hacen las familias
+;   que la contratan.
+[resource]
+script = ExtResource("1_tier")
+id = &"consultora_elite"
+nombre_display = "Consultora de élite"
+descripcion = "De las que publican cuántos de sus clientes entraron. Cobran por eso."
+costo = 750.0
+margen_error = 0.08
+cobertura = &"desglose"
+nivel = 3

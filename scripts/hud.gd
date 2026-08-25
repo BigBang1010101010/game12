@@ -63,11 +63,23 @@ func _build_ui() -> void:
 	stamina_bar.add_theme_stylebox_override("fill", _bar_box(STAMINA_FILL_COLOR))
 	column.add_child(stamina_bar)
 
+## Full-screen panels that asked for the readout to get out of the way. A
+## counter rather than a flag, so two overlapping panels cannot leave the HUD
+## hidden when only one of them closes.
+var _ocultadores: int = 0
+
+## Called by a full-screen panel while it is open.
+func ocultar() -> void:
+	_ocultadores += 1
+
+func mostrar() -> void:
+	_ocultadores = maxi(_ocultadores - 1, 0)
+
 func _process(_delta: float) -> void:
 	# The readout is about the player, so it hides in scenes that have none -
 	# the birthplace selection, and any menu that comes later. Checked here
 	# rather than by the menus themselves so a new screen gets it for free.
-	visible = not get_tree().get_nodes_in_group("player").is_empty()
+	visible = _ocultadores == 0 and not get_tree().get_nodes_in_group("player").is_empty()
 	if not visible:
 		return
 	_refresh()

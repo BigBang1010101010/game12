@@ -1,0 +1,18 @@
+[gd_resource type="Resource" script_class="ConsultingTier" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/resources/consulting_tier.gd" id="1_tier"]
+
+; RAZONAMIENTO
+;   Gratis y con 40% de margen: es el orientador que lleva 400 alumnos y te
+;   dedica veinte minutos. No miente, se equivoca - y como es gratis, es la
+;   unica fuente de informacion garantizada para quien nace sin dinero.
+;   Cobertura minima: te dice como vas academicamente y nada mas.
+[resource]
+script = ExtResource("1_tier")
+id = &"orientador_escolar"
+nombre_display = "Orientador escolar"
+descripcion = "El del colegio. Gratis, con la agenda llena y cuatrocientos alumnos como tú."
+costo = 0.0
+margen_error = 0.40
+cobertura = &"indice"
+nivel = 1

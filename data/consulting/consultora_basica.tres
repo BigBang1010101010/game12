@@ -1,0 +1,18 @@
+[gd_resource type="Resource" script_class="ConsultingTier" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/resources/consulting_tier.gd" id="1_tier"]
+
+; RAZONAMIENTO
+;   180 de costo y 20% de margen: cuesta lo mismo que el regalo importante del
+;   sistema familiar, lo que convierte cada consulta en una decision real.
+;   Cobertura media: ademas del indice te dice como estas de cada atributo,
+;   que es lo que permite al jugador saber DONDE invertir su tiempo.
+[resource]
+script = ExtResource("1_tier")
+id = &"consultora_basica"
+nombre_display = "Consultora privada"
+descripcion = "Una consultora pequeña que trabaja con veinte familias al año."
+costo = 180.0
+margen_error = 0.20
+cobertura = &"atributos"
+nivel = 2

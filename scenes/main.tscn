@@ -1,4 +1,4 @@
-[gd_scene load_steps=57 format=4]
+[gd_scene load_steps=61 format=4]
 
 [ext_resource type="Script" path="res://scripts/player.gd" id="1_player"]
 [ext_resource type="Script" path="res://scripts/camera_controller.gd" id="2_camera"]
@@ -10,6 +10,7 @@
 [ext_resource type="Script" path="res://scripts/draggable_box.gd" id="4_draggable"]
 [ext_resource type="PackedScene" path="res://assets/environment/tree.glb" id="5_l25mh"]
 [ext_resource type="Script" path="res://scripts/gift_shop.gd" id="9_shop"]
+[ext_resource type="Script" path="res://scripts/consulting_office.gd" id="10_office"]
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_grass"]
 albedo_color = Color(0.290196, 0.486275, 0.227451, 1)
@@ -36,6 +37,20 @@ fog_enabled = true
 fog_light_color = Color(0.6, 0.68, 0.78, 1)
 fog_density = 0.008
 fog_sky_affect = 0.0
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_office"]
+albedo_color = Color(0.35, 0.45, 0.78, 1)
+roughness = 0.7
+
+[sub_resource type="BoxMesh" id="BoxMesh_office"]
+material = SubResource("StandardMaterial3D_office")
+size = Vector3(4, 3.2, 3)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_office"]
+size = Vector3(4, 3.2, 3)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_office_range"]
+size = Vector3(7, 4, 6)
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_shop"]
 albedo_color = Color(0.85, 0.45, 0.35, 1)
@@ -718,3 +733,20 @@ prompt_text = "Presiona E para ver la tienda de regalos"
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="GiftShop/Area3D"]
 shape = SubResource("BoxShape3D_shop_range")
+
+[node name="ConsultingOffice" type="StaticBody3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 35, 1.6, 45)
+script = ExtResource("10_office")
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="ConsultingOffice"]
+mesh = SubResource("BoxMesh_office")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="ConsultingOffice"]
+shape = SubResource("BoxShape3D_office")
+
+[node name="Area3D" type="Area3D" parent="ConsultingOffice"]
+script = ExtResource("3_interactable")
+prompt_text = "Presiona E para entrar a la asesoría"
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="ConsultingOffice/Area3D"]
+shape = SubResource("BoxShape3D_office_range")

@@ -39,6 +39,9 @@ func _run() -> void:
 	_relacion_familiar_sube_baja_y_decae()
 	_cumpleanos_en_fecha_vale_mas_que_fuera()
 	_guardado_conserva_origen_y_familia()
+	_credito_nunca_aprueba_mas_del_maximo()
+	_dinero_familia_respeta_las_categorias()
+	_asesoria_nunca_revela_el_valor_exacto()
 	_ledger_conserva_totales()
 
 	print("")
@@ -736,3 +739,214 @@ func _guardado_conserva_origen_y_familia() -> void:
 		"tras migrar del esquema 2 la relacion no arranco en su nivel inicial")
 	DirAccess.remove_absolute(ProjectSettings.globalize_path(ruta))
 	print("guardado:       esquema %d, ubicacion y familia sobreviven, y un esquema 2 migra" % SaveSystem.VERSION_ESQUEMA)
+
+# --- Money --------------------------------------------------------------------
+
+## Preps a run: a birthplace, clean money, clean relationships, clean ledger.
+func _preparar_run(ubicacion_id: StringName = &"") -> LocationData:
+	PlayerState.reiniciar()
+	FamilyRelationship.reiniciar()
+	FamilyCredit.reiniciar()
+	ConsultingService.reiniciar()
+	PlayerOrigin.reiniciar()
+	var id: StringName = ubicacion_id if ubicacion_id != &"" else LocationRegistry.obtener_ids()[0]
+	var rng := RandomNumberGenerator.new()
+	rng.seed = 99
+	PlayerOrigin.fijar_ubicacion(id, rng)
+	Wallet.reiniciar_desde_origen()
+	return LocationRegistry.obtener(id) as LocationData
+
+## The ceiling is a promise: whatever is asked for, and however the roll goes,
+## the family never hands over more than it has. Checked in every location,
+## since the ceiling comes from the location's own numbers.
+func _credito_nunca_aprueba_mas_del_maximo() -> void:
+	var rng := RandomNumberGenerator.new()
+	rng.seed = 4242
+	var aprobados := 0
+	var recortados := 0
+	for u_res in LocationRegistry.obtener_todos():
+		var ubicacion: LocationData = _preparar_run((u_res as LocationData).id)
+		# A warm relationship raises the ceiling, so this is the hardest case.
+		for padre_res in ParentRegistry.obtener_todos():
+			for i in range(12):
+				FamilyRelationship.cenar_en_familia((padre_res as ParentData).id)
+		var maximo: float = FamilyCredit.monto_maximo()
+		_verificar(maximo > 0.0, "'%s': el maximo prestable salio 0" % ubicacion.id)
+		_verificar(maximo <= ubicacion.dinero_familia_base_max * 2.0,
+			"'%s': el maximo (%.0f) desborda lo que la familia podria tener" % [ubicacion.id, maximo])
+
+		for factor in [0.2, 0.9, 1.0, 1.5, 4.0]:
+			var pedido: float = maximo * factor
+			var r: LoanResult = FamilyCredit.solicitar_prestamo(pedido, &"", rng)
+			_verificar(r.monto_aprobado <= r.monto_maximo + 0.0001,
+				"'%s': se aprobaron %.2f con un maximo de %.2f" % [ubicacion.id, r.monto_aprobado, r.monto_maximo])
+			_verificar(r.monto_aprobado <= pedido + 0.0001,
+				"'%s': se aprobo mas de lo que se pidio (%.2f > %.2f)" % [ubicacion.id, r.monto_aprobado, pedido])
+			_verificar(r.probabilidad > 0.0 and r.probabilidad < 1.0,
+				"'%s': probabilidad fuera de (0,1): %.4f" % [ubicacion.id, r.probabilidad])
+			if factor > 1.0:
+				_verificar(r.recortado, "pedir %.0f sobre un maximo de %.0f no se marco como recortado" % [pedido, maximo])
+				recortados += 1
+			if r.aprobado:
+				aprobados += 1
+				_verificar(Wallet.dinero_familia() >= r.monto_aprobado - 0.0001,
+					"el prestamo aprobado no llego al bolsillo de familia")
+
+		# Asking for a lot must be harder than asking for a little, always.
+		# The refusals from the loop above are cleared first: this comparison
+		# is about the amount term, and with five noes stacked on top both
+		# sides clamp to the probability floor and the comparison proves
+		# nothing - which is exactly what happened the first time this ran.
+		FamilyCredit.reiniciar()
+		var poco: LoanResult = FamilyCredit.evaluar(maximo * 0.1)
+		var mucho: LoanResult = FamilyCredit.evaluar(maximo)
+		_verificar(poco.probabilidad > mucho.probabilidad,
+			"'%s': pedir el maximo (%.3f) no es mas dificil que pedir poco (%.3f)" % [
+				ubicacion.id, mucho.probabilidad, poco.probabilidad])
+
+	# And a refusal has to make the next request harder.
+	_preparar_run()
+	var antes: LoanResult = FamilyCredit.evaluar(50.0)
+	var rng_no := RandomNumberGenerator.new()
+	rng_no.seed = 7
+	# Force a refusal by asking with a roll that cannot pass.
+	while FamilyCredit.rechazos_recientes() < 1:
+		var forzado := RandomNumberGenerator.new()
+		forzado.seed = 1
+		var r: LoanResult = FamilyCredit.solicitar_prestamo(FamilyCredit.monto_maximo(), &"", forzado)
+		if r.aprobado:
+			# The roll passed; drain the balance and try again with a harder ask.
+			continue
+	var despues: LoanResult = FamilyCredit.evaluar(50.0)
+	_verificar(despues.probabilidad < antes.probabilidad,
+		"tras un rechazo la siguiente peticion no es mas dificil (%.4f vs %.4f)" % [
+			despues.probabilidad, antes.probabilidad])
+	_verificar(despues.penalizacion_rechazos > 0.0, "el rechazo no dejo penalizacion")
+	print("credito:        %d prestamos aprobados, %d recortados al maximo, y un rechazo endurece el siguiente" % [
+		aprobados, recortados])
+
+## The two purses are the design: family money pays for what looks like an
+## investment, and for nothing else.
+func _dinero_familia_respeta_las_categorias() -> void:
+	_preparar_run()
+	var permitidas: Array[Resource] = SpendingRegistry.obtener_permitidas()
+	var prohibidas: Array[Resource] = SpendingRegistry.obtener_no_permitidas()
+	_verificar(not permitidas.is_empty() and not prohibidas.is_empty(),
+		"hacen falta categorias de ambos tipos para que la regla signifique algo")
+
+	var familia: float = Wallet.dinero_familia()
+	_verificar(familia > 0.0, "el bolsillo de familia arranco vacio pese a la ubicacion")
+	_verificar(is_zero_approx(Wallet.dinero_personal()),
+		"el bolsillo personal deberia arrancar en cero: no se hereda, se gana")
+
+	# Not a peseta of family money for a forbidden category, even with plenty.
+	var prohibida: SpendingCategory = prohibidas[0]
+	var intento: Dictionary = Wallet.gastar(familia * 0.5, prohibida.id)
+	_verificar(not intento["exito"] and intento["motivo"] == "categoria_no_permite_familia",
+		"'%s' acepto dinero de familia (motivo: %s)" % [prohibida.id, intento.get("motivo", "-")])
+	_verificar(is_equal_approx(Wallet.dinero_familia(), familia),
+		"el intento rechazado igualmente movio dinero")
+
+	# The same purchase works once it is the player's own money.
+	Wallet.ingresar(familia, Wallet.CLAVE_PERSONAL, &"trabajo", &"trabajo_remunerado")
+	var con_propio: Dictionary = Wallet.gastar(familia * 0.5, prohibida.id)
+	_verificar(con_propio["exito"], "no se pudo pagar '%s' con dinero propio" % prohibida.id)
+	_verificar(is_zero_approx(con_propio["desde_familia"]),
+		"'%s' se pago en parte con dinero de familia" % prohibida.id)
+
+	# An allowed category spends family money FIRST, which is what makes it
+	# worth having.
+	var permitida: SpendingCategory = permitidas[0]
+	var familia_antes: float = Wallet.dinero_familia()
+	var personal_antes: float = Wallet.dinero_personal()
+	var ok: Dictionary = Wallet.gastar(familia_antes * 0.5, permitida.id)
+	_verificar(ok["exito"], "no se pudo pagar '%s' teniendo dinero de sobra" % permitida.id)
+	_verificar(ok["desde_familia"] > 0.0 and is_zero_approx(ok["desde_personal"]),
+		"'%s' no gasto primero el dinero de familia" % permitida.id)
+	_verificar(is_equal_approx(Wallet.dinero_personal(), personal_antes),
+		"se toco el bolsillo personal habiendo dinero de familia disponible")
+
+	# An unknown category fails closed rather than opening the family purse.
+	var inventada: Dictionary = Wallet.gastar(1.0, &"categoria_que_no_existe")
+	_verificar(not inventada["exito"] and inventada["motivo"] == "categoria_desconocida",
+		"una categoria inexistente no fue rechazada")
+
+	# And every movement is in the ledger.
+	var movimientos: Array[Dictionary] = PlayerState.consultar_ledger({"atributo": Wallet.CLAVE_FAMILIA})
+	_verificar(movimientos.size() >= 2, "el ledger no registro los movimientos del bolsillo familiar")
+	print("dinero:         familia solo en categorias permitidas, se gasta primero, y todo queda auditado")
+
+# --- Consulting ----------------------------------------------------------------
+
+## The whole point of the consulting tiers: they approximate, they never tell
+## the truth, and they never lie about the ORDER.
+func _asesoria_nunca_revela_el_valor_exacto() -> void:
+	_preparar_run()
+	# A profile with something to report.
+	for definicion_res in AttributeRegistry.get_all_definitions():
+		PlayerState.fijar_valor((definicion_res as AttributeDefinition).id, 62.0)
+	Wallet.ingresar(5000.0, Wallet.CLAVE_PERSONAL, &"test", &"fondos")
+
+	var indice_real: float = AcademicIndex.valor()
+	var carrera: StringName = CareerRegistry.obtener_ids()[0]
+	var ensayo: StringName = EssayRegistry.obtener_ids()[0]
+	var reales: Dictionary = {}
+	for r in AdmissionCalculator.calcular_todas(carrera, ensayo, false):
+		reales[(r as AdmissionResult).universidad_id] = (r as AdmissionResult).probabilidad
+
+	var margen_previo := 999.0
+	for tier_res in ConsultingRegistry.obtener_por_nivel():
+		var tier: ConsultingTier = tier_res
+		_verificar(tier.margen_error > 0.0,
+			"'%s' promete margen de error 0: ninguna asesoria puede dar el numero exacto" % tier.id)
+		var informe: Dictionary = ConsultingService.consultar(tier.id, carrera, ensayo)
+		_verificar(informe["exito"], "no se pudo consultar '%s': %s" % [tier.id, informe.get("mensaje", "")])
+
+		# 1. Never exact, and never outside the promised margin.
+		var estimado: float = informe["indice_estimado"]
+		_verificar(not is_equal_approx(estimado, indice_real),
+			"'%s' revelo el indice academico exacto (%.4f)" % [tier.id, indice_real])
+		var error_relativo: float = absf(estimado - indice_real) / maxf(indice_real, 0.0001)
+		_verificar(error_relativo <= tier.margen_error + 0.0001,
+			"'%s' se salio de su propio margen: %.3f > %.3f" % [tier.id, error_relativo, tier.margen_error])
+
+		# 2. Coverage is respected: a cheap tier does not leak what it does not sell.
+		_verificar(informe.has("atributos") == tier.cubre(&"atributos"),
+			"'%s' no respeta su cobertura de atributos" % tier.id)
+		_verificar(informe.has("universidades") == tier.cubre(&"desglose"),
+			"'%s' no respeta su cobertura de desglose" % tier.id)
+
+		if informe.has("atributos"):
+			for atributo_id in informe["atributos"]:
+				var real: float = PlayerState.obtener_valor(atributo_id)
+				var visto: float = informe["atributos"][atributo_id]["estimado"]
+				_verificar(not is_equal_approx(visto, real),
+					"'%s' revelo el valor exacto de '%s'" % [tier.id, atributo_id])
+
+		if informe.has("universidades"):
+			# 3. The ranking has to be honest even though the numbers are not.
+			var anterior := 2.0
+			var anterior_real := 2.0
+			for fila in informe["universidades"]:
+				var estimada: float = fila["probabilidad_estimada"]
+				var real_uni: float = float(reales[fila["id"]])
+				_verificar(not is_equal_approx(estimada, real_uni),
+					"'%s' revelo la probabilidad exacta de '%s'" % [tier.id, fila["id"]])
+				_verificar(estimada <= anterior + 0.0001,
+					"'%s' devolvio las universidades desordenadas" % tier.id)
+				_verificar(real_uni <= anterior_real + 0.0001,
+					"'%s' altero el ranking real de las universidades" % tier.id)
+				anterior = estimada
+				anterior_real = real_uni
+
+		# 4. Same day, same answer - otherwise the margin could be averaged away.
+		var repetido: Dictionary = ConsultingService.consultar(tier.id, carrera, ensayo)
+		_verificar(is_equal_approx(repetido["indice_estimado"], estimado),
+			"'%s' dio dos estimaciones distintas el mismo dia: el margen se podria promediar" % tier.id)
+		_verificar(repetido.get("ya_pagado_hoy", false), "se cobro dos veces la misma asesoria el mismo dia")
+
+		# 5. Paying more has to buy precision.
+		_verificar(tier.margen_error < margen_previo,
+			"'%s' no es mas preciso que el tier anterior" % tier.id)
+		margen_previo = tier.margen_error
+	print("asesoria:       %d tiers, ninguno revela un valor exacto, todos respetan su margen y el ranking real" % ConsultingRegistry.contar())
