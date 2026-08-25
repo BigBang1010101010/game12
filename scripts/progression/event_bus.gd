@@ -24,6 +24,18 @@ signal tiempo_invertido(actividad_id: StringName, cantidad: float)
 ## Admission odds were recomputed and any showing UI should refresh.
 signal probabilidades_recalculadas()
 
+## --- Money ------------------------------------------------------------------
+## Money came in. `bolsillo` is which purse grew, so a listener can tell
+## personal earnings from family money without knowing what either is for.
+signal dinero_ganado(monto: float, bolsillo: StringName, fuente_tipo: StringName, fuente_id: StringName)
+
+## Money went out, against a spending category.
+signal dinero_gastado(monto: float, categoria_id: StringName, desde_familia: float, desde_personal: float)
+
+## A loan was asked for, whatever the answer. `resultado` carries the full
+## LoanResult breakdown, so UI and analytics read the same object.
+signal prestamo_solicitado(monto: float, aprobado: bool, resultado: Resource)
+
 ## Convenience wrappers so callers do not have to remember argument order.
 func pedir_modificador(atributo_id: StringName, delta: float, fuente_tipo: StringName, fuente_id: StringName, contexto: Dictionary = {}) -> void:
 	solicitar_modificador.emit(atributo_id, delta, fuente_tipo, fuente_id, contexto)
@@ -33,3 +45,9 @@ func avisar_tiempo(actividad_id: StringName, cantidad: float) -> void:
 
 func avisar_hito(hito_id: StringName) -> void:
 	hito_desbloqueado.emit(hito_id)
+
+func avisar_ingreso(monto: float, bolsillo: StringName, fuente_tipo: StringName, fuente_id: StringName) -> void:
+	dinero_ganado.emit(monto, bolsillo, fuente_tipo, fuente_id)
+
+func avisar_gasto(monto: float, categoria_id: StringName, desde_familia: float, desde_personal: float) -> void:
+	dinero_gastado.emit(monto, categoria_id, desde_familia, desde_personal)

@@ -1,0 +1,14 @@
+[gd_resource type="Resource" script_class="SpendingCategory" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/resources/spending_category.gd" id="1_cat"]
+
+; RAZONAMIENTO
+;   Permitida: es el gasto que una familia entiende como inversion directa en la aplicacion, y el que mas veces aparece en presupuestos reales de familias que apuntan a universidades selectivas.
+
+[resource]
+script = ExtResource("1_cat")
+id = &"preparacion_examenes"
+nombre_display = "Cursos de preparación"
+descripcion = "Cursos y materiales para exámenes estandarizados."
+permite_dinero_familia = true
+orden = 10

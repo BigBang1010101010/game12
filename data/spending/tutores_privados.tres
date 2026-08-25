@@ -1,0 +1,14 @@
+[gd_resource type="Resource" script_class="SpendingCategory" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/resources/spending_category.gd" id="1_cat"]
+
+; RAZONAMIENTO
+;   Permitida por la misma razon que los cursos, y es la version cara de lo que el jugador tambien puede conseguir gratis con la actividad de tutorias - de ahi que la decision economica tenga sentido.
+
+[resource]
+script = ExtResource("1_cat")
+id = &"tutores_privados"
+nombre_display = "Tutores privados"
+descripcion = "Clases particulares de una materia concreta."
+permite_dinero_familia = true
+orden = 20

@@ -1,0 +1,15 @@
+[gd_resource type="Resource" script_class="SpendingCategory" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/resources/spending_category.gd" id="1_cat"]
+
+; RAZONAMIENTO
+;   Permitida: sin la cuota no hay competencia, y sin competencia no hay reconocimiento externo, que es la palanca que sube los tiers de las actividades.
+;   Es el gasto que desbloquea progreso, no el que lo compra.
+
+[resource]
+script = ExtResource("1_cat")
+id = &"cuotas_competencias"
+nombre_display = "Cuotas de competencias"
+descripcion = "Inscripciones, viáticos y cuotas de torneos y olimpiadas."
+permite_dinero_familia = true
+orden = 30

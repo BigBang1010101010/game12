@@ -1,0 +1,15 @@
+[gd_resource type="Resource" script_class="SpendingCategory" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/resources/spending_category.gd" id="1_cat"]
+
+; RAZONAMIENTO
+;   Permitida, y es el gasto grande del sistema.
+;   Vale la pena decir en voz alta que en la realidad muchos de estos programas pesan mucho menos en una admision de lo que cuestan - eso lo modelara el tier techo de la actividad correspondiente, no esta categoria.
+
+[resource]
+script = ExtResource("1_cat")
+id = &"campamentos_academicos"
+nombre_display = "Campamentos académicos"
+descripcion = "Programas de verano en universidades y campamentos de materia."
+permite_dinero_familia = true
+orden = 40

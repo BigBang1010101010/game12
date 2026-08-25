@@ -1,0 +1,16 @@
+[gd_resource type="Resource" script_class="SpendingCategory" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/resources/spending_category.gd" id="1_cat"]
+
+; RAZONAMIENTO
+;   NO permitida.
+;   La linea del sistema de dos monedas esta aqui: la familia presta para lo que parece una inversion en el aplicante, no para la vida del jugador.
+;   Que el ocio exista como categoria y este bloqueada es lo que hace visible la regla.
+
+[resource]
+script = ExtResource("1_cat")
+id = &"ocio"
+nombre_display = "Ocio"
+descripcion = "Salir, videojuegos, lo que te apetezca."
+permite_dinero_familia = false
+orden = 60

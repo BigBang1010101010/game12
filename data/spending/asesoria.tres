@@ -1,0 +1,16 @@
+[gd_resource type="Resource" script_class="SpendingCategory" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/resources/spending_category.gd" id="1_cat"]
+
+; RAZONAMIENTO
+;   Permitida para el dinero de la familia, y es la categoria que cierra el
+;   circuito de los dos sistemas de este mensaje: se pide un prestamo familiar
+;   para pagar una consultora que te diga cuanto valen tus atributos. Una
+;   familia que no presta para ocio si presta para esto.
+[resource]
+script = ExtResource("1_cat")
+id = &"asesoria"
+nombre_display = "Asesoría de admisiones"
+descripcion = "Lo que cobran por decirte dónde estás parado."
+permite_dinero_familia = true
+orden = 45

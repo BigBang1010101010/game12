@@ -1,0 +1,15 @@
+[gd_resource type="Resource" script_class="SpendingCategory" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/resources/spending_category.gd" id="1_cat"]
+
+; RAZONAMIENTO
+;   NO permitida, misma linea que el ocio.
+;   Es lo que obliga a que el trabajo remunerado tenga sentido: hay gastos que solo el dinero propio cubre.
+
+[resource]
+script = ExtResource("1_cat")
+id = &"personal"
+nombre_display = "Gastos personales"
+descripcion = "Ropa, transporte propio, tus cosas."
+permite_dinero_familia = false
+orden = 70

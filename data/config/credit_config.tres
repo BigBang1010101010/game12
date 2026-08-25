@@ -1,0 +1,29 @@
+[gd_resource type="Resource" script_class="CreditConfig" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/resources/credit_config.gd" id="1_cred"]
+
+; Calibracion v1. Cada constante esta documentada en credit_config.gd.
+;
+; Los tres atributos de responsabilidad son los que una familia mira de verdad
+; antes de prestar: si estas cumpliendo con lo tuyo (rigor academico), si te
+; organizas (gestion del tiempo) y si eres de fiar (caracter). El caracter pesa
+; mas que las notas a proposito: nadie presta dinero por un promedio alto.
+[resource]
+script = ExtResource("1_cred")
+pesos_responsabilidad = {
+&"rigor_academico": 0.8,
+&"gestion_tiempo": 1.0,
+&"caracter": 1.2
+}
+fit_referencia = 0.55
+sensibilidad = 3.2
+relacion_referencia = 60.0
+peso_relacion = 0.45
+peso_monto = 0.5
+exponente_monto = 1.6
+maximo_factor_base = 0.8
+maximo_bonus_relacion = 0.9
+penalizacion_por_rechazo = 0.25
+rechazo_dias_memoria = 14.0
+probabilidad_maxima = 0.95
+probabilidad_minima = 0.02

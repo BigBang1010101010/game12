@@ -1,0 +1,15 @@
+[gd_resource type="Resource" script_class="SpendingCategory" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/resources/spending_category.gd" id="1_cat"]
+
+; RAZONAMIENTO
+;   NO permitida, y es deliberadamente incomodo: pedirle dinero a tu madre para comprarle un regalo a tu madre no funciona.
+;   Los regalos del sistema de relacion familiar salen del bolsillo propio.
+
+[resource]
+script = ExtResource("1_cat")
+id = &"regalos"
+nombre_display = "Regalos"
+descripcion = "Lo que compras para otros, incluida tu familia."
+permite_dinero_familia = false
+orden = 80

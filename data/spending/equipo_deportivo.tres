@@ -1,0 +1,14 @@
+[gd_resource type="Resource" script_class="SpendingCategory" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/resources/spending_category.gd" id="1_cat"]
+
+; RAZONAMIENTO
+;   Permitida: la ruta atletica es la mas cara de sostener y la unica con un bono de admision propio, asi que cerrarle el dinero de familia la volveria inaccesible para quien nace en Nueva York, que es exactamente el sesgo que el sistema de ubicacion quiere poder mostrar.
+
+[resource]
+script = ExtResource("1_cat")
+id = &"equipo_deportivo"
+nombre_display = "Equipo deportivo"
+descripcion = "Material, entrenamiento y viajes del deporte que practicas."
+permite_dinero_familia = true
+orden = 50
