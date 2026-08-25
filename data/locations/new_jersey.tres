@@ -1,0 +1,21 @@
+[gd_resource type="Resource" script_class="LocationData" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/resources/location_data.gd" id="1_loc"]
+
+; RAZONAMIENTO
+;   Indice 65: el cinturon de cercanias sale mas barato que las dos ciudades,
+;   aunque siga siendo una esquina cara del pais.
+;   Es la dificultad baja y el caso que hace legible todo el sistema: la
+;   familia gana menos en terminos nominales y aun asi aprueba prestamos con
+;   mas facilidad que la de Nueva York, porque despues de pagar la renta le
+;   sobra mas. El dinero inicial es el mas bajo y el que mas rinde.
+[resource]
+script = ExtResource("1_loc")
+id = &"new_jersey"
+nombre_display = "Nueva Jersey"
+descripcion = "Un suburbio a un tren de distancia de todo. Más espacio, menos ruido, y el tren cuesta tiempo."
+indice_costo_vida = 65.0
+dinero_familia_base_min = 550.0
+dinero_familia_base_max = 950.0
+facilidad_credito_familiar = 0.7
+descripcion_dificultad = "ACCESIBLE. Tu semana cuesta un 35% menos que en Nueva York y tu familia tiene margen real: es la ubicación donde más veces te van a decir que sí. Empiezas con menos efectivo, pero te dura más."

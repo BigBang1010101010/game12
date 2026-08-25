@@ -1,0 +1,23 @@
+[gd_resource type="Resource" script_class="LocationData" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/resources/location_data.gd" id="1_loc"]
+
+; RAZONAMIENTO
+;   La ciudad de referencia: indice 100 por definicion, y la mas cara del pais
+;   en los indices compuestos de costo de vida.
+;   Es la dificultad alta del juego, y lo es por una razon que no es obvia: el
+;   ingreso nominal de la familia es el mas alto de las tres ubicaciones, pero
+;   despues de la renta queda el menor margen. El credito familiar sale del
+;   margen, no del sueldo, asi que aqui es donde mas cuesta que te digan que si.
+;   El dinero inicial es el mas alto en numeros absolutos y el que menos
+;   alcanza: 1.00 de gasto semanal contra 0.65 de Nueva Jersey.
+[resource]
+script = ExtResource("1_loc")
+id = &"new_york"
+nombre_display = "Nueva York"
+descripcion = "Creciste en la ciudad. Todo está cerca, todo cuesta, y todo el mundo compite contigo."
+indice_costo_vida = 100.0
+dinero_familia_base_min = 900.0
+dinero_familia_base_max = 1600.0
+facilidad_credito_familiar = 0.35
+descripcion_dificultad = "DIFÍCIL. La vida semanal te cuesta el doble que en Nueva Jersey y tu familia, pese a ganar más, tiene el margen más apretado: pedirles dinero sale caro en relación. A cambio empiezas con la mayor cantidad de efectivo."

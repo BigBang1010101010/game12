@@ -64,6 +64,12 @@ func _build_ui() -> void:
 	column.add_child(stamina_bar)
 
 func _process(_delta: float) -> void:
+	# The readout is about the player, so it hides in scenes that have none -
+	# the birthplace selection, and any menu that comes later. Checked here
+	# rather than by the menus themselves so a new screen gets it for free.
+	visible = not get_tree().get_nodes_in_group("player").is_empty()
+	if not visible:
+		return
 	_refresh()
 
 func _on_awake_changed(_hours: float) -> void:

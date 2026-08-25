@@ -12,7 +12,11 @@ config_version=5
 [application]
 
 config/name="game12"
-run/main_scene="res://scenes/main.tscn"
+; La partida arranca en la seleccion de lugar de nacimiento, que fija la
+; dificultad del run y luego carga scenes/main.tscn. Si mas adelante se
+; agrega una seleccion de personaje, se encadena antes o despues de esta
+; cambiando una linea aqui y el escena_juego de location_select.
+run/main_scene="res://scenes/ui/location_select.tscn"
 config/features=PackedStringArray("4.3", "Mobile")
 config/icon="res://icon.svg"
 
@@ -83,6 +87,9 @@ UniversityRegistry="*res://scripts/registries/university_registry.gd"
 CareerRegistry="*res://scripts/registries/career_registry.gd"
 EssayRegistry="*res://scripts/registries/essay_registry.gd"
 ActivityRegistry="*res://scripts/registries/activity_registry.gd"
+LocationRegistry="*res://scripts/registries/location_registry.gd"
+ParentRegistry="*res://scripts/registries/parent_registry.gd"
+GiftRegistry="*res://scripts/registries/gift_registry.gd"
 AdmissionCalculator="*res://scripts/progression/admission_calculator.gd"
 ; AcademicIndex reads the config that AdmissionCalculator owns, and
 ; ActivityTracker asks AcademicIndex whether an athlete is recruitable,
@@ -94,6 +101,11 @@ ActivityTracker="*res://scripts/progression/activity_tracker.gd"
 TimeBudget="*res://scripts/progression/time_budget.gd"
 ApplicationBuilder="*res://scripts/progression/application_builder.gd"
 SaveSystem="*res://scripts/progression/save_system.gd"
+; PlayerOrigin persiste su eleccion a traves de SaveSystem, asi que va detras.
+PlayerOrigin="*res://scripts/progression/player_origin.gd"
+; FamilyRelationship escribe en el ledger de PlayerState y se engancha al
+; ciclo dia/noche, asi que llega despues de ambos.
+FamilyRelationship="*res://scripts/progression/family_relationship.gd"
 AdmissionsLab="*res://scripts/debug/admissions_lab_toggle.gd"
 Inventory="*res://scripts/inventory.gd"
 PlayerStats="*res://scripts/player_stats.gd"

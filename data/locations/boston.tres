@@ -1,0 +1,20 @@
+[gd_resource type="Resource" script_class="LocationData" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/resources/location_data.gd" id="1_loc"]
+
+; RAZONAMIENTO
+;   Indice 75: claramente por debajo de Nueva York y claramente por encima del
+;   promedio del pais, que es donde caen los indices compuestos publicados para
+;   el area de Boston.
+;   Es la dificultad intermedia en las tres palancas a la vez - gasto, dinero
+;   inicial y credito - a proposito: sirve de vara para medir las otras dos.
+[resource]
+script = ExtResource("1_loc")
+id = &"boston"
+nombre_display = "Boston"
+descripcion = "Una ciudad universitaria donde media familia trabaja para las universidades y la otra media compite por entrar en ellas."
+indice_costo_vida = 75.0
+dinero_familia_base_min = 700.0
+dinero_familia_base_max = 1200.0
+facilidad_credito_familiar = 0.5
+descripcion_dificultad = "INTERMEDIA. Ni el ahogo de Nueva York ni el respiro de Nueva Jersey: gastas tres cuartas partes de lo que gastarías en la ciudad y tu familia escucha una petición de dinero de cada dos."
