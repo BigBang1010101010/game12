@@ -4,8 +4,8 @@
 [ext_resource type="Script" path="res://scripts/resources/activity_level.gd" id="2_niv"]
 
 ; RAZONAMIENTO
-;   Umbral REGIONAL: deporte de nicho con uno o dos lugares por escuela y por ano, pero con una competencia minima por esos lugares.
-;   Alto valor por hora invertida.
+;   Umbral NACIONAL: son los deportes con mas practicantes del pais y, en atletismo, con marcas absolutas y publicas que no admiten interpretacion.
+;   Ser bueno en el estado no distingue a nadie.
 
 [sub_resource type="Resource" id="Nivel0"]
 script = ExtResource("2_niv")
@@ -39,7 +39,7 @@ condiciones_ascenso = [{
 
 [sub_resource type="Resource" id="Nivel2"]
 script = ExtResource("2_niv")
-nombre = "Capitán / nivel escolar"
+nombre = "Capitán / nivel estatal"
 tier = 2
 modificadores_atributo = {
 &"logro_atletico": 8.00,
@@ -52,7 +52,7 @@ condiciones_ascenso = [{
 "valor": 2.0
 }, {
 "palanca": "reconocimiento_externo",
-"valor": &"escolar"
+"valor": &"estatal"
 }, {
 "palanca": "rol_liderazgo",
 "valor": &"miembro"
@@ -60,7 +60,7 @@ condiciones_ascenso = [{
 
 [sub_resource type="Resource" id="Nivel3"]
 script = ExtResource("2_niv")
-nombre = "Nivel de reclutamiento (regional)"
+nombre = "Nivel de reclutamiento (nacional)"
 tier = 1
 modificadores_atributo = {
 &"logro_atletico": 12.00,
@@ -73,7 +73,7 @@ condiciones_ascenso = [{
 "valor": 3.0
 }, {
 "palanca": "reconocimiento_externo",
-"valor": &"regional"
+"valor": &"nacional"
 }, {
 "palanca": "rol_liderazgo",
 "valor": &"oficial"
@@ -81,14 +81,14 @@ condiciones_ascenso = [{
 
 [resource]
 script = ExtResource("1_act")
-id = &"esgrima"
-nombre_display = "Esgrima"
-descripcion = "Club de esgrima con circuito de ranking."
+id = &"futbol_basquet_atletismo"
+nombre_display = "Fútbol / baloncesto / atletismo"
+descripcion = "Los deportes de mayor participación, con circuito estatal y nacional."
 categoria = &"deporte"
 tier_techo = 1
-costo_horas_semana = 12
+costo_horas_semana = 18
 niveles = [SubResource("Nivel0"), SubResource("Nivel1"), SubResource("Nivel2"), SubResource("Nivel3")]
 carreras_afinidad = {}
 es_deporte = true
-umbral_reclutamiento = 2
+umbral_reclutamiento = 4
 academic_index_minimo = 176

@@ -4,16 +4,20 @@
 [ext_resource type="Script" path="res://scripts/resources/activity_level.gd" id="2_niv"]
 
 ; RAZONAMIENTO
-;   Techo tier 2: circuito real pero mucho menor que el de debate.
-;   Afinidad casi exclusiva con derecho, porque el ejercicio es literalmente el del oficio.
+;   Techo tier 2.
+;   Es la unica actividad academica que paga a lo ancho en vez de a lo hondo: rigor alto y un poco de cada aptitud, porque compite en diez materias simultaneas.
+;   Sin afinidad de carrera a proposito: no apunta a ningun campo, apunta a la disciplina de estudiar.
 
 [sub_resource type="Resource" id="Nivel0"]
 script = ExtResource("2_niv")
 nombre = "Participante"
 tier = 4
 modificadores_atributo = {
-&"aptitud_verbal": 5.00,
-&"rigor_academico": 3.00
+&"rigor_academico": 5.00,
+&"aptitud_verbal": 2.00,
+&"aptitud_cuantitativa": 2.00,
+&"aptitud_cientifica": 2.00,
+&"curiosidad_intelectual": 2.00
 }
 condiciones_ascenso = []
 
@@ -22,8 +26,11 @@ script = ExtResource("2_niv")
 nombre = "Nivel escolar"
 tier = 3
 modificadores_atributo = {
-&"aptitud_verbal": 6.00,
-&"rigor_academico": 4.00
+&"rigor_academico": 6.00,
+&"aptitud_verbal": 3.00,
+&"aptitud_cuantitativa": 3.00,
+&"aptitud_cientifica": 3.00,
+&"curiosidad_intelectual": 3.00
 }
 condiciones_ascenso = [{
 "palanca": "anios_continuidad",
@@ -38,8 +45,11 @@ script = ExtResource("2_niv")
 nombre = "Nivel regional"
 tier = 2
 modificadores_atributo = {
-&"aptitud_verbal": 8.00,
-&"rigor_academico": 6.00
+&"rigor_academico": 8.00,
+&"aptitud_verbal": 4.00,
+&"aptitud_cuantitativa": 4.00,
+&"aptitud_cientifica": 4.00,
+&"curiosidad_intelectual": 4.00
 }
 condiciones_ascenso = [{
 "palanca": "anios_continuidad",
@@ -51,13 +61,11 @@ condiciones_ascenso = [{
 
 [resource]
 script = ExtResource("1_act")
-id = &"mock_trial"
-nombre_display = "Juicio simulado"
-descripcion = "Equipo de mock trial con competencias estatales."
-categoria = &"derecho_politica"
+id = &"academic_decathlon"
+nombre_display = "Academic Decathlon"
+descripcion = "Competencia por equipos sobre diez materias a la vez."
+categoria = &"transversal"
 tier_techo = 2
-costo_horas_semana = 8
+costo_horas_semana = 6
 niveles = [SubResource("Nivel0"), SubResource("Nivel1"), SubResource("Nivel2")]
-carreras_afinidad = {
-&"derecho": 1.45
-}
+carreras_afinidad = {}

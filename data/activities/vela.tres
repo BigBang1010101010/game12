@@ -4,8 +4,8 @@
 [ext_resource type="Script" path="res://scripts/resources/activity_level.gd" id="2_niv"]
 
 ; RAZONAMIENTO
-;   Umbral REGIONAL: deporte de nicho con uno o dos lugares por escuela y por ano, pero con una competencia minima por esos lugares.
-;   Alto valor por hora invertida.
+;   Mismo patron de nicho y el costo horario mas bajo de los deportes (10 h), porque la temporada de regatas se concentra.
+;   Es el deporte con mejor relacion entre horas invertidas y probabilidad de reclutamiento del catalogo.
 
 [sub_resource type="Resource" id="Nivel0"]
 script = ExtResource("2_niv")
@@ -81,12 +81,12 @@ condiciones_ascenso = [{
 
 [resource]
 script = ExtResource("1_act")
-id = &"esgrima"
-nombre_display = "Esgrima"
-descripcion = "Club de esgrima con circuito de ranking."
+id = &"vela"
+nombre_display = "Vela"
+descripcion = "Regatas de vela por temporada."
 categoria = &"deporte"
 tier_techo = 1
-costo_horas_semana = 12
+costo_horas_semana = 10
 niveles = [SubResource("Nivel0"), SubResource("Nivel1"), SubResource("Nivel2"), SubResource("Nivel3")]
 carreras_afinidad = {}
 es_deporte = true

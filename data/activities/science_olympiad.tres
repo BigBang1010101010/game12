@@ -4,15 +4,14 @@
 [ext_resource type="Script" path="res://scripts/resources/activity_level.gd" id="2_niv"]
 
 ; RAZONAMIENTO
-;   Techo tier 2: circuito real pero mucho menor que el de debate.
-;   Afinidad casi exclusiva con derecho, porque el ejercicio es literalmente el del oficio.
+;   Techo tier 2: hay circuito nacional, pero la competencia es por equipo y por evento, lo que diluye el merito individual frente a una olimpiada de materia.
 
 [sub_resource type="Resource" id="Nivel0"]
 script = ExtResource("2_niv")
 nombre = "Participante"
 tier = 4
 modificadores_atributo = {
-&"aptitud_verbal": 5.00,
+&"aptitud_cientifica": 5.00,
 &"rigor_academico": 3.00
 }
 condiciones_ascenso = []
@@ -22,7 +21,7 @@ script = ExtResource("2_niv")
 nombre = "Nivel escolar"
 tier = 3
 modificadores_atributo = {
-&"aptitud_verbal": 6.00,
+&"aptitud_cientifica": 6.00,
 &"rigor_academico": 4.00
 }
 condiciones_ascenso = [{
@@ -38,7 +37,7 @@ script = ExtResource("2_niv")
 nombre = "Nivel regional"
 tier = 2
 modificadores_atributo = {
-&"aptitud_verbal": 8.00,
+&"aptitud_cientifica": 8.00,
 &"rigor_academico": 6.00
 }
 condiciones_ascenso = [{
@@ -51,13 +50,14 @@ condiciones_ascenso = [{
 
 [resource]
 script = ExtResource("1_act")
-id = &"mock_trial"
-nombre_display = "Juicio simulado"
-descripcion = "Equipo de mock trial con competencias estatales."
-categoria = &"derecho_politica"
+id = &"science_olympiad"
+nombre_display = "Science Olympiad"
+descripcion = "Equipo de Science Olympiad con pruebas por evento."
+categoria = &"stem"
 tier_techo = 2
-costo_horas_semana = 8
+costo_horas_semana = 6
 niveles = [SubResource("Nivel0"), SubResource("Nivel1"), SubResource("Nivel2")]
 carreras_afinidad = {
-&"derecho": 1.45
+&"ingenieria": 1.25,
+&"medicina": 1.25
 }

@@ -4,91 +4,86 @@
 [ext_resource type="Script" path="res://scripts/resources/activity_level.gd" id="2_niv"]
 
 ; RAZONAMIENTO
-;   Umbral REGIONAL: deporte de nicho con uno o dos lugares por escuela y por ano, pero con una competencia minima por esos lugares.
-;   Alto valor por hora invertida.
+;   Techo tier 1: los ingresos verificables son de lo poco que un adolescente puede mostrar y que ninguna plantilla explica.
+;   Es tambien lo mas facil de inflar, por eso su escalera pide impacto medible en TODOS sus peldanos, empezando en 100 y terminando en 1000.
 
 [sub_resource type="Resource" id="Nivel0"]
 script = ExtResource("2_niv")
-nombre = "Miembro del equipo"
+nombre = "Idea y primeros pasos"
 tier = 4
 modificadores_atributo = {
-&"logro_atletico": 5.00,
-&"resiliencia": 3.00,
-&"liderazgo": 3.00,
-&"bienestar": 2.00
+&"liderazgo": 6.00,
+&"resiliencia": 5.00
 }
 condiciones_ascenso = []
 
 [sub_resource type="Resource" id="Nivel1"]
 script = ExtResource("2_niv")
-nombre = "Titular"
+nombre = "Funcionando"
 tier = 3
 modificadores_atributo = {
-&"logro_atletico": 6.00,
-&"resiliencia": 4.00,
-&"liderazgo": 4.00,
-&"bienestar": 3.00
+&"liderazgo": 8.00,
+&"resiliencia": 6.00
 }
 condiciones_ascenso = [{
 "palanca": "anios_continuidad",
 "valor": 1.0
 }, {
-"palanca": "reconocimiento_externo",
-"valor": &"escolar"
+"palanca": "impacto_medible",
+"valor": 100.0
 }]
 
 [sub_resource type="Resource" id="Nivel2"]
 script = ExtResource("2_niv")
-nombre = "Capitán / nivel escolar"
+nombre = "Con equipo propio"
 tier = 2
 modificadores_atributo = {
-&"logro_atletico": 8.00,
-&"resiliencia": 6.00,
-&"liderazgo": 6.00,
-&"bienestar": 4.00
+&"liderazgo": 10.00,
+&"resiliencia": 8.00
 }
 condiciones_ascenso = [{
 "palanca": "anios_continuidad",
 "valor": 2.0
 }, {
-"palanca": "reconocimiento_externo",
-"valor": &"escolar"
-}, {
 "palanca": "rol_liderazgo",
-"valor": &"miembro"
+"valor": &"fundador"
+}, {
+"palanca": "impacto_medible",
+"valor": 400.0
 }]
 
 [sub_resource type="Resource" id="Nivel3"]
 script = ExtResource("2_niv")
-nombre = "Nivel de reclutamiento (regional)"
+nombre = "Alcance regional"
 tier = 1
 modificadores_atributo = {
-&"logro_atletico": 12.00,
-&"resiliencia": 9.00,
-&"liderazgo": 9.00,
-&"bienestar": 6.00
+&"liderazgo": 15.00,
+&"resiliencia": 12.00
 }
 condiciones_ascenso = [{
 "palanca": "anios_continuidad",
 "valor": 3.0
 }, {
+"palanca": "rol_liderazgo",
+"valor": &"fundador"
+}, {
 "palanca": "reconocimiento_externo",
 "valor": &"regional"
 }, {
-"palanca": "rol_liderazgo",
-"valor": &"oficial"
+"palanca": "impacto_medible",
+"valor": 1000.0
 }]
 
 [resource]
 script = ExtResource("1_act")
-id = &"esgrima"
-nombre_display = "Esgrima"
-descripcion = "Club de esgrima con circuito de ranking."
-categoria = &"deporte"
+id = &"emprendimiento_real"
+nombre_display = "Emprendimiento real"
+descripcion = "Negocio propio con clientes, ingresos y cuentas."
+categoria = &"negocios"
 tier_techo = 1
-costo_horas_semana = 12
+costo_horas_semana = 15
 niveles = [SubResource("Nivel0"), SubResource("Nivel1"), SubResource("Nivel2"), SubResource("Nivel3")]
-carreras_afinidad = {}
-es_deporte = true
-umbral_reclutamiento = 2
-academic_index_minimo = 176
+carreras_afinidad = {
+&"negocios": 1.50,
+&"finanzas": 1.30
+}

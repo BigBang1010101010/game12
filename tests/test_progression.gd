@@ -33,6 +33,7 @@ func _run() -> void:
 	_presupuesto_penaliza_sobrecompromiso()
 	_ledger_registra_cada_actividad()
 	_slots_respetan_el_limite()
+	_boost_universal_es_identico_en_las_ocho()
 	_ledger_conserva_totales()
 
 	print("")
@@ -414,3 +415,69 @@ func _slots_respetan_el_limite() -> void:
 			"una actividad fuera de los slots puntua mas alto que una dentro")
 	print("slots:          %d de %d actividades activas entran, y son las mejores" % [
 		seleccion.size(), ActivityTracker.actividades_activas().size()])
+
+## An activity declaring boost_universal must be worth EXACTLY the same at all
+## eight schools - that is the whole claim behind the C7 reading - while an
+## activity with career affinity must NOT be. Both halves are checked, because
+## the first alone would also pass if the term were simply dead.
+func _boost_universal_es_identico_en_las_ocho() -> void:
+	var carrera: StringName = CareerRegistry.obtener_ids()[0]
+	var ensayo: StringName = EssayRegistry.obtener_ids()[0]
+	var universales: Array[StringName] = []
+	var con_afinidad: Array[StringName] = []
+	for a_res in ActivityRegistry.obtener_todos():
+		var a: ActivityData = a_res
+		if a.boost_universal > 0.0:
+			universales.append(a.id)
+			_verificar(a.carreras_afinidad.is_empty(),
+				"'%s' declara boost universal Y afinidades de carrera: elige una lectura" % a.id)
+		elif not a.carreras_afinidad.is_empty():
+			con_afinidad.append(a.id)
+	_verificar(not universales.is_empty(), "ninguna actividad declara boost_universal")
+
+	for actividad_id in universales:
+		var efectos: Array[float] = []
+		for u_res in UniversityRegistry.obtener_todos():
+			var r: AdmissionResult = _con_actividad((u_res as UniversityData).id, carrera, ensayo, actividad_id)
+			efectos.append(r.efecto_universal)
+			_verificar(r.efecto_universal > 0.0,
+				"'%s' declara boost universal pero no aporta nada en '%s'" % [actividad_id, (u_res as UniversityData).id])
+		for efecto in efectos:
+			_verificar(is_equal_approx(efecto, efectos[0]),
+				"'%s' aporta %.6f en una escuela y %.6f en otra: el boost universal no es universal" % [
+					actividad_id, efecto, efectos[0]])
+
+	# And the career term must still discriminate, or the two ideas have
+	# collapsed into one.
+	var discrimina := false
+	for actividad_id in con_afinidad:
+		var actividad: ActivityData = ActivityRegistry.obtener(actividad_id)
+		var favorita: StringName = actividad.carreras_afinidad.keys()[0]
+		var otra: StringName = &""
+		for c in CareerRegistry.obtener_ids():
+			if not actividad.carreras_afinidad.has(c):
+				otra = c
+				break
+		if otra == &"":
+			continue
+		var universidad: StringName = UniversityRegistry.obtener_ids()[0]
+		var con: AdmissionResult = _con_actividad(universidad, favorita, ensayo, actividad_id)
+		var sin: AdmissionResult = _con_actividad(universidad, otra, ensayo, actividad_id)
+		if con.efecto_actividades > sin.efecto_actividades:
+			discrimina = true
+			break
+	_verificar(discrimina,
+		"ninguna actividad con afinidad aporta mas a su carrera que a una ajena")
+	print("boost universal:%d actividad(es) identicas en las 8, y la afinidad de carrera sigue discriminando" % universales.size())
+
+## One-activity application at four years, top role and top recognition.
+func _con_actividad(universidad: StringName, carrera: StringName, ensayo: StringName, actividad_id: StringName) -> AdmissionResult:
+	var valores: Dictionary = _perfil_uniforme(60.0)
+	var sim: Dictionary = ActivityTracker.simular_perfil({
+		actividad_id: {"anios": 4.0, "reconocimiento": &"nacional", "rol": &"fundador", "impacto": 1000.0},
+	}, valores)
+	var estados: Dictionary = {actividad_id: sim["actividades"][actividad_id]["estado"]}
+	var indice: float = AcademicIndex.calcular_desde(sim["valores"])
+	return AdmissionCalculator.calcular_probabilidad(
+		universidad, carrera, ensayo, false, sim["valores"],
+		ApplicationBuilder.detalle_desde_estados(estados, indice))

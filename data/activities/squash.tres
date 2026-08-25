@@ -4,8 +4,8 @@
 [ext_resource type="Script" path="res://scripts/resources/activity_level.gd" id="2_niv"]
 
 ; RAZONAMIENTO
-;   Umbral REGIONAL: deporte de nicho con uno o dos lugares por escuela y por ano, pero con una competencia minima por esos lugares.
-;   Alto valor por hora invertida.
+;   Mismo patron que la esgrima: poquisimos lugares, poquisimos competidores.
+;   El acceso al deporte esta socialmente sesgado, lo que reduce aun mas la competencia real por esos lugares.
 
 [sub_resource type="Resource" id="Nivel0"]
 script = ExtResource("2_niv")
@@ -81,9 +81,9 @@ condiciones_ascenso = [{
 
 [resource]
 script = ExtResource("1_act")
-id = &"esgrima"
-nombre_display = "Esgrima"
-descripcion = "Club de esgrima con circuito de ranking."
+id = &"squash"
+nombre_display = "Squash"
+descripcion = "Squash competitivo por ranking."
 categoria = &"deporte"
 tier_techo = 1
 costo_horas_semana = 12

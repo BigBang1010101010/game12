@@ -4,16 +4,15 @@
 [ext_resource type="Script" path="res://scripts/resources/activity_level.gd" id="2_niv"]
 
 ; RAZONAMIENTO
-;   Techo tier 2: circuito real pero mucho menor que el de debate.
-;   Afinidad casi exclusiva con derecho, porque el ejercicio es literalmente el del oficio.
+;   Techo tier 2: el circuito de audiciones es jerarquico y verificable, pero el tier 1 del area queda para el portafolio individual premiado, que es lo que un comite de artes evalua de verdad.
 
 [sub_resource type="Resource" id="Nivel0"]
 script = ExtResource("2_niv")
 nombre = "Participante"
 tier = 4
 modificadores_atributo = {
-&"aptitud_verbal": 5.00,
-&"rigor_academico": 3.00
+&"habilidad_artistica": 5.00,
+&"gestion_tiempo": 3.00
 }
 condiciones_ascenso = []
 
@@ -22,8 +21,8 @@ script = ExtResource("2_niv")
 nombre = "Nivel escolar"
 tier = 3
 modificadores_atributo = {
-&"aptitud_verbal": 6.00,
-&"rigor_academico": 4.00
+&"habilidad_artistica": 6.00,
+&"gestion_tiempo": 4.00
 }
 condiciones_ascenso = [{
 "palanca": "anios_continuidad",
@@ -38,8 +37,8 @@ script = ExtResource("2_niv")
 nombre = "Nivel regional"
 tier = 2
 modificadores_atributo = {
-&"aptitud_verbal": 8.00,
-&"rigor_academico": 6.00
+&"habilidad_artistica": 8.00,
+&"gestion_tiempo": 6.00
 }
 condiciones_ascenso = [{
 "palanca": "anios_continuidad",
@@ -51,13 +50,13 @@ condiciones_ascenso = [{
 
 [resource]
 script = ExtResource("1_act")
-id = &"mock_trial"
-nombre_display = "Juicio simulado"
-descripcion = "Equipo de mock trial con competencias estatales."
-categoria = &"derecho_politica"
+id = &"banda_orquesta"
+nombre_display = "Banda / orquesta"
+descripcion = "Ensayos, audiciones y presentaciones con el conjunto."
+categoria = &"artes"
 tier_techo = 2
-costo_horas_semana = 8
+costo_horas_semana = 9
 niveles = [SubResource("Nivel0"), SubResource("Nivel1"), SubResource("Nivel2")]
 carreras_afinidad = {
-&"derecho": 1.45
+&"artes_comunicacion": 1.45
 }

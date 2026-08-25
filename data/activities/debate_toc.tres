@@ -4,30 +4,28 @@
 [ext_resource type="Script" path="res://scripts/resources/activity_level.gd" id="2_niv"]
 
 ; RAZONAMIENTO
-;   Umbral REGIONAL: deporte de nicho con uno o dos lugares por escuela y por ano, pero con una competencia minima por esos lugares.
-;   Alto valor por hora invertida.
+;   Techo tier 1 y 24 horas semanales: el circuito TOC es, en tiempo real, un trabajo de medio tiempo, y esa es la decision de diseno mas importante de esta actividad.
+;   Ocupa dos tercios del presupuesto semanal, asi que elegirla es renunciar a casi todo lo demas, que es exactamente lo que le pasa a quien lo hace en serio.
 
 [sub_resource type="Resource" id="Nivel0"]
 script = ExtResource("2_niv")
-nombre = "Miembro del equipo"
+nombre = "Participante"
 tier = 4
 modificadores_atributo = {
-&"logro_atletico": 5.00,
+&"aptitud_verbal": 6.00,
 &"resiliencia": 3.00,
-&"liderazgo": 3.00,
-&"bienestar": 2.00
+&"curiosidad_intelectual": 3.00
 }
 condiciones_ascenso = []
 
 [sub_resource type="Resource" id="Nivel1"]
 script = ExtResource("2_niv")
-nombre = "Titular"
+nombre = "Nivel escolar"
 tier = 3
 modificadores_atributo = {
-&"logro_atletico": 6.00,
+&"aptitud_verbal": 8.00,
 &"resiliencia": 4.00,
-&"liderazgo": 4.00,
-&"bienestar": 3.00
+&"curiosidad_intelectual": 4.00
 }
 condiciones_ascenso = [{
 "palanca": "anios_continuidad",
@@ -39,56 +37,49 @@ condiciones_ascenso = [{
 
 [sub_resource type="Resource" id="Nivel2"]
 script = ExtResource("2_niv")
-nombre = "Capitán / nivel escolar"
+nombre = "Nivel regional"
 tier = 2
 modificadores_atributo = {
-&"logro_atletico": 8.00,
+&"aptitud_verbal": 10.00,
 &"resiliencia": 6.00,
-&"liderazgo": 6.00,
-&"bienestar": 4.00
+&"curiosidad_intelectual": 6.00
 }
 condiciones_ascenso = [{
 "palanca": "anios_continuidad",
 "valor": 2.0
 }, {
 "palanca": "reconocimiento_externo",
-"valor": &"escolar"
-}, {
-"palanca": "rol_liderazgo",
-"valor": &"miembro"
+"valor": &"regional"
 }]
 
 [sub_resource type="Resource" id="Nivel3"]
 script = ExtResource("2_niv")
-nombre = "Nivel de reclutamiento (regional)"
+nombre = "Nivel nacional"
 tier = 1
 modificadores_atributo = {
-&"logro_atletico": 12.00,
+&"aptitud_verbal": 15.00,
 &"resiliencia": 9.00,
-&"liderazgo": 9.00,
-&"bienestar": 6.00
+&"curiosidad_intelectual": 9.00
 }
 condiciones_ascenso = [{
 "palanca": "anios_continuidad",
 "valor": 3.0
 }, {
 "palanca": "reconocimiento_externo",
-"valor": &"regional"
-}, {
-"palanca": "rol_liderazgo",
-"valor": &"oficial"
+"valor": &"nacional"
 }]
 
 [resource]
 script = ExtResource("1_act")
-id = &"esgrima"
-nombre_display = "Esgrima"
-descripcion = "Club de esgrima con circuito de ranking."
-categoria = &"deporte"
+id = &"debate_toc"
+nombre_display = "Debate (circuito TOC)"
+descripcion = "Circuito nacional de debate con aspiración al Tournament of Champions."
+categoria = &"derecho_politica"
 tier_techo = 1
-costo_horas_semana = 12
+costo_horas_semana = 24
 niveles = [SubResource("Nivel0"), SubResource("Nivel1"), SubResource("Nivel2"), SubResource("Nivel3")]
-carreras_afinidad = {}
-es_deporte = true
-umbral_reclutamiento = 2
-academic_index_minimo = 176
+carreras_afinidad = {
+&"derecho": 1.50,
+&"ciencias_politicas": 1.45,
+&"negocios": 1.20
+}

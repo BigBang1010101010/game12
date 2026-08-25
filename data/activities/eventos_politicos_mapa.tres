@@ -1,0 +1,31 @@
+[gd_resource type="Resource" script_class="ActivityData" load_steps=4 format=3]
+
+[ext_resource type="Script" path="res://scripts/resources/activity_data.gd" id="1_act"]
+[ext_resource type="Script" path="res://scripts/resources/activity_level.gd" id="2_niv"]
+
+; RAZONAMIENTO
+;   ACTIVIDAD DE PROXIMIDAD: es la unica del catalogo pensada para activarse desde el mundo 3D, cuando el jugador se acerca a un evento y presiona E.
+;   Se conecta con el sistema de interaccion por proximidad que ya existe, via scripts/activity_spot.gd, que solo necesita el id de esta actividad en el inspector.
+;   Techo tier 4 y un solo peldano a proposito: asistir no es logro, se acumula.
+
+[sub_resource type="Resource" id="Nivel0"]
+script = ExtResource("2_niv")
+nombre = "Asistente habitual"
+tier = 4
+modificadores_atributo = {
+&"curiosidad_intelectual": 2.00
+}
+condiciones_ascenso = []
+
+[resource]
+script = ExtResource("1_act")
+id = &"eventos_politicos_mapa"
+nombre_display = "Eventos políticos del mapa"
+descripcion = "Discursos, mítines y actos cívicos a los que se asiste al pasar por el mapa."
+categoria = &"derecho_politica"
+tier_techo = 4
+costo_horas_semana = 2
+niveles = [SubResource("Nivel0")]
+carreras_afinidad = {
+&"ciencias_politicas": 1.15
+}

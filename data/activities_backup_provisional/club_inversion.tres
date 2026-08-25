@@ -4,7 +4,7 @@
 [ext_resource type="Script" path="res://scripts/resources/activity_level.gd" id="2_niv"]
 
 ; RAZONAMIENTO
-;   Techo tier 3: senal clarisima de interes en finanzas, pero sin dinero real ni resultado auditable no pasa de contexto.
+;   Tier techo 3: senal clara de interes en finanzas, pero sin dinero real ni resultado auditable no pasa de contexto.
 
 [sub_resource type="Resource" id="Nivel0"]
 script = ExtResource("2_niv")
@@ -12,17 +12,17 @@ nombre = "Miembro"
 tier = 4
 modificadores_atributo = {
 &"aptitud_cuantitativa": 3.00,
-&"curiosidad_intelectual": 3.00
+&"curiosidad_intelectual": 2.00
 }
 condiciones_ascenso = []
 
 [sub_resource type="Resource" id="Nivel1"]
 script = ExtResource("2_niv")
-nombre = "Miembro activo"
+nombre = "Gestor de cartera"
 tier = 3
 modificadores_atributo = {
-&"aptitud_cuantitativa": 4.00,
-&"curiosidad_intelectual": 4.00
+&"aptitud_cuantitativa": 5.00,
+&"gestion_tiempo": 3.00
 }
 condiciones_ascenso = [{
 "palanca": "anios_continuidad",
@@ -43,5 +43,6 @@ costo_horas_semana = 4
 niveles = [SubResource("Nivel0"), SubResource("Nivel1")]
 carreras_afinidad = {
 &"finanzas": 1.45,
-&"economia": 1.30
+&"economia": 1.30,
+&"negocios": 1.15
 }

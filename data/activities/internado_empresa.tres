@@ -4,44 +4,42 @@
 [ext_resource type="Script" path="res://scripts/resources/activity_level.gd" id="2_niv"]
 
 ; RAZONAMIENTO
-;   Techo tier 3: senal clarisima de interes en finanzas, pero sin dinero real ni resultado auditable no pasa de contexto.
+;   Techo tier 3: en secundaria casi siempre se consigue por contactos y los comites lo saben; vale por lo que el estudiante produjo, no por el logo.
+;   Escalera de trabajo: lo que sube es la antiguedad y la responsabilidad, no el reconocimiento externo.
 
 [sub_resource type="Resource" id="Nivel0"]
 script = ExtResource("2_niv")
-nombre = "Miembro"
+nombre = "Empleado"
 tier = 4
 modificadores_atributo = {
-&"aptitud_cuantitativa": 3.00,
-&"curiosidad_intelectual": 3.00
+&"profundidad_extracurricular": 3.00,
+&"gestion_tiempo": 3.00
 }
 condiciones_ascenso = []
 
 [sub_resource type="Resource" id="Nivel1"]
 script = ExtResource("2_niv")
-nombre = "Miembro activo"
+nombre = "Empleado con antigüedad"
 tier = 3
 modificadores_atributo = {
-&"aptitud_cuantitativa": 4.00,
-&"curiosidad_intelectual": 4.00
+&"profundidad_extracurricular": 4.00,
+&"gestion_tiempo": 4.00
 }
 condiciones_ascenso = [{
 "palanca": "anios_continuidad",
 "valor": 1.0
-}, {
-"palanca": "rol_liderazgo",
-"valor": &"miembro"
 }]
 
 [resource]
 script = ExtResource("1_act")
-id = &"club_inversion"
-nombre_display = "Club de inversión"
-descripcion = "Cartera simulada, análisis y competencias de trading."
+id = &"internado_empresa"
+nombre_display = "Internado en empresa"
+descripcion = "Prácticas en una empresa u organización real."
 categoria = &"negocios"
 tier_techo = 3
-costo_horas_semana = 4
+costo_horas_semana = 10
 niveles = [SubResource("Nivel0"), SubResource("Nivel1")]
 carreras_afinidad = {
-&"finanzas": 1.45,
-&"economia": 1.30
+&"negocios": 1.30,
+&"finanzas": 1.30
 }

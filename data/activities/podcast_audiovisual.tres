@@ -4,44 +4,44 @@
 [ext_resource type="Script" path="res://scripts/resources/activity_level.gd" id="2_niv"]
 
 ; RAZONAMIENTO
-;   Techo tier 3: senal clarisima de interes en finanzas, pero sin dinero real ni resultado auditable no pasa de contexto.
+;   Techo tier 3: cualquiera puede empezar uno, que es justo lo que lo hace mala credencial y buena senal de iniciativa.
+;   Escalera de emprendimiento porque lo unico que lo separa de un hobby es la audiencia, es decir, el impacto medible.
 
 [sub_resource type="Resource" id="Nivel0"]
 script = ExtResource("2_niv")
-nombre = "Miembro"
+nombre = "Idea y primeros pasos"
 tier = 4
 modificadores_atributo = {
-&"aptitud_cuantitativa": 3.00,
-&"curiosidad_intelectual": 3.00
+&"habilidad_artistica": 3.00,
+&"iniciativa": 5.00
 }
 condiciones_ascenso = []
 
 [sub_resource type="Resource" id="Nivel1"]
 script = ExtResource("2_niv")
-nombre = "Miembro activo"
+nombre = "Funcionando"
 tier = 3
 modificadores_atributo = {
-&"aptitud_cuantitativa": 4.00,
-&"curiosidad_intelectual": 4.00
+&"habilidad_artistica": 4.00,
+&"iniciativa": 6.00
 }
 condiciones_ascenso = [{
 "palanca": "anios_continuidad",
 "valor": 1.0
 }, {
-"palanca": "rol_liderazgo",
-"valor": &"miembro"
+"palanca": "impacto_medible",
+"valor": 100.0
 }]
 
 [resource]
 script = ExtResource("1_act")
-id = &"club_inversion"
-nombre_display = "Club de inversión"
-descripcion = "Cartera simulada, análisis y competencias de trading."
-categoria = &"negocios"
+id = &"podcast_audiovisual"
+nombre_display = "Podcast / proyecto audiovisual"
+descripcion = "Proyecto propio de audio o video con publicación sostenida."
+categoria = &"artes"
 tier_techo = 3
-costo_horas_semana = 4
+costo_horas_semana = 6
 niveles = [SubResource("Nivel0"), SubResource("Nivel1")]
 carreras_afinidad = {
-&"finanzas": 1.45,
-&"economia": 1.30
+&"artes_comunicacion": 1.35
 }

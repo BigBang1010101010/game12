@@ -1,0 +1,75 @@
+[gd_resource type="Resource" script_class="ActivityData" load_steps=6 format=3]
+
+[ext_resource type="Script" path="res://scripts/resources/activity_data.gd" id="1_act"]
+[ext_resource type="Script" path="res://scripts/resources/activity_level.gd" id="2_niv"]
+
+; RAZONAMIENTO
+;   Techo tier 2: fundar un club escolar es la jugada mas repetida de las aplicaciones competitivas, y un comite descuenta por ello; lo que no descuenta es un club con miembros reales y actividad sostenida, que es lo que exigen sus peldanos.
+;   Afinidad plana de 1.15 con las diez carreras: ayuda en todas, decide en ninguna.
+
+[sub_resource type="Resource" id="Nivel0"]
+script = ExtResource("2_niv")
+nombre = "Idea y primeros pasos"
+tier = 4
+modificadores_atributo = {
+&"liderazgo": 6.00,
+&"profundidad_extracurricular": 5.00
+}
+condiciones_ascenso = []
+
+[sub_resource type="Resource" id="Nivel1"]
+script = ExtResource("2_niv")
+nombre = "Funcionando"
+tier = 3
+modificadores_atributo = {
+&"liderazgo": 8.00,
+&"profundidad_extracurricular": 6.00
+}
+condiciones_ascenso = [{
+"palanca": "anios_continuidad",
+"valor": 1.0
+}, {
+"palanca": "impacto_medible",
+"valor": 100.0
+}]
+
+[sub_resource type="Resource" id="Nivel2"]
+script = ExtResource("2_niv")
+nombre = "Con equipo propio"
+tier = 2
+modificadores_atributo = {
+&"liderazgo": 10.00,
+&"profundidad_extracurricular": 8.00
+}
+condiciones_ascenso = [{
+"palanca": "anios_continuidad",
+"valor": 2.0
+}, {
+"palanca": "rol_liderazgo",
+"valor": &"fundador"
+}, {
+"palanca": "impacto_medible",
+"valor": 400.0
+}]
+
+[resource]
+script = ExtResource("1_act")
+id = &"fundar_club"
+nombre_display = "Fundar un club"
+descripcion = "Crear un club desde cero: estatutos, miembros, actividades."
+categoria = &"transversal"
+tier_techo = 2
+costo_horas_semana = 10
+niveles = [SubResource("Nivel0"), SubResource("Nivel1"), SubResource("Nivel2")]
+carreras_afinidad = {
+&"ingenieria": 1.15,
+&"ciencias_computacion": 1.15,
+&"economia": 1.15,
+&"medicina": 1.15,
+&"psicologia": 1.15,
+&"derecho": 1.15,
+&"ciencias_politicas": 1.15,
+&"negocios": 1.15,
+&"finanzas": 1.15,
+&"artes_comunicacion": 1.15
+}

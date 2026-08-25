@@ -4,60 +4,63 @@
 [ext_resource type="Script" path="res://scripts/resources/activity_level.gd" id="2_niv"]
 
 ; RAZONAMIENTO
-;   Techo tier 2: circuito real pero mucho menor que el de debate.
-;   Afinidad casi exclusiva con derecho, porque el ejercicio es literalmente el del oficio.
+;   Tier techo 2: circuito real pero mucho mas pequeno que el de debate; excelente senal especifica para derecho.
 
 [sub_resource type="Resource" id="Nivel0"]
 script = ExtResource("2_niv")
-nombre = "Participante"
+nombre = "Miembro del equipo"
 tier = 4
 modificadores_atributo = {
-&"aptitud_verbal": 5.00,
+&"aptitud_verbal": 4.00,
 &"rigor_academico": 3.00
 }
 condiciones_ascenso = []
 
 [sub_resource type="Resource" id="Nivel1"]
 script = ExtResource("2_niv")
-nombre = "Nivel escolar"
+nombre = "Abogado titular"
 tier = 3
 modificadores_atributo = {
 &"aptitud_verbal": 6.00,
-&"rigor_academico": 4.00
+&"resiliencia": 3.00
 }
 condiciones_ascenso = [{
 "palanca": "anios_continuidad",
 "valor": 1.0
 }, {
-"palanca": "reconocimiento_externo",
-"valor": &"escolar"
+"palanca": "rol_liderazgo",
+"valor": &"miembro"
 }]
 
 [sub_resource type="Resource" id="Nivel2"]
 script = ExtResource("2_niv")
-nombre = "Nivel regional"
+nombre = "Capitán estatal"
 tier = 2
 modificadores_atributo = {
-&"aptitud_verbal": 8.00,
-&"rigor_academico": 6.00
+&"aptitud_verbal": 7.00,
+&"liderazgo": 5.00
 }
 condiciones_ascenso = [{
 "palanca": "anios_continuidad",
 "valor": 2.0
 }, {
+"palanca": "rol_liderazgo",
+"valor": &"oficial"
+}, {
 "palanca": "reconocimiento_externo",
-"valor": &"regional"
+"valor": &"escolar"
 }]
 
 [resource]
 script = ExtResource("1_act")
 id = &"mock_trial"
 nombre_display = "Juicio simulado"
-descripcion = "Equipo de mock trial con competencias estatales."
+descripcion = "Equipo de juicio simulado con competencias estatales."
 categoria = &"derecho_politica"
 tier_techo = 2
-costo_horas_semana = 8
+costo_horas_semana = 7
 niveles = [SubResource("Nivel0"), SubResource("Nivel1"), SubResource("Nivel2")]
 carreras_afinidad = {
-&"derecho": 1.45
+&"derecho": 1.45,
+&"ciencias_politicas": 1.20
 }

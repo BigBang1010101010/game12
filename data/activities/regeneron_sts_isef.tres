@@ -1,0 +1,92 @@
+[gd_resource type="Resource" script_class="ActivityData" load_steps=7 format=3]
+
+[ext_resource type="Script" path="res://scripts/resources/activity_data.gd" id="1_act"]
+[ext_resource type="Script" path="res://scripts/resources/activity_level.gd" id="2_niv"]
+
+; RAZONAMIENTO
+;   Techo tier 1 y el pago mas alto del catalogo en aptitud de investigacion: ser finalista de STS o ISEF es una de las poquisimas credenciales de secundaria que compite con la de un universitario.
+;   Cuesta 16 horas porque la investigacion real no admite medias jornadas, y su peldano cima exige impacto medible ademas de reconocimiento nacional.
+
+[sub_resource type="Resource" id="Nivel0"]
+script = ExtResource("2_niv")
+nombre = "Proyecto propio"
+tier = 4
+modificadores_atributo = {
+&"aptitud_investigacion": 6.00,
+&"aptitud_cientifica": 5.00,
+&"curiosidad_intelectual": 3.00
+}
+condiciones_ascenso = []
+
+[sub_resource type="Resource" id="Nivel1"]
+script = ExtResource("2_niv")
+nombre = "Finalista escolar"
+tier = 3
+modificadores_atributo = {
+&"aptitud_investigacion": 8.00,
+&"aptitud_cientifica": 6.00,
+&"curiosidad_intelectual": 4.00
+}
+condiciones_ascenso = [{
+"palanca": "anios_continuidad",
+"valor": 1.0
+}, {
+"palanca": "reconocimiento_externo",
+"valor": &"escolar"
+}]
+
+[sub_resource type="Resource" id="Nivel2"]
+script = ExtResource("2_niv")
+nombre = "Finalista regional"
+tier = 2
+modificadores_atributo = {
+&"aptitud_investigacion": 10.00,
+&"aptitud_cientifica": 8.00,
+&"curiosidad_intelectual": 6.00
+}
+condiciones_ascenso = [{
+"palanca": "anios_continuidad",
+"valor": 2.0
+}, {
+"palanca": "reconocimiento_externo",
+"valor": &"regional"
+}, {
+"palanca": "impacto_medible",
+"valor": 150.0
+}]
+
+[sub_resource type="Resource" id="Nivel3"]
+script = ExtResource("2_niv")
+nombre = "Finalista nacional"
+tier = 1
+modificadores_atributo = {
+&"aptitud_investigacion": 15.00,
+&"aptitud_cientifica": 12.00,
+&"curiosidad_intelectual": 9.00
+}
+condiciones_ascenso = [{
+"palanca": "anios_continuidad",
+"valor": 3.0
+}, {
+"palanca": "reconocimiento_externo",
+"valor": &"nacional"
+}, {
+"palanca": "impacto_medible",
+"valor": 500.0
+}]
+
+[resource]
+script = ExtResource("1_act")
+id = &"regeneron_sts_isef"
+nombre_display = "Regeneron STS / ISEF"
+descripcion = "Investigación propia presentada en las ferias nacionales de ciencia."
+categoria = &"medicina"
+tier_techo = 1
+costo_horas_semana = 16
+niveles = [SubResource("Nivel0"), SubResource("Nivel1"), SubResource("Nivel2"), SubResource("Nivel3")]
+carreras_afinidad = {
+&"medicina": 1.50,
+&"ingenieria": 1.30,
+&"ciencias_computacion": 1.25,
+&"economia": 1.15
+}

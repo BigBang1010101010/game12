@@ -4,25 +4,27 @@
 [ext_resource type="Script" path="res://scripts/resources/activity_level.gd" id="2_niv"]
 
 ; RAZONAMIENTO
-;   Techo tier 2: la jefatura de redaccion es un cargo real con producto publicado cada mes, lo que la vuelve de las actividades escolares mas legibles; aun asi rara vez sale del colegio.
+;   BOOST UNIVERSAL, IDENTICO EN LAS 8: en el Common Data Set seccion C7 las ocho Ivies marcan 'work experience' como factor CONSIDERADO, sin que ninguna lo suba a importante ni lo baje a no considerado.
+;   Por eso la afinidad de carrera aqui es plana (1.15 en todas) en vez de apuntar a un campo: el trabajo no habla de vocacion, habla de responsabilidad.
+;   Tier techo 2 porque un empleo sostenido con horas altas pesa de verdad, pero no existe un 'campeonato nacional de trabajar'.
 
 [sub_resource type="Resource" id="Nivel0"]
 script = ExtResource("2_niv")
-nombre = "Miembro"
+nombre = "Empleado"
 tier = 4
 modificadores_atributo = {
-&"aptitud_verbal": 5.00,
-&"liderazgo": 3.00
+&"resiliencia": 4.00,
+&"gestion_tiempo": 4.00
 }
 condiciones_ascenso = []
 
 [sub_resource type="Resource" id="Nivel1"]
 script = ExtResource("2_niv")
-nombre = "Miembro activo"
+nombre = "Empleado con antigüedad"
 tier = 3
 modificadores_atributo = {
-&"aptitud_verbal": 6.00,
-&"liderazgo": 4.00
+&"gestion_tiempo": 5.00,
+&"red_social": 3.00
 }
 condiciones_ascenso = [{
 "palanca": "anios_continuidad",
@@ -34,11 +36,11 @@ condiciones_ascenso = [{
 
 [sub_resource type="Resource" id="Nivel2"]
 script = ExtResource("2_niv")
-nombre = "Oficial"
+nombre = "Supervisor de turno"
 tier = 2
 modificadores_atributo = {
-&"aptitud_verbal": 8.00,
-&"liderazgo": 6.00
+&"resiliencia": 7.00,
+&"gestion_tiempo": 6.00
 }
 condiciones_ascenso = [{
 "palanca": "anios_continuidad",
@@ -53,15 +55,22 @@ condiciones_ascenso = [{
 
 [resource]
 script = ExtResource("1_act")
-id = &"periodico_escolar"
-nombre_display = "Periódico escolar"
-descripcion = "Reportaje, edición y jefatura del periódico del colegio."
-categoria = &"artes"
+id = &"trabajo_remunerado"
+nombre_display = "Trabajo remunerado"
+descripcion = "Empleo real con horario, jefe y nómina."
+categoria = &"transversal"
 tier_techo = 2
-costo_horas_semana = 7
+costo_horas_semana = 15
 niveles = [SubResource("Nivel0"), SubResource("Nivel1"), SubResource("Nivel2")]
 carreras_afinidad = {
-&"artes_comunicacion": 1.40,
 &"derecho": 1.15,
-&"ciencias_politicas": 1.15
+&"medicina": 1.15,
+&"ingenieria": 1.15,
+&"finanzas": 1.15,
+&"negocios": 1.15,
+&"ciencias_politicas": 1.15,
+&"ciencias_computacion": 1.15,
+&"economia": 1.15,
+&"psicologia": 1.15,
+&"artes_comunicacion": 1.15
 }

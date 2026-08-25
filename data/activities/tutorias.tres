@@ -1,0 +1,50 @@
+[gd_resource type="Resource" script_class="ActivityData" load_steps=5 format=3]
+
+[ext_resource type="Script" path="res://scripts/resources/activity_data.gd" id="1_act"]
+[ext_resource type="Script" path="res://scripts/resources/activity_level.gd" id="2_niv"]
+
+; RAZONAMIENTO
+;   Techo tier 3: valiosa, sostenible e invisible fuera del colegio.
+;   Ensenar refuerza lo ensenado, y como el juego todavia no deja elegir la materia, paga un poco a cada aptitud academica en vez de fingir que sabe cual es.
+;   Cuando exista la eleccion de materia, sera un campo mas en este archivo.
+
+[sub_resource type="Resource" id="Nivel0"]
+script = ExtResource("2_niv")
+nombre = "Voluntario"
+tier = 4
+modificadores_atributo = {
+&"impacto_comunitario": 3.00,
+&"aptitud_verbal": 2.00,
+&"aptitud_cuantitativa": 2.00,
+&"aptitud_cientifica": 2.00
+}
+condiciones_ascenso = []
+
+[sub_resource type="Resource" id="Nivel1"]
+script = ExtResource("2_niv")
+nombre = "Voluntario constante"
+tier = 3
+modificadores_atributo = {
+&"impacto_comunitario": 4.00,
+&"aptitud_verbal": 3.00,
+&"aptitud_cuantitativa": 3.00,
+&"aptitud_cientifica": 3.00
+}
+condiciones_ascenso = [{
+"palanca": "anios_continuidad",
+"valor": 1.0
+}]
+
+[resource]
+script = ExtResource("1_act")
+id = &"tutorias"
+nombre_display = "Tutorías"
+descripcion = "Enseñar a otros estudiantes la materia que mejor dominas."
+categoria = &"transversal"
+tier_techo = 3
+costo_horas_semana = 4
+niveles = [SubResource("Nivel0"), SubResource("Nivel1")]
+carreras_afinidad = {
+&"psicologia": 1.20,
+&"medicina": 1.10
+}

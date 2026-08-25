@@ -47,9 +47,8 @@ const PRESETS := {
 			&"red_social": 65, &"bienestar": 70, &"gestion_tiempo": 68,
 		},
 		"actividades": {
-			&"remo": {"anios": 4.0, "reconocimiento": &"estatal", "rol": &"oficial"},
+			&"remo_crew": {"anios": 4.0, "reconocimiento": &"regional", "rol": &"oficial"},
 			&"trabajo_remunerado": {"anios": 2.0},
-			&"tutoria_pares": {"anios": 2.0},
 		},
 	},
 	"Investigador STEM sin vida social": {
@@ -61,9 +60,9 @@ const PRESETS := {
 			&"red_social": 15, &"bienestar": 42, &"gestion_tiempo": 58,
 		},
 		"actividades": {
-			&"investigacion_laboratorio": {"anios": 3.0, "reconocimiento": &"estatal", "rol": &"presidente", "impacto": 450.0},
-			&"olimpiada_matematicas": {"anios": 4.0, "reconocimiento": &"estatal", "rol": &"presidente", "impacto": 400.0},
-			&"club_astronomia": {"anios": 2.0},
+			&"regeneron_sts_isef": {"anios": 3.0, "reconocimiento": &"nacional", "impacto": 600.0},
+			&"club_matematicas": {"anios": 4.0, "reconocimiento": &"regional"},
+			&"programacion_competitiva_usaco": {"anios": 3.0, "reconocimiento": &"regional"},
 		},
 	},
 	"Lider equilibrado con club propio": {
@@ -75,9 +74,9 @@ const PRESETS := {
 			&"red_social": 80, &"bienestar": 68, &"gestion_tiempo": 74,
 		},
 		"actividades": {
-			&"organizacion_propia": {"anios": 3.0, "reconocimiento": &"regional", "rol": &"fundador", "impacto": 600.0},
-			&"debate_competitivo": {"anios": 3.0, "reconocimiento": &"regional", "rol": &"oficial", "impacto": 120.0},
-			&"gobierno_estudiantil": {"anios": 2.0, "reconocimiento": &"escolar", "rol": &"presidente", "impacto": 150.0},
+			&"fundar_club": {"anios": 3.0, "reconocimiento": &"regional", "rol": &"fundador", "impacto": 600.0},
+			&"model_un": {"anios": 3.0, "reconocimiento": &"regional", "rol": &"oficial"},
+			&"consejo_estudiantil": {"anios": 2.0, "reconocimiento": &"escolar", "rol": &"presidente", "impacto": 150.0},
 			&"periodico_escolar": {"anios": 2.0, "rol": &"oficial"},
 		},
 	},
@@ -519,10 +518,10 @@ func _mostrar_desglose(r: AdmissionResult) -> void:
 	t.append("Odds x%.3f sobre esa tasa   |   aleatoriedad al resolver: +-%.0f%%" % [
 		r.multiplicador_odds, r.factor_aleatoriedad * 100.0])
 	t.append("")
-	t.append("[b]Puntaje %.4f[/b] = fit %.4f + ensayo %.4f + carrera %.4f + actividades %.4f + atlético %.4f - umbrales %.4f - índice %.4f" % [
+	t.append("[b]Puntaje %.4f[/b] = fit %.4f + ensayo %.4f + carrera %.4f + actividades %.4f + universal %.4f + atlético %.4f - umbrales %.4f - índice %.4f" % [
 		r.puntaje_final, r.fit_score, r.efecto_ensayo,
 		r.efecto_carrera + r.efecto_ajuste_carrera, r.efecto_actividades,
-		r.efecto_atletico, r.penalizacion_umbrales, r.penalizacion_indice])
+		r.efecto_universal, r.efecto_atletico, r.penalizacion_umbrales, r.penalizacion_indice])
 	t.append("Índice académico %.0f contra el umbral %.0f de esta ruta%s" % [
 		r.academic_index, r.umbral_indice, "  [ATLETA RECLUTADO]" if r.es_reclutado else ""])
 	t.append("")
@@ -563,6 +562,15 @@ func _mostrar_desglose(r: AdmissionResult) -> void:
 				a["anios"], a["continuidad"], a["aporte"]])
 		t.append("  [i]suma %.3f / referencia  ->  %+.4f al puntaje[/i]" % [
 			r.afinidad_actividades, r.efecto_actividades])
+
+	if not r.aportes_universales.is_empty():
+		t.append("")
+		t.append("[b]Apoyo universal[/b]  (igual en las 8, sin importar la carrera)")
+		for u in r.aportes_universales:
+			t.append("  T%d %-24s boost %.2f  ->  %+.4f" % [
+				u["tier"], String(u["nombre"]).substr(0, 24), u["boost"], u["aporte"]])
+		t.append("  [i]suma %.3f / referencia  ->  %+.4f al puntaje[/i]" % [
+			r.fuerza_universal, r.efecto_universal])
 
 	if not r.deportes_no_reclutables.is_empty():
 		t.append("")

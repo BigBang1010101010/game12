@@ -4,60 +4,68 @@
 [ext_resource type="Script" path="res://scripts/resources/activity_level.gd" id="2_niv"]
 
 ; RAZONAMIENTO
-;   Techo tier 2: circuito real pero mucho menor que el de debate.
-;   Afinidad casi exclusiva con derecho, porque el ejercicio es literalmente el del oficio.
+;   Techo tier 2 y no 1: el circuito FIRST es real pero el merito es del equipo, y un comite lo sabe.
+;   Escalera de club porque el salto que importa es volverse el que dirige el subsistema, no el que asiste.
+;   El liderazgo solo aparece en los peldanos altos, que exigen cargo.
 
 [sub_resource type="Resource" id="Nivel0"]
 script = ExtResource("2_niv")
-nombre = "Participante"
+nombre = "Miembro"
 tier = 4
 modificadores_atributo = {
-&"aptitud_verbal": 5.00,
-&"rigor_academico": 3.00
+&"aptitud_cientifica": 5.00,
+&"liderazgo": 3.00,
+&"profundidad_extracurricular": 3.00
 }
 condiciones_ascenso = []
 
 [sub_resource type="Resource" id="Nivel1"]
 script = ExtResource("2_niv")
-nombre = "Nivel escolar"
+nombre = "Miembro activo"
 tier = 3
 modificadores_atributo = {
-&"aptitud_verbal": 6.00,
-&"rigor_academico": 4.00
+&"aptitud_cientifica": 6.00,
+&"liderazgo": 4.00,
+&"profundidad_extracurricular": 4.00
 }
 condiciones_ascenso = [{
 "palanca": "anios_continuidad",
 "valor": 1.0
 }, {
-"palanca": "reconocimiento_externo",
-"valor": &"escolar"
+"palanca": "rol_liderazgo",
+"valor": &"miembro"
 }]
 
 [sub_resource type="Resource" id="Nivel2"]
 script = ExtResource("2_niv")
-nombre = "Nivel regional"
+nombre = "Oficial"
 tier = 2
 modificadores_atributo = {
-&"aptitud_verbal": 8.00,
-&"rigor_academico": 6.00
+&"aptitud_cientifica": 8.00,
+&"liderazgo": 6.00,
+&"profundidad_extracurricular": 6.00
 }
 condiciones_ascenso = [{
 "palanca": "anios_continuidad",
 "valor": 2.0
 }, {
+"palanca": "rol_liderazgo",
+"valor": &"oficial"
+}, {
 "palanca": "reconocimiento_externo",
-"valor": &"regional"
+"valor": &"escolar"
 }]
 
 [resource]
 script = ExtResource("1_act")
-id = &"mock_trial"
-nombre_display = "Juicio simulado"
-descripcion = "Equipo de mock trial con competencias estatales."
-categoria = &"derecho_politica"
+id = &"robotica_first"
+nombre_display = "Robótica FIRST"
+descripcion = "Equipo FIRST: diseño, construcción y temporada de competencia."
+categoria = &"stem"
 tier_techo = 2
-costo_horas_semana = 8
+costo_horas_semana = 12
 niveles = [SubResource("Nivel0"), SubResource("Nivel1"), SubResource("Nivel2")]
 carreras_afinidad = {
-&"derecho": 1.45
+&"ingenieria": 1.45,
+&"ciencias_computacion": 1.35
 }

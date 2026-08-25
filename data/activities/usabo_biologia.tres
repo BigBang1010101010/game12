@@ -1,18 +1,18 @@
-[gd_resource type="Resource" script_class="ActivityData" load_steps=6 format=3]
+[gd_resource type="Resource" script_class="ActivityData" load_steps=7 format=3]
 
 [ext_resource type="Script" path="res://scripts/resources/activity_data.gd" id="1_act"]
 [ext_resource type="Script" path="res://scripts/resources/activity_level.gd" id="2_niv"]
 
 ; RAZONAMIENTO
-;   Techo tier 2: circuito real pero mucho menor que el de debate.
-;   Afinidad casi exclusiva con derecho, porque el ejercicio es literalmente el del oficio.
+;   Techo tier 1: como toda olimpiada de materia, tiene corte nacional objetivo.
+;   Afinidad exclusiva con medicina (1.50): es la senal mas limpia de vocacion biomedica que un estudiante puede dar.
 
 [sub_resource type="Resource" id="Nivel0"]
 script = ExtResource("2_niv")
 nombre = "Participante"
 tier = 4
 modificadores_atributo = {
-&"aptitud_verbal": 5.00,
+&"aptitud_cientifica": 5.00,
 &"rigor_academico": 3.00
 }
 condiciones_ascenso = []
@@ -22,7 +22,7 @@ script = ExtResource("2_niv")
 nombre = "Nivel escolar"
 tier = 3
 modificadores_atributo = {
-&"aptitud_verbal": 6.00,
+&"aptitud_cientifica": 6.00,
 &"rigor_academico": 4.00
 }
 condiciones_ascenso = [{
@@ -38,7 +38,7 @@ script = ExtResource("2_niv")
 nombre = "Nivel regional"
 tier = 2
 modificadores_atributo = {
-&"aptitud_verbal": 8.00,
+&"aptitud_cientifica": 8.00,
 &"rigor_academico": 6.00
 }
 condiciones_ascenso = [{
@@ -49,15 +49,31 @@ condiciones_ascenso = [{
 "valor": &"regional"
 }]
 
+[sub_resource type="Resource" id="Nivel3"]
+script = ExtResource("2_niv")
+nombre = "Nivel nacional"
+tier = 1
+modificadores_atributo = {
+&"aptitud_cientifica": 12.00,
+&"rigor_academico": 9.00
+}
+condiciones_ascenso = [{
+"palanca": "anios_continuidad",
+"valor": 3.0
+}, {
+"palanca": "reconocimiento_externo",
+"valor": &"nacional"
+}]
+
 [resource]
 script = ExtResource("1_act")
-id = &"mock_trial"
-nombre_display = "Juicio simulado"
-descripcion = "Equipo de mock trial con competencias estatales."
-categoria = &"derecho_politica"
-tier_techo = 2
+id = &"usabo_biologia"
+nombre_display = "USABO / olimpiada de biología"
+descripcion = "Olimpiada de biología, del examen abierto al campamento nacional."
+categoria = &"medicina"
+tier_techo = 1
 costo_horas_semana = 8
-niveles = [SubResource("Nivel0"), SubResource("Nivel1"), SubResource("Nivel2")]
+niveles = [SubResource("Nivel0"), SubResource("Nivel1"), SubResource("Nivel2"), SubResource("Nivel3")]
 carreras_afinidad = {
-&"derecho": 1.45
+&"medicina": 1.50
 }

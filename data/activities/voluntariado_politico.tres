@@ -4,44 +4,40 @@
 [ext_resource type="Script" path="res://scripts/resources/activity_level.gd" id="2_niv"]
 
 ; RAZONAMIENTO
-;   Techo tier 3: senal clarisima de interes en finanzas, pero sin dinero real ni resultado auditable no pasa de contexto.
+;   Techo tier 3: la experiencia es genuina y poco comun, pero el logro es de la campana y no del estudiante; solo sube con impacto propio medible.
 
 [sub_resource type="Resource" id="Nivel0"]
 script = ExtResource("2_niv")
-nombre = "Miembro"
+nombre = "Voluntario"
 tier = 4
 modificadores_atributo = {
-&"aptitud_cuantitativa": 3.00,
-&"curiosidad_intelectual": 3.00
+&"impacto_comunitario": 5.00,
+&"aptitud_verbal": 3.00
 }
 condiciones_ascenso = []
 
 [sub_resource type="Resource" id="Nivel1"]
 script = ExtResource("2_niv")
-nombre = "Miembro activo"
+nombre = "Voluntario constante"
 tier = 3
 modificadores_atributo = {
-&"aptitud_cuantitativa": 4.00,
-&"curiosidad_intelectual": 4.00
+&"impacto_comunitario": 6.00,
+&"aptitud_verbal": 4.00
 }
 condiciones_ascenso = [{
 "palanca": "anios_continuidad",
 "valor": 1.0
-}, {
-"palanca": "rol_liderazgo",
-"valor": &"miembro"
 }]
 
 [resource]
 script = ExtResource("1_act")
-id = &"club_inversion"
-nombre_display = "Club de inversión"
-descripcion = "Cartera simulada, análisis y competencias de trading."
-categoria = &"negocios"
+id = &"voluntariado_politico"
+nombre_display = "Voluntariado político"
+descripcion = "Trabajo de campo en campañas y organizaciones cívicas."
+categoria = &"derecho_politica"
 tier_techo = 3
-costo_horas_semana = 4
+costo_horas_semana = 6
 niveles = [SubResource("Nivel0"), SubResource("Nivel1")]
 carreras_afinidad = {
-&"finanzas": 1.45,
-&"economia": 1.30
+&"ciencias_politicas": 1.40
 }
