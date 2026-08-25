@@ -13,7 +13,7 @@ extends Node
 
 ## Bump this whenever the saved SHAPE changes, and add a matching entry to
 ## _MIGRACIONES so old files keep loading.
-const VERSION_ESQUEMA := 2
+const VERSION_ESQUEMA := 3
 const RUTA_POR_DEFECTO := "user://progresion.save"
 
 ## version_origen -> Callable(datos) -> datos, taking a save from that version
@@ -30,6 +30,14 @@ var _MIGRACIONES: Dictionary = {
 		datos["seleccion_common_app"] = []
 		datos["version_esquema"] = 2
 		return datos,
+	# 2 -> 3: birthplace and the family relationship arrived. A version 2 save
+	# has neither, and an empty family table means "start everyone at their
+	# declared level", which is exactly right for a run that predates the
+	# system.
+	2: func(datos: Dictionary) -> Dictionary:
+		datos["familia"] = {}
+		datos["version_esquema"] = 3
+		return datos,
 }
 
 func guardar(ruta: String = RUTA_POR_DEFECTO) -> bool:
@@ -44,6 +52,7 @@ func guardar(ruta: String = RUTA_POR_DEFECTO) -> bool:
 		"elecciones": elecciones.duplicate(true),
 		"hitos": hitos.duplicate(),
 		"actividades": ActivityTracker.obtener_todos_los_estados(),
+		"familia": FamilyRelationship.obtener_estado(),
 		"seleccion_common_app": _ids_seleccionados(),
 	}
 	var archivo := FileAccess.open(ruta, FileAccess.WRITE)
@@ -128,6 +137,13 @@ func _aplicar(datos: Dictionary) -> void:
 	# Common App choice is restored only for activities that survived.
 	ActivityTracker.reiniciar()
 	ActivityTracker.cargar_estado(datos.get("actividades", {}))
+	# The birthplace lives in `elecciones`, which was just restored above, so
+	# this only has to re-read it. Family relationships come back with the same
+	# discipline as everything else: a parent who no longer exists is dropped.
+	PlayerOrigin.reiniciar()
+	PlayerOrigin.cargar_desde_guardado()
+	FamilyRelationship.cargar_estado(datos.get("familia", {}))
+
 	var seleccion: Array = datos.get("seleccion_common_app", [])
 	if seleccion.is_empty():
 		ApplicationBuilder.limpiar_seleccion_manual()

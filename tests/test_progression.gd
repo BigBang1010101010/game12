@@ -34,6 +34,11 @@ func _run() -> void:
 	_ledger_registra_cada_actividad()
 	_slots_respetan_el_limite()
 	_boost_universal_es_identico_en_las_ocho()
+	_ubicaciones_son_coherentes()
+	_origen_se_fija_una_sola_vez()
+	_relacion_familiar_sube_baja_y_decae()
+	_cumpleanos_en_fecha_vale_mas_que_fuera()
+	_guardado_conserva_origen_y_familia()
 	_ledger_conserva_totales()
 
 	print("")
@@ -54,14 +59,17 @@ func _verificar(condicion: bool, mensaje: String) -> void:
 func _registros_cargan_sin_errores() -> void:
 	for par in [["atributos", AttributeRegistry], ["sinergias", SynergyRegistry],
 			["universidades", UniversityRegistry], ["carreras", CareerRegistry],
-			["ensayos", EssayRegistry], ["actividades", ActivityRegistry]]:
+			["ensayos", EssayRegistry], ["actividades", ActivityRegistry],
+			["ubicaciones", LocationRegistry], ["padres", ParentRegistry],
+			["regalos", GiftRegistry]]:
 		var registro: ResourceRegistry = par[1]
 		var errores: PackedStringArray = registro.obtener_errores()
 		_verificar(errores.is_empty(), "%s reporto errores: %s" % [par[0], ", ".join(errores)])
 		_verificar(registro.contar() > 0, "%s no cargo ningun recurso" % par[0])
-	print("registros:      %d atributos, %d sinergias, %d universidades, %d carreras, %d ensayos, %d actividades" % [
+	print("registros:      %d atributos, %d sinergias, %d universidades, %d carreras, %d ensayos, %d actividades, %d ubicaciones, %d padres, %d regalos" % [
 		AttributeRegistry.contar(), SynergyRegistry.contar(), UniversityRegistry.contar(),
-		CareerRegistry.contar(), EssayRegistry.contar(), ActivityRegistry.contar()])
+		CareerRegistry.contar(), EssayRegistry.contar(), ActivityRegistry.contar(),
+		LocationRegistry.contar(), ParentRegistry.contar(), GiftRegistry.contar()])
 
 ## No .tres may reference an id that does not exist. This is the check that
 ## catches a typo in new content before it ships.
@@ -481,3 +489,250 @@ func _con_actividad(universidad: StringName, carrera: StringName, ensayo: String
 	return AdmissionCalculator.calcular_probabilidad(
 		universidad, carrera, ensayo, false, sim["valores"],
 		ApplicationBuilder.detalle_desde_estados(estados, indice))
+
+# --- Birthplace ---------------------------------------------------------------
+
+## The locations ARE the difficulty curve, so the invariant to protect is the
+## one that is counter-intuitive: the more expensive the city, the HARDER the
+## family credit. If a fourth city ever breaks that, the design has drifted.
+func _ubicaciones_son_coherentes() -> void:
+	_verificar(LocationRegistry.contar() >= 3,
+		"se esperaban al menos 3 ubicaciones y hay %d" % LocationRegistry.contar())
+	var referencia_existe := false
+	for u_res in LocationRegistry.obtener_todos():
+		var u: LocationData = u_res
+		_verificar(u.validar().is_empty(), "ubicacion '%s': %s" % [u.id, ", ".join(u.validar())])
+		# The multiplier is derived from the index unless stated, and the
+		# reference city has to come out at exactly 1.0.
+		_verificar(is_equal_approx(u.gasto_semanal(), u.indice_costo_vida / 100.0)
+				or u.multiplicador_gasto_semanal > 0.0,
+			"ubicacion '%s': el gasto semanal no se deriva del indice ni lo declara" % u.id)
+		if is_equal_approx(u.indice_costo_vida, 100.0):
+			referencia_existe = true
+			_verificar(is_equal_approx(u.gasto_semanal(), 1.0),
+				"la ubicacion de referencia (indice 100) deberia gastar x1.00 y gasta x%.2f" % u.gasto_semanal())
+		_verificar(u.dinero_inicial_promedio() > 0.0,
+			"ubicacion '%s' empieza sin dinero de familia" % u.id)
+	_verificar(referencia_existe, "ninguna ubicacion tiene indice 100: la escala no tiene referencia")
+
+	var ordenadas: Array[Resource] = LocationRegistry.obtener_por_dificultad()
+	for i in range(ordenadas.size() - 1):
+		var barata: LocationData = ordenadas[i]
+		var cara: LocationData = ordenadas[i + 1]
+		_verificar(barata.indice_costo_vida <= cara.indice_costo_vida,
+			"obtener_por_dificultad no esta ordenando por costo de vida")
+		_verificar(barata.facilidad_credito_familiar >= cara.facilidad_credito_familiar,
+			"'%s' es mas barata que '%s' pero su credito familiar es MAS dificil (%.2f < %.2f): vivir mas barato tiene que dejar mas margen" % [
+				barata.id, cara.id, barata.facilidad_credito_familiar, cara.facilidad_credito_familiar])
+	print("ubicaciones:    %d, gasto derivado del indice, y mas barata = credito mas facil" % LocationRegistry.contar())
+
+## The run's difficulty must not be editable halfway through.
+func _origen_se_fija_una_sola_vez() -> void:
+	PlayerOrigin.reiniciar()
+	_verificar(not PlayerOrigin.esta_fijada(), "PlayerOrigin no arranca vacio tras reiniciar")
+	# Before choosing, the readers other systems use must still answer.
+	_verificar(PlayerOrigin.multiplicador_gasto_semanal() > 0.0,
+		"sin ubicacion, el gasto semanal deberia caer en 1.0 y no en 0")
+
+	var ids: Array[StringName] = LocationRegistry.obtener_ids()
+	var primera: StringName = ids[0]
+	var segunda: StringName = ids[1]
+	var rng := RandomNumberGenerator.new()
+	rng.seed = 12345
+	_verificar(PlayerOrigin.fijar_ubicacion(primera, rng), "no se pudo fijar la primera ubicacion")
+	_verificar(not PlayerOrigin.fijar_ubicacion(segunda),
+		"se permitio cambiar la ubicacion de nacimiento a mitad de partida")
+	_verificar(PlayerOrigin.obtener_ubicacion_id() == primera,
+		"la ubicacion cambio pese a que el cambio fue rechazado")
+
+	var elegida: LocationData = LocationRegistry.obtener(primera)
+	_verificar(is_equal_approx(PlayerOrigin.multiplicador_gasto_semanal(), elegida.gasto_semanal()),
+		"PlayerOrigin no expone el gasto semanal de la ubicacion elegida")
+	_verificar(is_equal_approx(PlayerOrigin.facilidad_credito_familiar(), elegida.facilidad_credito_familiar),
+		"PlayerOrigin no expone la facilidad de credito de la ubicacion elegida")
+	_verificar(PlayerOrigin.dinero_inicial() >= elegida.dinero_familia_base_min
+			and PlayerOrigin.dinero_inicial() <= elegida.dinero_familia_base_max,
+		"el dinero inicial %.2f cae fuera del rango de '%s'" % [PlayerOrigin.dinero_inicial(), primera])
+	_verificar(PlayerOrigin.obtener_eleccion_guardada() == String(primera),
+		"la ubicacion no quedo registrada en las elecciones del guardado")
+	print("origen:         se fija una vez, se rechaza el cambio y expone gasto, credito y dinero inicial")
+
+# --- Family -------------------------------------------------------------------
+
+func _relacion_familiar_sube_baja_y_decae() -> void:
+	PlayerState.reiniciar()
+	FamilyRelationship.reiniciar()
+	var padre: ParentData = ParentRegistry.obtener_todos()[0]
+	var inicial: float = FamilyRelationship.obtener_nivel_relacion(padre.id)
+	_verificar(is_equal_approx(inicial, padre.nivel_relacion_inicial),
+		"'%s' no empieza en su nivel_relacion_inicial" % padre.id)
+
+	# A dinner is small; a streak of them is not. The multiplier has to grow.
+	var primera: Dictionary = FamilyRelationship.cenar_en_familia(padre.id)
+	var segunda: Dictionary = FamilyRelationship.cenar_en_familia(padre.id)
+	_verificar(primera["puntos"] > 0.0, "una cena no subio la relacion")
+	_verificar(segunda["puntos"] > primera["puntos"],
+		"la segunda cena seguida (%.3f) no vale mas que la primera (%.3f)" % [segunda["puntos"], primera["puntos"]])
+	_verificar(FamilyRelationship.obtener_nivel_relacion(padre.id) > inicial,
+		"la relacion no subio tras dos cenas")
+
+	# Gifts need a shop, and say so instead of failing quietly.
+	var sin_tienda: Dictionary = FamilyRelationship.comprar_regalo(padre.id, GiftRegistry.obtener_ids()[0])
+	_verificar(not sin_tienda["exito"] and sin_tienda["motivo"] == "sin_tienda",
+		"se pudo comprar un regalo sin estar en una tienda")
+
+	var tienda := GiftShop.new()
+	GiftShop.registrar_disponibilidad(tienda, true)
+	var por_nivel: Array[Resource] = GiftRegistry.obtener_por_nivel()
+	var barato: Dictionary = FamilyRelationship.comprar_regalo(padre.id, (por_nivel[0] as GiftData).id)
+	var caro: Dictionary = FamilyRelationship.comprar_regalo(
+		padre.id, (por_nivel[por_nivel.size() - 1] as GiftData).id)
+	_verificar(barato["exito"] and caro["exito"], "no se pudo comprar estando en la tienda")
+	_verificar(caro["puntos"] > barato["puntos"],
+		"el regalo caro (%.2f) no vale mas que el barato (%.2f)" % [caro["puntos"], barato["puntos"]])
+	_verificar(caro["costo"] > barato["costo"], "el regalo caro no cuesta mas")
+	GiftShop.registrar_disponibilidad(tienda, false)
+	tienda.free()
+	_verificar(not GiftShop.hay_tienda_cerca(), "la tienda sigue disponible tras salir de ella")
+
+	# Every one of those changes has to be in the shared ledger.
+	var entradas: Array[Dictionary] = PlayerState.consultar_ledger({
+		"atributo": FamilyRelationship.clave_ledger(padre.id), "fuente_tipo": FamilyRelationship.FUENTE})
+	_verificar(entradas.size() >= 4,
+		"el ledger solo tiene %d cambios de relacion de los 4 provocados" % entradas.size())
+	var fuentes: Array = []
+	for entrada in entradas:
+		if not fuentes.has(entrada["fuente_id"]):
+			fuentes.append(entrada["fuente_id"])
+	_verificar(fuentes.has(&"cena") and fuentes.has(&"regalo"),
+		"el ledger no distingue de que vino cada cambio: %s" % str(fuentes))
+	var desglose: Dictionary = FamilyRelationship.obtener_desglose(padre.id)
+	_verificar(is_equal_approx(desglose["nivel_actual"], FamilyRelationship.obtener_nivel_relacion(padre.id)),
+		"el desglose no coincide con el nivel real")
+
+	# Ignoring them costs, but only after their own grace period.
+	var antes_de_ignorar: float = FamilyRelationship.obtener_nivel_relacion(padre.id)
+	for i in range(int(padre.dias_gracia_decaimiento)):
+		DayNightCycle.advance_seconds(DayNightCycle.CYCLE_DURATION_SECONDS)
+	_verificar(is_equal_approx(FamilyRelationship.obtener_nivel_relacion(padre.id), antes_de_ignorar),
+		"la relacion decayo dentro del periodo de gracia de %.0f dias" % padre.dias_gracia_decaimiento)
+	for i in range(10):
+		DayNightCycle.advance_seconds(DayNightCycle.CYCLE_DURATION_SECONDS)
+	var tras_ignorar: float = FamilyRelationship.obtener_nivel_relacion(padre.id)
+	_verificar(tras_ignorar < antes_de_ignorar,
+		"la relacion no decayo tras %.0f dias sin contacto" % (padre.dias_gracia_decaimiento + 10.0))
+	var decaimientos: Array[Dictionary] = PlayerState.consultar_ledger({
+		"atributo": FamilyRelationship.clave_ledger(padre.id), "fuente_id": &"decaimiento"})
+	_verificar(not decaimientos.is_empty(), "el decaimiento de la relacion no quedo auditado")
+	print("familia:        cena con racha, regalos por tier, tienda obligatoria, decaimiento tras la gracia, todo en el ledger")
+
+## Remembering the date is the whole point of parents carrying one.
+func _cumpleanos_en_fecha_vale_mas_que_fuera() -> void:
+	PlayerState.reiniciar()
+	FamilyRelationship.reiniciar()
+	var config: FamilyConfig = FamilyRelationship.obtener_config()
+	for padre_res in ParentRegistry.obtener_todos():
+		var padre: ParentData = padre_res
+		_verificar(padre.dia_del_anio() > 0,
+			"'%s' tiene una fecha de cumpleanos invalida: '%s'" % [padre.id, padre.fecha_cumpleanos])
+
+		# Off the date first, from wherever the clock happens to be.
+		if FamilyRelationship.es_su_cumpleanos(padre.id):
+			DayNightCycle.advance_seconds(DayNightCycle.CYCLE_DURATION_SECONDS)
+		var fuera: Dictionary = FamilyRelationship.celebrar_cumpleanos(padre.id)
+		_verificar(not fuera["en_fecha"], "'%s': se creyo en fecha fuera de su cumpleanos" % padre.id)
+		_verificar(is_equal_approx(fuera["puntos"], config.cumpleanos_fuera_de_fecha),
+			"'%s': celebrar fuera de fecha dio %.2f y no %.2f" % [
+				padre.id, fuera["puntos"], config.cumpleanos_fuera_de_fecha])
+
+		# Then walk the clock to the actual day and celebrate again.
+		var dias: int = DayNightCycle.days_until(padre.dia_del_anio())
+		for i in range(dias):
+			DayNightCycle.advance_seconds(DayNightCycle.CYCLE_DURATION_SECONDS)
+		_verificar(FamilyRelationship.es_su_cumpleanos(padre.id),
+			"'%s': avanzar %d dias no llego a su cumpleanos" % [padre.id, dias])
+		var en_fecha: Dictionary = FamilyRelationship.celebrar_cumpleanos(padre.id)
+		_verificar(en_fecha["en_fecha"], "'%s': no se reconocio su cumpleanos" % padre.id)
+		_verificar(en_fecha["puntos"] > fuera["puntos"],
+			"'%s': celebrar en fecha (%.2f) no vale mas que fuera (%.2f)" % [
+				padre.id, en_fecha["puntos"], fuera["puntos"]])
+
+		# And having celebrated it, the day after must NOT charge a forgetting.
+		var antes: float = FamilyRelationship.obtener_nivel_relacion(padre.id)
+		DayNightCycle.advance_seconds(DayNightCycle.CYCLE_DURATION_SECONDS)
+		var olvidos: Array[Dictionary] = PlayerState.consultar_ledger({
+			"atributo": FamilyRelationship.clave_ledger(padre.id), "fuente_id": &"cumpleanos_olvidado"})
+		_verificar(olvidos.is_empty(),
+			"'%s': se cobro olvido de un cumpleanos que SI se celebro" % padre.id)
+		_verificar(FamilyRelationship.obtener_nivel_relacion(padre.id) <= antes + 0.0001,
+			"'%s': la relacion subio sola al pasar el dia" % padre.id)
+
+	# Forgetting one, on the other hand, has to cost exactly once.
+	#
+	# The clock is walked to the DAY BEFORE the birthday and only then are the
+	# relationships reset: walking half a year first would decay this parent to
+	# zero, and a penalty against zero applies nothing - correctly, but it
+	# would prove nothing about the penalty.
+	var victima: ParentData = ParentRegistry.obtener_todos()[0]
+	var dias_hasta: int = DayNightCycle.days_until(victima.dia_del_anio())
+	for i in range(maxi(dias_hasta - 1, 0)):
+		DayNightCycle.advance_seconds(DayNightCycle.CYCLE_DURATION_SECONDS)
+	PlayerState.reiniciar()
+	FamilyRelationship.reiniciar()
+	var nivel_antes: float = FamilyRelationship.obtener_nivel_relacion(victima.id)
+	for i in range(1 if dias_hasta == 0 else 2):
+		DayNightCycle.advance_seconds(DayNightCycle.CYCLE_DURATION_SECONDS)
+	var cobros: Array[Dictionary] = PlayerState.consultar_ledger({
+		"atributo": FamilyRelationship.clave_ledger(victima.id), "fuente_id": &"cumpleanos_olvidado"})
+	_verificar(is_equal_approx(FamilyRelationship.obtener_nivel_relacion(victima.id),
+			nivel_antes - config.cumpleanos_penalizacion_olvido),
+		"olvidar el cumpleanos dejo la relacion en %.2f y no en %.2f" % [
+			FamilyRelationship.obtener_nivel_relacion(victima.id),
+			nivel_antes - config.cumpleanos_penalizacion_olvido])
+	_verificar(cobros.size() == 1,
+		"olvidar el cumpleanos de '%s' se cobro %d veces" % [victima.id, cobros.size()])
+	if cobros.size() == 1:
+		_verificar(is_equal_approx(cobros[0]["delta_aplicado"], -config.cumpleanos_penalizacion_olvido),
+			"la penalizacion por olvido fue %.2f y no %.2f" % [
+				cobros[0]["delta_aplicado"], -config.cumpleanos_penalizacion_olvido])
+	print("cumpleanos:     en fecha %.0f vs fuera de fecha %.0f, y olvidarlo cuesta %.0f una sola vez" % [
+		config.cumpleanos_bonus_exacto, config.cumpleanos_fuera_de_fecha, config.cumpleanos_penalizacion_olvido])
+
+## Schema 3 carries the birthplace and the family; both have to survive a
+## round trip, and a save written before they existed has to keep loading.
+func _guardado_conserva_origen_y_familia() -> void:
+	PlayerState.reiniciar()
+	FamilyRelationship.reiniciar()
+	PlayerOrigin.reiniciar()
+	var ubicacion: StringName = LocationRegistry.obtener_ids()[0]
+	PlayerOrigin.fijar_ubicacion(ubicacion)
+	var padre: ParentData = ParentRegistry.obtener_todos()[0]
+	FamilyRelationship.cenar_en_familia(padre.id)
+	FamilyRelationship.cenar_en_familia(padre.id)
+	var nivel: float = FamilyRelationship.obtener_nivel_relacion(padre.id)
+	var dinero: float = PlayerOrigin.dinero_inicial()
+
+	var ruta := "user://test_progresion.save"
+	_verificar(SaveSystem.guardar(ruta), "no se pudo guardar")
+	PlayerOrigin.reiniciar()
+	FamilyRelationship.reiniciar()
+	_verificar(SaveSystem.cargar(ruta), "no se pudo cargar el guardado recien escrito")
+	_verificar(PlayerOrigin.obtener_ubicacion_id() == ubicacion,
+		"la ubicacion de nacimiento no sobrevivio al guardado")
+	_verificar(is_equal_approx(PlayerOrigin.dinero_inicial(), dinero)
+			or PlayerOrigin.dinero_inicial() > 0.0,
+		"el dinero inicial no se restauro")
+	_verificar(is_equal_approx(FamilyRelationship.obtener_nivel_relacion(padre.id), nivel),
+		"la relacion con '%s' volvio en %.2f y no en %.2f" % [
+			padre.id, FamilyRelationship.obtener_nivel_relacion(padre.id), nivel])
+
+	# A version 2 file - written before any of this existed - must migrate.
+	var archivo := FileAccess.open(ruta, FileAccess.WRITE)
+	archivo.store_string(JSON.stringify({
+		"version_esquema": 2, "atributos": {}, "ledger": [], "hitos": [], "actividades": {}}))
+	archivo.close()
+	_verificar(SaveSystem.cargar(ruta), "un guardado de esquema 2 dejo de cargar")
+	_verificar(is_equal_approx(FamilyRelationship.obtener_nivel_relacion(padre.id), padre.nivel_relacion_inicial),
+		"tras migrar del esquema 2 la relacion no arranco en su nivel inicial")
+	DirAccess.remove_absolute(ProjectSettings.globalize_path(ruta))
+	print("guardado:       esquema %d, ubicacion y familia sobreviven, y un esquema 2 migra" % SaveSystem.VERSION_ESQUEMA)

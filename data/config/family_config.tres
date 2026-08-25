@@ -1,0 +1,19 @@
+[gd_resource type="Resource" script_class="FamilyConfig" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/resources/family_config.gd" id="1_fam"]
+
+; Calibracion v1. Cada constante esta documentada en family_config.gd.
+; La relacion entre estos numeros es lo que define la estrategia: olvidar un
+; cumpleanos (-12) cuesta seis cenas seguidas de recuperacion, y acordarse
+; (+18) equivale a un regalo importante sin gastar nada.
+[resource]
+script = ExtResource("1_fam")
+nivel_maximo = 100.0
+puntos_cena = 2.0
+cena_bonus_continuidad = 0.15
+cena_tope_continuidad = 8.0
+cena_dias_para_romper_racha = 10.0
+cumpleanos_bonus_exacto = 18.0
+cumpleanos_fuera_de_fecha = 4.0
+cumpleanos_penalizacion_olvido = 12.0
+regalo_multiplicador_cumpleanos = 1.5

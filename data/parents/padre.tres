@@ -1,0 +1,20 @@
+[gd_resource type="Resource" script_class="ParentData" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/resources/parent_data.gd" id="1_padre"]
+
+; RAZONAMIENTO
+;   Empieza mas bajo (62) y aguanta mas dias sin que la relacion baje: pide
+;   menos mantenimiento y da menos por defecto.
+;   Cumple el 9 de septiembre, al arrancar el curso, en la semana en la que el
+;   jugador esta decidiendo en que actividades se mete. Las dos fechas estan
+;   deliberadamente lejos una de otra para que el jugador no pueda resolver la
+;   familia entera en un solo dia del calendario.
+[resource]
+script = ExtResource("1_padre")
+id = &"padre"
+nombre_display = "Papá"
+descripcion = "Habla poco de sí mismo y aparece cuando hay que resolver algo."
+fecha_cumpleanos = "09-09"
+nivel_relacion_inicial = 62.0
+dias_gracia_decaimiento = 9.0
+decaimiento_diario = 0.30

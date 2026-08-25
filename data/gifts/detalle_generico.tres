@@ -1,0 +1,15 @@
+[gd_resource type="Resource" script_class="GiftData" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/resources/gift_data.gd" id="1_reg"]
+
+; Nivel 1: lo que se compra de camino a casa. Sube poco a proposito - cuenta
+; como gesto, no como atencion. Su valor real es que cuesta poco y se puede
+; repetir sin arruinarse.
+[resource]
+script = ExtResource("1_reg")
+id = &"detalle_generico"
+nombre_display = "Un detalle cualquiera"
+descripcion = "Flores de la tienda de la esquina, chocolates, algo para no llegar con las manos vacías."
+costo = 15.0
+puntos_relacion = 3.0
+nivel = 1

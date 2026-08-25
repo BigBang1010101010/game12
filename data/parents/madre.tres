@@ -1,0 +1,19 @@
+[gd_resource type="Resource" script_class="ParentData" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/resources/parent_data.gd" id="1_padre"]
+
+; RAZONAMIENTO
+;   Empieza mas alto que el padre (68 contra 62) y con menos dias de gracia: la
+;   relacion parte de mejor lugar y se nota antes cuando el jugador desaparece.
+;   Cumple el 14 de marzo, en plena mitad del ano escolar, cuando el jugador ya
+;   esta ocupado - la fecha esta elegida para que competir con el calendario sea
+;   parte de recordarla.
+[resource]
+script = ExtResource("1_padre")
+id = &"madre"
+nombre_display = "Mamá"
+descripcion = "Pregunta cómo te fue todos los días y se acuerda de las respuestas."
+fecha_cumpleanos = "03-14"
+nivel_relacion_inicial = 68.0
+dias_gracia_decaimiento = 6.0
+decaimiento_diario = 0.40

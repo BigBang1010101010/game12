@@ -85,10 +85,19 @@ func _process(delta: float) -> void:
 ## Split out from _process so tests (and the sleep action) can drive the cycle
 ## directly instead of waiting in real time.
 func advance_seconds(seconds: float) -> void:
-	var before := time_of_day
+	if seconds <= 0.0:
+		return
 	total_elapsed_seconds += seconds
-	time_of_day = fposmod(time_of_day + seconds / CYCLE_DURATION_SECONDS, 1.0)
-	if time_of_day < before:
+	# Days are counted from HOW FAR the clock moved, not from whether the
+	# fraction happened to wrap. Detecting a wrap misses two real cases: an
+	# advance of exactly one cycle lands on the same fraction it started on
+	# (so a 24-hour skip counted as no day at all), and an advance of several
+	# cycles at once counted as one. Both matter now that dated things -
+	# birthdays - live on this calendar.
+	var destino: float = time_of_day + seconds / CYCLE_DURATION_SECONDS
+	var dias_cruzados: int = int(floor(destino))
+	time_of_day = fposmod(destino, 1.0)
+	for i in range(dias_cruzados):
 		_days_elapsed += 1
 		day_passed.emit()
 	_apply()
@@ -121,6 +130,21 @@ func is_night() -> bool:
 
 func get_days_elapsed() -> int:
 	return _days_elapsed
+
+## Days in a game year. A fixed, non-leap calendar: birthdays and anything
+## else dated live on it.
+const DAYS_PER_YEAR := 365
+
+## Day of the year, 1-365, wrapping every DAYS_PER_YEAR days. Day 1 is the
+## first day of a run, so an in-game date is simply how far the world has run.
+func get_day_of_year() -> int:
+	return posmod(_days_elapsed, DAYS_PER_YEAR) + 1
+
+## How many days from today until a given day of the year, 0 when it is today.
+## Always forward, so "the birthday is in 3 days" reads the same in December
+## as in January.
+func days_until(day_of_year: int) -> int:
+	return posmod(day_of_year - get_day_of_year(), DAYS_PER_YEAR)
 
 ## "HH:MM" for display.
 func get_clock_string() -> String:

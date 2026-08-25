@@ -1,0 +1,16 @@
+[gd_resource type="Resource" script_class="GiftData" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/resources/gift_data.gd" id="1_reg"]
+
+; Nivel 2: cuesta cuatro veces mas que el detalle y vale casi tres veces mas.
+; La relacion precio-valor empeora a proposito segun se sube de nivel: regalar
+; caro funciona, pero nunca es la forma eficiente de sostener una relacion. Eso
+; es lo que empuja hacia las cenas y hacia acordarse del cumpleanos.
+[resource]
+script = ExtResource("1_reg")
+id = &"regalo_pensado"
+nombre_display = "Un regalo pensado"
+descripcion = "Algo que le viste mirar hace semanas y recordaste."
+costo = 60.0
+puntos_relacion = 8.0
+nivel = 2

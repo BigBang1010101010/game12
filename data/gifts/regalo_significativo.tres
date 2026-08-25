@@ -1,0 +1,15 @@
+[gd_resource type="Resource" script_class="GiftData" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/resources/gift_data.gd" id="1_reg"]
+
+; Nivel 3: el regalo que se recuerda. Cuesta lo que una semana entera de vida
+; en Nueva York, lo que lo convierte en una decision economica real y no en un
+; boton mas - y ahi es donde este sistema se encuentra con el de ubicacion.
+[resource]
+script = ExtResource("1_reg")
+id = &"regalo_significativo"
+nombre_display = "Un regalo importante"
+descripcion = "Costó lo que no tenías y se le notó en la cara."
+costo = 180.0
+puntos_relacion = 16.0
+nivel = 3

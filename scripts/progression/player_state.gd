@@ -93,6 +93,37 @@ func aplicar_modificador(atributo_id: StringName, delta: float, fuente_tipo: Str
 	EventBus.atributo_modificado.emit(atributo_id, evaluacion["delta_aplicado"], fuente_tipo, fuente_id)
 	return evaluacion["delta_aplicado"]
 
+## Ledger entry for a tracked quantity that is NOT an attribute - a
+## relationship with a parent today, a reputation tomorrow.
+##
+## The ledger's promise is "justify every number with the events behind it",
+## and that promise is not only about attributes. The entry has the same shape
+## as an attribute's, so consolidation, filtering and the breakdown queries all
+## keep working without knowing the difference; what it does NOT do is run the
+## modifier engine, because curves, synergies and caps belong to attributes and
+## the caller here has already decided its own arithmetic.
+func registrar_cambio(clave: StringName, delta_aplicado: float, valor_antes: float, valor_despues: float, fuente_tipo: StringName, fuente_id: StringName, contexto: Dictionary = {}) -> void:
+	if is_zero_approx(delta_aplicado):
+		return
+	ledger.append({
+		"dia": dia_actual(),
+		"atributo": clave,
+		"fuente_tipo": fuente_tipo,
+		"fuente_id": fuente_id,
+		"contexto": contexto.duplicate(true),
+		"delta_crudo": delta_aplicado,
+		"delta_aplicado": delta_aplicado,
+		"mult_rendimiento": 1.0,
+		"mult_sinergia": 1.0,
+		"sinergias": [],
+		"valor_antes": valor_antes,
+		"valor_despues": valor_despues,
+	})
+	_appends_desde_revision += 1
+	if _appends_desde_revision >= APPENDS_ENTRE_REVISIONES:
+		_appends_desde_revision = 0
+		consolidar_ledger()
+
 func _registrar(atributo_id: StringName, fuente_tipo: StringName, fuente_id: StringName, contexto: Dictionary, evaluacion: Dictionary) -> void:
 	ledger.append({
 		"dia": dia_actual(),
