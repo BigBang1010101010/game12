@@ -1,0 +1,29 @@
+[gd_resource type="Resource" script_class="StatBenchmark" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/resources/stat_benchmark.gd" id="1_ben"]
+
+; De donde salen estos umbrales:
+;   La esgrima se organiza por ranking nacional de puntos, no por temporadas estatales, asi que su unica estadistica significativa es el puesto.
+;   Entrar al top 100 juvenil es lo que abre la puerta a un entrenador universitario; el top 32 es el corte habitual de los cuadros nacionales.
+
+[resource]
+script = ExtResource("1_ben")
+id = &"esgrima_ranking_nacional"
+categoria_id = &"esgrima_ranking_nacional"
+bandas = [{
+"valor": 400.0,
+"reconocimiento": &"escolar"
+}, {
+"valor": 200.0,
+"reconocimiento": &"regional"
+}, {
+"valor": 100.0,
+"reconocimiento": &"estatal"
+}, {
+"valor": 32.0,
+"reconocimiento": &"nacional"
+}, {
+"valor": 8.0,
+"reconocimiento": &"internacional"
+}]
+fuente = "La esgrima se organiza por ranking nacional de puntos, no por temporadas estatales, asi que su unica estadistica significativa es el puesto. Entrar al top 100 juvenil es lo que abre la puerta a un entrenador universitario; el top 32 es el corte habitual de los cuadros nacionales."

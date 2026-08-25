@@ -92,11 +92,16 @@ ParentRegistry="*res://scripts/registries/parent_registry.gd"
 GiftRegistry="*res://scripts/registries/gift_registry.gd"
 SpendingRegistry="*res://scripts/registries/spending_registry.gd"
 ConsultingRegistry="*res://scripts/registries/consulting_registry.gd"
+SportStatRegistry="*res://scripts/registries/sport_stat_registry.gd"
+StatBenchmarkRegistry="*res://scripts/registries/stat_benchmark_registry.gd"
 AdmissionCalculator="*res://scripts/progression/admission_calculator.gd"
 ; AcademicIndex reads the config that AdmissionCalculator owns, and
 ; ActivityTracker asks AcademicIndex whether an athlete is recruitable,
 ; so the three come in that order.
 AcademicIndex="*res://scripts/progression/academic_index.gd"
+; Las estadisticas deportivas van antes que ActivityTracker: de ellas deriva el
+; reconocimiento que las escaleras de los deportes leen.
+SportStatsTracker="*res://scripts/progression/sport_stats_tracker.gd"
 ActivityTracker="*res://scripts/progression/activity_tracker.gd"
 ; TimeBudget charges burnout through PlayerState and reads the activities
 ; the tracker holds, so it comes after both.

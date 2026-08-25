@@ -13,7 +13,7 @@ extends Node
 
 ## Bump this whenever the saved SHAPE changes, and add a matching entry to
 ## _MIGRACIONES so old files keep loading.
-const VERSION_ESQUEMA := 4
+const VERSION_ESQUEMA := 5
 const RUTA_POR_DEFECTO := "user://progresion.save"
 
 ## version_origen -> Callable(datos) -> datos, taking a save from that version
@@ -46,6 +46,13 @@ var _MIGRACIONES: Dictionary = {
 		datos["credito"] = {}
 		datos["version_esquema"] = 4
 		return datos,
+	# 4 -> 5: sport statistics arrived. A save from before them has none, which
+	# is exactly what an empty table means: that run's athletes keep whatever
+	# recognition they were given by hand until the first number is posted.
+	4: func(datos: Dictionary) -> Dictionary:
+		datos["estadisticas_deportivas"] = {}
+		datos["version_esquema"] = 5
+		return datos,
 }
 
 func guardar(ruta: String = RUTA_POR_DEFECTO) -> bool:
@@ -62,6 +69,7 @@ func guardar(ruta: String = RUTA_POR_DEFECTO) -> bool:
 		"actividades": ActivityTracker.obtener_todos_los_estados(),
 		"familia": FamilyRelationship.obtener_estado(),
 		"dinero": Wallet.obtener_estado(),
+		"estadisticas_deportivas": SportStatsTracker.obtener_estado(),
 		"credito": FamilyCredit.obtener_estado(),
 		"seleccion_common_app": _ids_seleccionados(),
 	}
@@ -145,6 +153,10 @@ func _aplicar(datos: Dictionary) -> void:
 	# Activities: same discipline as attributes. One that no longer exists is
 	# dropped with a warning instead of poisoning the state, and the manual
 	# Common App choice is restored only for activities that survived.
+	# Statistics BEFORE activities: a sport's ladder reads the recognition its
+	# numbers derive, so the numbers have to be in place first.
+	SportStatsTracker.reiniciar()
+	SportStatsTracker.cargar_estado(datos.get("estadisticas_deportivas", {}))
 	ActivityTracker.reiniciar()
 	ActivityTracker.cargar_estado(datos.get("actividades", {}))
 	# The birthplace lives in `elecciones`, which was just restored above, so

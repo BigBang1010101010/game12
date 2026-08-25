@@ -1,0 +1,16 @@
+[gd_resource type="Resource" script_class="SportStatCategory" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/resources/sport_stat_category.gd" id="1_stat"]
+
+; ESTADISTICA REAL DEL DEPORTE, no inventada para el juego.
+;   Marca personal en la prueba de 2000 metros en ergometro.
+;   MENOR ES MEJOR.
+
+[resource]
+script = ExtResource("1_stat")
+id = &"remo_tiempo_2000m"
+deporte_id = &"remo_crew"
+nombre_display = "Tiempo en 2000m"
+unidad = "segundos"
+es_mejor_mayor = false
+orden = 10

@@ -1,0 +1,25 @@
+[gd_resource type="Resource" script_class="StatBenchmark" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/resources/stat_benchmark.gd" id="1_ben"]
+
+; De donde salen estos umbrales:
+;   Los promedios de dos digitos marcan al anotador titular; 22 por juego es un numero de primer equipo estatal y 28 entra en las listas nacionales de anotadores.
+
+[resource]
+script = ExtResource("1_ben")
+id = &"baloncesto_puntos_por_juego"
+categoria_id = &"baloncesto_puntos_por_juego"
+bandas = [{
+"valor": 10.0,
+"reconocimiento": &"escolar"
+}, {
+"valor": 15.0,
+"reconocimiento": &"regional"
+}, {
+"valor": 22.0,
+"reconocimiento": &"estatal"
+}, {
+"valor": 28.0,
+"reconocimiento": &"nacional"
+}]
+fuente = "Los promedios de dos digitos marcan al anotador titular; 22 por juego es un numero de primer equipo estatal y 28 entra en las listas nacionales de anotadores."

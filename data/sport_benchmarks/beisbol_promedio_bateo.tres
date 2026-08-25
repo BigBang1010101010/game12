@@ -1,0 +1,26 @@
+[gd_resource type="Resource" script_class="StatBenchmark" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/resources/stat_benchmark.gd" id="1_ben"]
+
+; De donde salen estos umbrales:
+;   En secundaria .300 es un bateador competente y .400 es la marca que la prensa estatal persigue cada temporada - es tambien el ejemplo exacto que motivo este sistema.
+;   En ligas profesionales .400 no se logra desde 1941, lo que da idea de por que arriba de .450 se lee como nacional.
+
+[resource]
+script = ExtResource("1_ben")
+id = &"beisbol_promedio_bateo"
+categoria_id = &"beisbol_promedio_bateo"
+bandas = [{
+"valor": 0.300,
+"reconocimiento": &"escolar"
+}, {
+"valor": 0.350,
+"reconocimiento": &"regional"
+}, {
+"valor": 0.400,
+"reconocimiento": &"estatal"
+}, {
+"valor": 0.450,
+"reconocimiento": &"nacional"
+}]
+fuente = "En secundaria .300 es un bateador competente y .400 es la marca que la prensa estatal persigue cada temporada - es tambien el ejemplo exacto que motivo este sistema. En ligas profesionales .400 no se logra desde 1941, lo que da idea de por que arriba de .450 se lee como nacional."

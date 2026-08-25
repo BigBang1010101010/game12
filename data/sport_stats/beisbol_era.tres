@@ -1,0 +1,16 @@
+[gd_resource type="Resource" script_class="SportStatCategory" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/resources/sport_stat_category.gd" id="1_stat"]
+
+; ESTADISTICA REAL DEL DEPORTE, no inventada para el juego.
+;   Carreras limpias permitidas cada nueve entradas.
+;   MENOR ES MEJOR, y es el caso que obliga a que el sistema sepa leer una estadistica al reves.
+
+[resource]
+script = ExtResource("1_stat")
+id = &"beisbol_era"
+deporte_id = &"beisbol"
+nombre_display = "Efectividad (ERA)"
+unidad = "carreras/9ent"
+es_mejor_mayor = false
+orden = 40

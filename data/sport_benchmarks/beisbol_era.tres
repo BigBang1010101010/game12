@@ -1,0 +1,25 @@
+[gd_resource type="Resource" script_class="StatBenchmark" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/resources/stat_benchmark.gd" id="1_ben"]
+
+; De donde salen estos umbrales:
+;   Una efectividad de 2.50 es la de un abridor solido de secundaria; bajar de 1.50 es lo que sostiene una seleccion estatal; menos de 1.00 en una temporada completa es material de ranking nacional.
+
+[resource]
+script = ExtResource("1_ben")
+id = &"beisbol_era"
+categoria_id = &"beisbol_era"
+bandas = [{
+"valor": 3.500,
+"reconocimiento": &"escolar"
+}, {
+"valor": 2.500,
+"reconocimiento": &"regional"
+}, {
+"valor": 1.500,
+"reconocimiento": &"estatal"
+}, {
+"valor": 0.900,
+"reconocimiento": &"nacional"
+}]
+fuente = "Una efectividad de 2.50 es la de un abridor solido de secundaria; bajar de 1.50 es lo que sostiene una seleccion estatal; menos de 1.00 en una temporada completa es material de ranking nacional."

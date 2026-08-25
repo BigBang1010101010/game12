@@ -1,0 +1,25 @@
+[gd_resource type="Resource" script_class="StatBenchmark" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/resources/stat_benchmark.gd" id="1_ben"]
+
+; De donde salen estos umbrales:
+;   El doble-doble de puntos y rebotes es el estandar del interior dominante: once rebotes por juego lo sostiene, catorce lo convierte en noticia.
+
+[resource]
+script = ExtResource("1_ben")
+id = &"baloncesto_rebotes"
+categoria_id = &"baloncesto_rebotes"
+bandas = [{
+"valor": 5.0,
+"reconocimiento": &"escolar"
+}, {
+"valor": 8.0,
+"reconocimiento": &"regional"
+}, {
+"valor": 11.0,
+"reconocimiento": &"estatal"
+}, {
+"valor": 14.0,
+"reconocimiento": &"nacional"
+}]
+fuente = "El doble-doble de puntos y rebotes es el estandar del interior dominante: once rebotes por juego lo sostiene, catorce lo convierte en noticia."

@@ -89,6 +89,8 @@ var _controles_actividad: Dictionary = {}  # actividad_id -> {anios, rec, rol, i
 var _etiqueta_presupuesto: Label
 var _etiqueta_indice: Label
 var _panel_slots: RichTextLabel
+var _controles_stat: Dictionary = {}   # categoria_id -> {spin, etiqueta}
+var _etiquetas_deporte: Dictionary = {}  # deporte_id -> Label
 var _carrera: OptionButton
 var _ensayo: OptionButton
 var _early: CheckBox
@@ -211,6 +213,43 @@ func _construir() -> void:
 		lista_act.add_child(cabecera_act)
 		for actividad_res in ActivityRegistry.obtener_por_categoria(categoria):
 			lista_act.add_child(_fila_actividad(actividad_res as ActivityData))
+
+	# --- Sport statistics: the numbers recognition is derived FROM ----------
+	var stats := VBoxContainer.new()
+	stats.custom_minimum_size = Vector2(500, 0)
+	columnas.add_child(stats)
+
+	var titulo_stats := Label.new()
+	titulo_stats.text = "Estadísticas deportivas"
+	titulo_stats.add_theme_font_size_override("font_size", 15)
+	stats.add_child(titulo_stats)
+
+	var nota_stats := Label.new()
+	nota_stats.text = "El reconocimiento de un deporte se DERIVA de estos números; su desplegable de reconocimiento queda bloqueado."
+	nota_stats.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	nota_stats.custom_minimum_size = Vector2(480, 0)
+	nota_stats.add_theme_color_override("font_color", Color(0.72, 0.76, 0.85))
+	stats.add_child(nota_stats)
+
+	var scroll_stats := ScrollContainer.new()
+	scroll_stats.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	stats.add_child(scroll_stats)
+	var lista_stats := VBoxContainer.new()
+	lista_stats.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	scroll_stats.add_child(lista_stats)
+
+	for deporte_id in SportStatRegistry.deportes_con_estadisticas():
+		var actividad: ActivityData = ActivityRegistry.obtener(deporte_id)
+		var cabecera := Label.new()
+		cabecera.text = actividad.nombre_display if actividad else String(deporte_id)
+		cabecera.add_theme_color_override("font_color", Color(0.55, 0.75, 1.0))
+		lista_stats.add_child(cabecera)
+		var derivado := Label.new()
+		derivado.add_theme_color_override("font_color", Color(0.7, 0.9, 0.7))
+		lista_stats.add_child(derivado)
+		_etiquetas_deporte[deporte_id] = derivado
+		for categoria_res in SportStatRegistry.obtener_por_deporte(deporte_id):
+			lista_stats.add_child(_fila_stat(categoria_res as SportStatCategory))
 
 	# --- Middle: choices, presets and the live table ------------------------
 	var centro := VBoxContainer.new()
@@ -351,6 +390,61 @@ func _fila_actividad(actividad: ActivityData) -> HBoxContainer:
 	}
 	return fila
 
+## One row per statistic. The spinbox range comes from the benchmark bands
+## themselves, so a statistic measured in seconds and one measured in home runs
+## both get a sensible control without this file knowing either sport.
+func _fila_stat(categoria: SportStatCategory) -> HBoxContainer:
+	var fila := HBoxContainer.new()
+	var nombre := Label.new()
+	nombre.text = categoria.nombre_display
+	nombre.custom_minimum_size = Vector2(140, 0)
+	nombre.clip_text = true
+	nombre.tooltip_text = "%s (%s)  ·  %s" % [categoria.nombre_display, categoria.unidad,
+		"más alto es mejor" if categoria.es_mejor_mayor else "más BAJO es mejor"]
+	fila.add_child(nombre)
+
+	var benchmark: StatBenchmark = StatBenchmarkRegistry.para_categoria(categoria.id)
+	var tope := 100.0
+	var paso := 1.0
+	if benchmark and not benchmark.bandas.is_empty():
+		var extremo: float = float(benchmark.bandas[benchmark.bandas.size() - 1]["valor"])
+		var primero: float = float(benchmark.bandas[0]["valor"])
+		tope = maxf(extremo, primero) * 1.4
+		paso = 0.005 if categoria.unidad == "promedio" else (1.0 if tope > 60.0 else 0.1)
+	var spin := SpinBox.new()
+	spin.min_value = 0.0
+	spin.max_value = maxf(tope, 1.0)
+	spin.step = paso
+	spin.custom_minimum_size = Vector2(88, 0)
+	spin.value_changed.connect(func(valor):
+		SportStatsTracker.fijar_valor(categoria.deporte_id, categoria.id, valor)
+		_recalcular())
+	fila.add_child(spin)
+
+	var etiqueta := Label.new()
+	etiqueta.custom_minimum_size = Vector2(230, 0)
+	etiqueta.clip_text = true
+	fila.add_child(etiqueta)
+
+	_controles_stat[categoria.id] = {"spin": spin, "etiqueta": etiqueta, "categoria": categoria}
+	return fila
+
+func _refrescar_stats() -> void:
+	for categoria_id in _controles_stat:
+		var controles: Dictionary = _controles_stat[categoria_id]
+		var categoria: SportStatCategory = controles["categoria"]
+		var reconocimiento: StringName = SportStatsTracker.reconocimiento_de_categoria(
+			categoria.deporte_id, categoria.id)
+		var etiqueta: Label = controles["etiqueta"]
+		etiqueta.text = "%s  ->  %s" % [categoria.formatear((controles["spin"] as SpinBox).value), reconocimiento]
+		etiqueta.add_theme_color_override("font_color",
+			Color(0.7, 0.9, 0.7) if reconocimiento != &"ninguno" else Color(0.6, 0.6, 0.65))
+	for deporte_id in _etiquetas_deporte:
+		var derivado: StringName = SportStatsTracker.reconocimiento_derivado(deporte_id)
+		var tiene: bool = SportStatsTracker.tiene_stats(deporte_id)
+		(_etiquetas_deporte[deporte_id] as Label).text = "  deriva: %s%s" % [
+			derivado, "" if tiene else "   (sin datos, manda el manual)"]
+
 ## The activity profile the controls currently describe. Activities at zero
 ## years are simply not in it - that IS "not doing it".
 func _perfil_actividades() -> Dictionary:
@@ -360,9 +454,14 @@ func _perfil_actividades() -> Dictionary:
 		var anios: float = (controles["anios"] as SpinBox).value
 		if anios <= 0.0:
 			continue
+		# A sport with numbers on record ignores the dropdown: its recognition
+		# is whatever the benchmarks make of those numbers.
+		var reconocimiento: StringName = (controles["rec"] as OptionButton).get_selected_metadata()
+		if SportStatsTracker.tiene_stats(actividad_id):
+			reconocimiento = SportStatsTracker.reconocimiento_derivado(actividad_id)
 		perfil[actividad_id] = {
 			"anios": anios,
-			"reconocimiento": (controles["rec"] as OptionButton).get_selected_metadata(),
+			"reconocimiento": reconocimiento,
 			"rol": (controles["rol"] as OptionButton).get_selected_metadata(),
 			"impacto": (controles["impacto"] as SpinBox).value,
 		}
@@ -434,6 +533,15 @@ func _recalcular() -> void:
 	for actividad_id in _controles_actividad:
 		if not estados.has(actividad_id):
 			((_controles_actividad[actividad_id] as Dictionary)["etiqueta"] as Label).text = ""
+
+	_refrescar_stats()
+	for actividad_id in _controles_actividad:
+		var actividad: ActivityData = ActivityRegistry.obtener(actividad_id)
+		if actividad and actividad.es_deporte and SportStatsTracker.tiene_stats(actividad_id):
+			var rec: OptionButton = (_controles_actividad[actividad_id] as Dictionary)["rec"]
+			rec.disabled = true
+			rec.selected = ActivityScales.indice_reconocimiento(
+				SportStatsTracker.reconocimiento_derivado(actividad_id))
 
 	_actualizar_presupuesto(estados.keys(), indice)
 

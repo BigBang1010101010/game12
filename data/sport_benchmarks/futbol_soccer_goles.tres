@@ -1,0 +1,25 @@
+[gd_resource type="Resource" script_class="StatBenchmark" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/resources/stat_benchmark.gd" id="1_ben"]
+
+; De donde salen estos umbrales:
+;   En temporadas de 18-22 partidos, 25 goles significa mas de uno por partido, que es el rango de los maximos goleadores estatales; 35 aparece en listas nacionales.
+
+[resource]
+script = ExtResource("1_ben")
+id = &"futbol_soccer_goles"
+categoria_id = &"futbol_soccer_goles"
+bandas = [{
+"valor": 8.0,
+"reconocimiento": &"escolar"
+}, {
+"valor": 15.0,
+"reconocimiento": &"regional"
+}, {
+"valor": 25.0,
+"reconocimiento": &"estatal"
+}, {
+"valor": 35.0,
+"reconocimiento": &"nacional"
+}]
+fuente = "En temporadas de 18-22 partidos, 25 goles significa mas de uno por partido, que es el rango de los maximos goleadores estatales; 35 aparece en listas nacionales."

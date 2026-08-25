@@ -1,0 +1,15 @@
+[gd_resource type="Resource" script_class="SportStatCategory" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/resources/sport_stat_category.gd" id="1_stat"]
+
+; ESTADISTICA REAL DEL DEPORTE, no inventada para el juego.
+;   Carreras impulsadas (RBI) en la temporada.
+
+[resource]
+script = ExtResource("1_stat")
+id = &"beisbol_carreras_impulsadas"
+deporte_id = &"beisbol"
+nombre_display = "Carreras impulsadas"
+unidad = "carreras"
+es_mejor_mayor = true
+orden = 30

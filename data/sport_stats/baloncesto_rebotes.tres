@@ -1,0 +1,15 @@
+[gd_resource type="Resource" script_class="SportStatCategory" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/resources/sport_stat_category.gd" id="1_stat"]
+
+; ESTADISTICA REAL DEL DEPORTE, no inventada para el juego.
+;   Promedio de rebotes por partido.
+
+[resource]
+script = ExtResource("1_stat")
+id = &"baloncesto_rebotes"
+deporte_id = &"baloncesto"
+nombre_display = "Rebotes por juego"
+unidad = "por juego"
+es_mejor_mayor = true
+orden = 30

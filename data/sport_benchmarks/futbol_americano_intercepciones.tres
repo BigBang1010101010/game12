@@ -1,0 +1,25 @@
+[gd_resource type="Resource" script_class="StatBenchmark" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/resources/stat_benchmark.gd" id="1_ben"]
+
+; De donde salen estos umbrales:
+;   Las intercepciones son escasas por naturaleza: seis en una temporada ya es un numero de seleccion estatal para un defensivo secundario.
+
+[resource]
+script = ExtResource("1_ben")
+id = &"futbol_americano_intercepciones"
+categoria_id = &"futbol_americano_intercepciones"
+bandas = [{
+"valor": 2.0,
+"reconocimiento": &"escolar"
+}, {
+"valor": 4.0,
+"reconocimiento": &"regional"
+}, {
+"valor": 6.0,
+"reconocimiento": &"estatal"
+}, {
+"valor": 9.0,
+"reconocimiento": &"nacional"
+}]
+fuente = "Las intercepciones son escasas por naturaleza: seis en una temporada ya es un numero de seleccion estatal para un defensivo secundario."

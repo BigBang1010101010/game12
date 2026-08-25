@@ -1,0 +1,25 @@
+[gd_resource type="Resource" script_class="StatBenchmark" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/resources/stat_benchmark.gd" id="1_ben"]
+
+; De donde salen estos umbrales:
+;   Con bate de aluminio y temporadas de 25-30 partidos, diez jonrones es una cifra de seleccion estatal y quince aparece en rankings nacionales de bateadores de poder.
+
+[resource]
+script = ExtResource("1_ben")
+id = &"beisbol_jonrones"
+categoria_id = &"beisbol_jonrones"
+bandas = [{
+"valor": 3.0,
+"reconocimiento": &"escolar"
+}, {
+"valor": 6.0,
+"reconocimiento": &"regional"
+}, {
+"valor": 10.0,
+"reconocimiento": &"estatal"
+}, {
+"valor": 15.0,
+"reconocimiento": &"nacional"
+}]
+fuente = "Con bate de aluminio y temporadas de 25-30 partidos, diez jonrones es una cifra de seleccion estatal y quince aparece en rankings nacionales de bateadores de poder."

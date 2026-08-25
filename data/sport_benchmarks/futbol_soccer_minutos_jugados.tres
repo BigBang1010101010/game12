@@ -1,0 +1,20 @@
+[gd_resource type="Resource" script_class="StatBenchmark" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/resources/stat_benchmark.gd" id="1_ben"]
+
+; De donde salen estos umbrales:
+;   Jugar mucho demuestra que eres titular y que aguantas la temporada, no que seas de elite: por eso esta estadistica se detiene en 'regional' y nunca deriva un reconocimiento estatal o nacional por si sola.
+;   Es el contraejemplo deliberado del sistema.
+
+[resource]
+script = ExtResource("1_ben")
+id = &"futbol_soccer_minutos_jugados"
+categoria_id = &"futbol_soccer_minutos_jugados"
+bandas = [{
+"valor": 600.0,
+"reconocimiento": &"escolar"
+}, {
+"valor": 1200.0,
+"reconocimiento": &"regional"
+}]
+fuente = "Jugar mucho demuestra que eres titular y que aguantas la temporada, no que seas de elite: por eso esta estadistica se detiene en 'regional' y nunca deriva un reconocimiento estatal o nacional por si sola. Es el contraejemplo deliberado del sistema."

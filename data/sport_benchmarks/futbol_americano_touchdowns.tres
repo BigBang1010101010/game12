@@ -1,0 +1,25 @@
+[gd_resource type="Resource" script_class="StatBenchmark" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/resources/stat_benchmark.gd" id="1_ben"]
+
+; De donde salen estos umbrales:
+;   Doce touchdowns es una temporada solida de titular; veinte es lo que suele acompanar a una seleccion estatal; treinta es un numero que sale en prensa nacional.
+
+[resource]
+script = ExtResource("1_ben")
+id = &"futbol_americano_touchdowns"
+categoria_id = &"futbol_americano_touchdowns"
+bandas = [{
+"valor": 5.0,
+"reconocimiento": &"escolar"
+}, {
+"valor": 12.0,
+"reconocimiento": &"regional"
+}, {
+"valor": 20.0,
+"reconocimiento": &"estatal"
+}, {
+"valor": 30.0,
+"reconocimiento": &"nacional"
+}]
+fuente = "Doce touchdowns es una temporada solida de titular; veinte es lo que suele acompanar a una seleccion estatal; treinta es un numero que sale en prensa nacional."

@@ -22,6 +22,13 @@ var _estado: Dictionary = {}
 
 func _ready() -> void:
 	process_mode = Node.PROCESS_MODE_ALWAYS
+	# A new personal best can promote a ladder on the spot: the numbers move
+	# the recognition, and the recognition is a lever.
+	SportStatsTracker.reconocimiento_cambiado.connect(_on_reconocimiento_derivado)
+
+func _on_reconocimiento_derivado(deporte_id: StringName, _antes: StringName, _despues: StringName) -> void:
+	if esta_activa(deporte_id):
+		_revisar_ascensos(ActivityRegistry.obtener(deporte_id))
 
 # --- Enrolment ---------------------------------------------------------------
 
@@ -96,6 +103,14 @@ func invertir_tiempo(actividad_id: StringName, horas: float, contexto: Dictionar
 ## final, a state title. Only ever moves up: losing a title you already won is
 ## not a thing.
 func fijar_reconocimiento(actividad_id: StringName, reconocimiento: StringName) -> int:
+	# For a sport that has posted numbers, recognition is NOT settable: it is
+	# whatever the benchmarks say those numbers are worth. Refusing here rather
+	# than silently letting the manual value be ignored is what keeps the two
+	# paths from disagreeing.
+	if SportStatsTracker.tiene_stats(actividad_id):
+		push_warning(("ActivityTracker: '%s' es un deporte con estadisticas registradas, " +
+			"asi que su reconocimiento se deriva de ellas y no se fija a mano") % actividad_id)
+		return 0
 	return _subir_escala(actividad_id, "reconocimiento", reconocimiento,
 		ActivityScales.indice_reconocimiento(reconocimiento), "reconocimiento")
 
@@ -136,7 +151,7 @@ func _revisar_ascensos(actividad: ActivityData) -> int:
 	var ganados := 0
 	while estado["nivel_indice"] + 1 < niveles.size():
 		var siguiente: ActivityLevel = niveles[estado["nivel_indice"] + 1]
-		if not cumple_ascenso(siguiente, estado):
+		if not cumple_ascenso(siguiente, estado, actividad.id):
 			break
 		estado["nivel_indice"] += 1
 		ganados += 1
@@ -158,18 +173,34 @@ func _pagar_nivel(actividad: ActivityData, nivel: ActivityLevel, estado: Diction
 			"base": float(nivel.modificadores_atributo[atributo_id]),
 		})
 
+## The recognition that actually counts for an activity.
+##
+## For a sport with statistics on record it is DERIVED from them - a rower is
+## state level because of their 2k, not because anybody said so. For everything
+## else, and for a sport nobody has posted numbers for yet, it is the value the
+## state carries. That fallback is what keeps saved games and the calibration
+## lab working: the moment a real number exists, the number wins.
+func reconocimiento_efectivo(actividad_id: StringName, estado: Dictionary = {}) -> StringName:
+	if SportStatsTracker.tiene_stats(actividad_id):
+		return SportStatsTracker.reconocimiento_derivado(actividad_id)
+	var e: Dictionary = estado if not estado.is_empty() else obtener_estado(actividad_id)
+	return e.get("reconocimiento", &"ninguno")
+
 ## True when every lever a level asks for has been pulled far enough.
-func cumple_ascenso(nivel: ActivityLevel, estado: Dictionary) -> bool:
+func cumple_ascenso(nivel: ActivityLevel, estado: Dictionary, actividad_id: StringName = &"") -> bool:
 	for condicion in nivel.condiciones_ascenso:
-		if not _cumple_palanca(condicion, estado):
+		if not _cumple_palanca(condicion, estado, actividad_id):
 			return false
 	return true
 
-func _cumple_palanca(condicion: Dictionary, estado: Dictionary) -> bool:
+func _cumple_palanca(condicion: Dictionary, estado: Dictionary, actividad_id: StringName = &"") -> bool:
 	match String(condicion.get("palanca", "")):
 		"reconocimiento_externo":
 			var pedido: int = ActivityScales.indice_reconocimiento(StringName(condicion.get("valor", &"")))
-			return pedido >= 0 and ActivityScales.indice_reconocimiento(estado["reconocimiento"]) >= pedido
+			var actual: StringName = estado.get("reconocimiento", &"ninguno")
+			if actividad_id != &"" and SportStatsTracker.tiene_stats(actividad_id):
+				actual = SportStatsTracker.reconocimiento_derivado(actividad_id)
+			return pedido >= 0 and ActivityScales.indice_reconocimiento(actual) >= pedido
 		"rol_liderazgo":
 			var pedido_rol: int = ActivityScales.indice_rol(StringName(condicion.get("valor", &"")))
 			return pedido_rol >= 0 and ActivityScales.indice_rol(estado["rol"]) >= pedido_rol
@@ -221,7 +252,8 @@ func es_reclutable(actividad_id: StringName, indice_academico: float = -1.0, est
 	if not actividad or not actividad.es_deporte:
 		return false
 	var e: Dictionary = estado if not estado.is_empty() else obtener_estado(actividad_id)
-	if ActivityScales.indice_reconocimiento(e.get("reconocimiento", &"ninguno")) < actividad.umbral_reclutamiento:
+	var alcance: StringName = reconocimiento_efectivo(actividad_id, e)
+	if ActivityScales.indice_reconocimiento(alcance) < actividad.umbral_reclutamiento:
 		return false
 	var indice: float = indice_academico if indice_academico >= 0.0 else AcademicIndex.valor()
 	return indice >= float(actividad.academic_index_minimo)
@@ -262,7 +294,7 @@ func simular_perfil(perfil: Dictionary, valores_base: Dictionary = {}) -> Dictio
 		var propios: Dictionary = {}
 		var niveles: Array[ActivityLevel] = actividad.obtener_niveles()
 		var indice := -1
-		while indice + 1 < niveles.size() and cumple_ascenso(niveles[indice + 1], estado):
+		while indice + 1 < niveles.size() and cumple_ascenso(niveles[indice + 1], estado, actividad.id):
 			indice += 1
 			for atributo_id in niveles[indice].modificadores_atributo:
 				var puntos: float = float(niveles[indice].modificadores_atributo[atributo_id]) * multiplicador

@@ -65,7 +65,10 @@ func detalle_desde_estados(estados: Dictionary, indice_academico: float = -1.0) 
 			# Carried so the admission calculator can re-check the recruitment
 			# gates against ITS own Academic Index instead of trusting one
 			# computed here.
-			"reconocimiento": estado.get("reconocimiento", &"ninguno"),
+			# Effective, not stored: for a sport with statistics this is what
+			# the numbers earned, which is what the admission calculator has to
+			# re-check its recruitment gates against.
+			"reconocimiento": ActivityTracker.reconocimiento_efectivo(actividad.id, estado),
 			"rol": estado.get("rol", &"miembro"),
 			"es_deporte": actividad.es_deporte,
 			"reclutable": ActivityTracker.es_reclutable(actividad.id, indice_academico, estado),

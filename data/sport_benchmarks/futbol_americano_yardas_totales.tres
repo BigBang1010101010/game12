@@ -1,0 +1,25 @@
+[gd_resource type="Resource" script_class="StatBenchmark" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/resources/stat_benchmark.gd" id="1_ben"]
+
+; De donde salen estos umbrales:
+;   Las 1000 yardas de temporada son el hito clasico que separa a un titular de un jugador destacado, igual que en la NFL; 1500 es territorio de seleccion estatal y 2000 aparece en las listas nacionales de cada ano.
+
+[resource]
+script = ExtResource("1_ben")
+id = &"futbol_americano_yardas_totales"
+categoria_id = &"futbol_americano_yardas_totales"
+bandas = [{
+"valor": 500.0,
+"reconocimiento": &"escolar"
+}, {
+"valor": 1000.0,
+"reconocimiento": &"regional"
+}, {
+"valor": 1500.0,
+"reconocimiento": &"estatal"
+}, {
+"valor": 2000.0,
+"reconocimiento": &"nacional"
+}]
+fuente = "Las 1000 yardas de temporada son el hito clasico que separa a un titular de un jugador destacado, igual que en la NFL; 1500 es territorio de seleccion estatal y 2000 aparece en las listas nacionales de cada ano."

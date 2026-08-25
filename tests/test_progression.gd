@@ -42,6 +42,9 @@ func _run() -> void:
 	_credito_nunca_aprueba_mas_del_maximo()
 	_dinero_familia_respeta_las_categorias()
 	_asesoria_nunca_revela_el_valor_exacto()
+	_estadisticas_deportivas_son_coherentes()
+	_benchmarks_derivan_reconocimiento_en_los_extremos()
+	_reconocimiento_deportivo_se_deriva_de_los_numeros()
 	_ledger_conserva_totales()
 
 	print("")
@@ -64,7 +67,9 @@ func _registros_cargan_sin_errores() -> void:
 			["universidades", UniversityRegistry], ["carreras", CareerRegistry],
 			["ensayos", EssayRegistry], ["actividades", ActivityRegistry],
 			["ubicaciones", LocationRegistry], ["padres", ParentRegistry],
-			["regalos", GiftRegistry]]:
+			["regalos", GiftRegistry], ["categorias de gasto", SpendingRegistry],
+			["asesorias", ConsultingRegistry], ["estadisticas", SportStatRegistry],
+			["benchmarks", StatBenchmarkRegistry]]:
 		var registro: ResourceRegistry = par[1]
 		var errores: PackedStringArray = registro.obtener_errores()
 		_verificar(errores.is_empty(), "%s reporto errores: %s" % [par[0], ", ".join(errores)])
@@ -950,3 +955,157 @@ func _asesoria_nunca_revela_el_valor_exacto() -> void:
 			"'%s' no es mas preciso que el tier anterior" % tier.id)
 		margen_previo = tier.margen_error
 	print("asesoria:       %d tiers, ninguno revela un valor exacto, todos respetan su margen y el ranking real" % ConsultingRegistry.contar())
+
+# --- Sport statistics ---------------------------------------------------------
+
+## Every statistic must belong to a real sport, declare its direction, and -
+## if it drives recognition - have bands that climb.
+func _estadisticas_deportivas_son_coherentes() -> void:
+	var invertidas := 0
+	for categoria_res in SportStatRegistry.obtener_todos():
+		var categoria: SportStatCategory = categoria_res
+		_verificar(categoria.validar().is_empty(),
+			"estadistica '%s': %s" % [categoria.id, ", ".join(categoria.validar())])
+		var actividad: ActivityData = ActivityRegistry.obtener(categoria.deporte_id)
+		_verificar(actividad != null and actividad.es_deporte,
+			"estadistica '%s' cuelga de '%s', que no es un deporte" % [categoria.id, categoria.deporte_id])
+		if not categoria.es_mejor_mayor:
+			invertidas += 1
+	# The reversed ones are the interesting case; if none existed, the
+	# direction flag would never be exercised.
+	_verificar(invertidas > 0,
+		"ninguna estadistica es de 'menor es mejor': el sentido de las bandas nunca se probaria")
+
+	for benchmark_res in StatBenchmarkRegistry.obtener_todos():
+		var benchmark: StatBenchmark = benchmark_res
+		_verificar(benchmark.validar().is_empty(),
+			"benchmark '%s': %s" % [benchmark.id, ", ".join(benchmark.validar())])
+		var categoria: SportStatCategory = SportStatRegistry.obtener(benchmark.categoria_id)
+		_verificar(categoria != null, "benchmark '%s' lee una estadistica inexistente" % benchmark.id)
+		if not categoria:
+			continue
+		# The band values themselves must move in the direction the statistic
+		# declares, or a better performance would earn LESS recognition.
+		var anterior: float = benchmark.bandas[0]["valor"]
+		for i in range(1, benchmark.bandas.size()):
+			var actual: float = benchmark.bandas[i]["valor"]
+			if categoria.es_mejor_mayor:
+				_verificar(actual > anterior,
+					"'%s': las bandas no suben pese a que mas es mejor (%.3f tras %.3f)" % [
+						benchmark.id, actual, anterior])
+			else:
+				_verificar(actual < anterior,
+					"'%s': las bandas no bajan pese a que menos es mejor (%.3f tras %.3f)" % [
+						benchmark.id, actual, anterior])
+			anterior = actual
+	print("estadisticas:   %d categorias en %d deportes, %d con bandas, %d de 'menor es mejor'" % [
+		SportStatRegistry.contar(), SportStatRegistry.deportes_con_estadisticas().size(),
+		StatBenchmarkRegistry.contar(), invertidas])
+
+## THE check: the bands have to answer correctly at both ends. A performance
+## below the first band earns nothing; an elite one earns the top band of that
+## statistic. Run over every benchmark, so a sport added later is covered.
+func _benchmarks_derivan_reconocimiento_en_los_extremos() -> void:
+	SportStatsTracker.reiniciar()
+	for benchmark_res in StatBenchmarkRegistry.obtener_todos():
+		var benchmark: StatBenchmark = benchmark_res
+		var categoria: SportStatCategory = SportStatRegistry.obtener(benchmark.categoria_id)
+		if not categoria:
+			continue
+		var primera: float = float(benchmark.bandas[0]["valor"])
+		var ultima: float = float(benchmark.bandas[benchmark.bandas.size() - 1]["valor"])
+		var techo: StringName = StringName(benchmark.bandas[benchmark.bandas.size() - 1]["reconocimiento"])
+
+		# Just short of the first band: nothing.
+		var flojo: float = primera * 0.5 if categoria.es_mejor_mayor else primera * 2.0
+		_verificar(benchmark.reconocimiento_para(flojo, categoria.es_mejor_mayor) == &"ninguno",
+			"'%s': una marca de %s (peor que la primera banda) ya daba reconocimiento" % [
+				benchmark.id, categoria.formatear(flojo)])
+
+		# Comfortably past the last: the top band of this statistic.
+		var elite: float = ultima * 1.5 if categoria.es_mejor_mayor else ultima * 0.5
+		_verificar(benchmark.reconocimiento_para(elite, categoria.es_mejor_mayor) == techo,
+			"'%s': una marca de elite (%s) dio '%s' en vez de '%s'" % [
+				benchmark.id, categoria.formatear(elite),
+				benchmark.reconocimiento_para(elite, categoria.es_mejor_mayor), techo])
+
+		# Exactly on a threshold counts as reaching it - the boundary case that
+		# decides whether ".400 exactly" is state level or not.
+		for banda in benchmark.bandas:
+			var justo: float = float(banda["valor"])
+			var derivado: StringName = benchmark.reconocimiento_para(justo, categoria.es_mejor_mayor)
+			_verificar(ActivityScales.indice_reconocimiento(derivado)
+					>= ActivityScales.indice_reconocimiento(StringName(banda["reconocimiento"])),
+				"'%s': clavar el umbral %s no alcanzo '%s'" % [
+					benchmark.id, categoria.formatear(justo), banda["reconocimiento"]])
+
+		# And the derivation must be monotone: better never earns less.
+		var anterior_indice := -1
+		for paso in range(0, 12):
+			var valor: float = lerpf(flojo, elite, float(paso) / 11.0)
+			var indice: int = ActivityScales.indice_reconocimiento(
+				benchmark.reconocimiento_para(valor, categoria.es_mejor_mayor))
+			_verificar(indice >= anterior_indice,
+				"'%s': mejorar la marca bajo el reconocimiento (%s)" % [
+					benchmark.id, categoria.formatear(valor)])
+			anterior_indice = indice
+	print("benchmarks:     %d tablas, extremos y umbrales exactos correctos, derivacion monotona" % [
+		StatBenchmarkRegistry.contar()])
+
+## The connection the whole system exists for: numbers move the ladder.
+func _reconocimiento_deportivo_se_deriva_de_los_numeros() -> void:
+	PlayerState.reiniciar()
+	ActivityTracker.reiniciar()
+	SportStatsTracker.reiniciar()
+
+	# Pick a sport that HAS statistics, from the data.
+	var deporte_id: StringName = SportStatRegistry.deportes_con_estadisticas()[0]
+	var deporte: ActivityData = ActivityRegistry.obtener(deporte_id)
+	var categorias: Array[Resource] = SportStatRegistry.obtener_por_deporte(deporte_id)
+	var categoria: SportStatCategory = categorias[0]
+	var benchmark: StatBenchmark = StatBenchmarkRegistry.para_categoria(categoria.id)
+
+	ActivityTracker.inscribir(deporte_id)
+	ActivityTracker.invertir_tiempo(deporte_id, 4.0 * float(deporte.costo_horas_semana) * 36.0)
+	ActivityTracker.fijar_rol(deporte_id, &"oficial")
+
+	# Without numbers, the manual value is still what counts.
+	_verificar(ActivityTracker.reconocimiento_efectivo(deporte_id) == &"ninguno",
+		"sin estadisticas el reconocimiento deberia ser el del estado (ninguno)")
+	_verificar(ActivityTracker.fijar_reconocimiento(deporte_id, &"escolar") >= 0,
+		"sin estadisticas, fijar el reconocimiento a mano deberia seguir permitido")
+
+	# Post an elite number: recognition is now DERIVED, and the manual setter
+	# refuses to touch it.
+	var ultima: float = float(benchmark.bandas[benchmark.bandas.size() - 1]["valor"])
+	var elite: float = ultima * 1.5 if categoria.es_mejor_mayor else ultima * 0.5
+	var registro: Dictionary = SportStatsTracker.registrar_resultado_minijuego(deporte_id, categoria.id, elite)
+	_verificar(registro["exito"] and registro["mejoro"], "no se registro el resultado del minijuego")
+	var derivado: StringName = ActivityTracker.reconocimiento_efectivo(deporte_id)
+	_verificar(derivado == StringName(benchmark.bandas[benchmark.bandas.size() - 1]["reconocimiento"]),
+		"'%s': el reconocimiento efectivo (%s) no es el que derivan las bandas" % [deporte_id, derivado])
+	_verificar(ActivityTracker.fijar_reconocimiento(deporte_id, &"internacional") == 0,
+		"se pudo fijar a mano el reconocimiento de un deporte con estadisticas")
+	_verificar(ActivityTracker.reconocimiento_efectivo(deporte_id) == derivado,
+		"el intento manual cambio el reconocimiento derivado")
+
+	# A worse result does not erase a personal best.
+	var flojo: float = float(benchmark.bandas[0]["valor"]) * (0.5 if categoria.es_mejor_mayor else 2.0)
+	var peor: Dictionary = SportStatsTracker.registrar_resultado_minijuego(deporte_id, categoria.id, flojo)
+	_verificar(not peor["mejoro"], "un mal resultado sobrescribio la mejor marca")
+	_verificar(ActivityTracker.reconocimiento_efectivo(deporte_id) == derivado,
+		"un mal resultado bajo el reconocimiento ya ganado")
+
+	# The ladder actually moved, and the recruitment gate opened with it.
+	var estado: Dictionary = ActivityTracker.obtener_estado(deporte_id)
+	_verificar(estado["nivel_indice"] >= 0, "el deporte no acredito ningun nivel")
+	var alcanzo_umbral: bool = ActivityScales.indice_reconocimiento(derivado) >= deporte.umbral_reclutamiento
+	_verificar(ActivityTracker.es_reclutable(deporte_id, 240.0) == alcanzo_umbral,
+		"'%s': la compuerta de reclutamiento no siguio al reconocimiento derivado" % deporte_id)
+
+	# And it is all in the ledger, from the performance to the level.
+	var entradas: Array[Dictionary] = PlayerState.consultar_ledger({
+		"atributo": StringName("stat_" + String(categoria.id))})
+	_verificar(not entradas.is_empty(), "la estadistica registrada no quedo en el ledger")
+	print("deporte->stats: '%s' llego a '%s' por su marca de %s, la escalera subio a nivel %d y el manual quedo bloqueado" % [
+		deporte_id, derivado, categoria.formatear(elite), estado["nivel_indice"]])

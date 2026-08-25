@@ -1,0 +1,29 @@
+[gd_resource type="Resource" script_class="StatBenchmark" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/resources/stat_benchmark.gd" id="1_ben"]
+
+; De donde salen estos umbrales:
+;   El 2k de ergometro es literalmente el numero que un entrenador universitario pide primero, porque es comparable entre atletas sin ver ninguna regata.
+;   6:30 (390 s) esta en el rango en el que un programa Ivy empieza a mirar a un remero de secundaria; 6:15 (375 s) es de reclutamiento serio y bajar de 6:00 (360 s) es nivel de seleccion junior.
+
+[resource]
+script = ExtResource("1_ben")
+id = &"remo_tiempo_2000m"
+categoria_id = &"remo_tiempo_2000m"
+bandas = [{
+"valor": 430.0,
+"reconocimiento": &"escolar"
+}, {
+"valor": 410.0,
+"reconocimiento": &"regional"
+}, {
+"valor": 390.0,
+"reconocimiento": &"estatal"
+}, {
+"valor": 375.0,
+"reconocimiento": &"nacional"
+}, {
+"valor": 360.0,
+"reconocimiento": &"internacional"
+}]
+fuente = "El 2k de ergometro es literalmente el numero que un entrenador universitario pide primero, porque es comparable entre atletas sin ver ninguna regata. 6:30 (390 s) esta en el rango en el que un programa Ivy empieza a mirar a un remero de secundaria; 6:15 (375 s) es de reclutamiento serio y bajar de 6:00 (360 s) es nivel de seleccion junior."

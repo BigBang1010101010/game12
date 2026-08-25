@@ -1,0 +1,16 @@
+[gd_resource type="Resource" script_class="SportStatCategory" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/resources/sport_stat_category.gd" id="1_stat"]
+
+; ESTADISTICA REAL DEL DEPORTE, no inventada para el juego.
+;   Minutos totales disputados en la temporada.
+;   Su techo de banda es REGIONAL a proposito.
+
+[resource]
+script = ExtResource("1_stat")
+id = &"futbol_soccer_minutos_jugados"
+deporte_id = &"futbol_soccer"
+nombre_display = "Minutos jugados"
+unidad = "minutos"
+es_mejor_mayor = true
+orden = 30

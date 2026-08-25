@@ -1,0 +1,28 @@
+[gd_resource type="Resource" script_class="StatBenchmark" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/resources/stat_benchmark.gd" id="1_ben"]
+
+; De donde salen estos umbrales:
+;   El squash junior tambien se ordena por ranking nacional y tiene una base de jugadores todavia menor que la esgrima, por eso sus cortes son mas estrechos: el top 75 ya interesa a los programas universitarios, que son pocos y muy concentrados.
+
+[resource]
+script = ExtResource("1_ben")
+id = &"squash_ranking_nacional"
+categoria_id = &"squash_ranking_nacional"
+bandas = [{
+"valor": 300.0,
+"reconocimiento": &"escolar"
+}, {
+"valor": 150.0,
+"reconocimiento": &"regional"
+}, {
+"valor": 75.0,
+"reconocimiento": &"estatal"
+}, {
+"valor": 24.0,
+"reconocimiento": &"nacional"
+}, {
+"valor": 6.0,
+"reconocimiento": &"internacional"
+}]
+fuente = "El squash junior tambien se ordena por ranking nacional y tiene una base de jugadores todavia menor que la esgrima, por eso sus cortes son mas estrechos: el top 75 ya interesa a los programas universitarios, que son pocos y muy concentrados."

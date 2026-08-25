@@ -4,8 +4,8 @@
 [ext_resource type="Script" path="res://scripts/resources/activity_level.gd" id="2_niv"]
 
 ; RAZONAMIENTO
-;   Umbral NACIONAL: son los deportes con mas practicantes del pais y, en atletismo, con marcas absolutas y publicas que no admiten interpretacion.
-;   Ser bueno en el estado no distingue a nadie.
+;   Umbral ESTATAL, mas bajo que el del baloncesto o el futbol: el beisbol universitario tiene rosters grandes, el circuito de scouting de secundaria es denso y las Ivies reclutan de forma sostenida en el noreste
+;   Es tambien el deporte con las estadisticas mas ricas del catalogo - cuatro categorias, dos de bateo y dos de pitcheo - que es justo lo que lo hace el mejor banco de pruebas del sistema estadistico.
 
 [sub_resource type="Resource" id="Nivel0"]
 script = ExtResource("2_niv")
@@ -39,7 +39,7 @@ condiciones_ascenso = [{
 
 [sub_resource type="Resource" id="Nivel2"]
 script = ExtResource("2_niv")
-nombre = "Capitán / nivel estatal"
+nombre = "Capitán / nivel regional"
 tier = 2
 modificadores_atributo = {
 &"logro_atletico": 8.00,
@@ -52,7 +52,7 @@ condiciones_ascenso = [{
 "valor": 2.0
 }, {
 "palanca": "reconocimiento_externo",
-"valor": &"estatal"
+"valor": &"regional"
 }, {
 "palanca": "rol_liderazgo",
 "valor": &"miembro"
@@ -60,7 +60,7 @@ condiciones_ascenso = [{
 
 [sub_resource type="Resource" id="Nivel3"]
 script = ExtResource("2_niv")
-nombre = "Nivel de reclutamiento (nacional)"
+nombre = "Nivel de reclutamiento (estatal)"
 tier = 1
 modificadores_atributo = {
 &"logro_atletico": 12.00,
@@ -73,7 +73,7 @@ condiciones_ascenso = [{
 "valor": 3.0
 }, {
 "palanca": "reconocimiento_externo",
-"valor": &"nacional"
+"valor": &"estatal"
 }, {
 "palanca": "rol_liderazgo",
 "valor": &"oficial"
@@ -81,14 +81,14 @@ condiciones_ascenso = [{
 
 [resource]
 script = ExtResource("1_act")
-id = &"futbol_basquet_atletismo"
-nombre_display = "Fútbol / baloncesto / atletismo"
-descripcion = "Los deportes de mayor participación, con circuito estatal y nacional."
+id = &"beisbol"
+nombre_display = "Béisbol"
+descripcion = "Temporada de béisbol con estadísticas de bateo y de pitcheo."
 categoria = &"deporte"
 tier_techo = 1
-costo_horas_semana = 18
+costo_horas_semana = 16
 niveles = [SubResource("Nivel0"), SubResource("Nivel1"), SubResource("Nivel2"), SubResource("Nivel3")]
 carreras_afinidad = {}
 es_deporte = true
-umbral_reclutamiento = 4
+umbral_reclutamiento = 3
 academic_index_minimo = 176

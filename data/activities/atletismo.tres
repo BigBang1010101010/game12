@@ -1,0 +1,93 @@
+[gd_resource type="Resource" script_class="ActivityData" load_steps=7 format=3]
+
+[ext_resource type="Script" path="res://scripts/resources/activity_data.gd" id="1_act"]
+[ext_resource type="Script" path="res://scripts/resources/activity_level.gd" id="2_niv"]
+
+; RAZONAMIENTO
+;   Umbral NACIONAL y el caso mas duro de todos: las marcas son absolutas, publicas y comparables en todo el pais, asi que no hay interpretacion posible de lo bueno que eres.
+
+[sub_resource type="Resource" id="Nivel0"]
+script = ExtResource("2_niv")
+nombre = "Miembro del equipo"
+tier = 4
+modificadores_atributo = {
+&"logro_atletico": 5.00,
+&"resiliencia": 3.00,
+&"liderazgo": 3.00,
+&"bienestar": 2.00
+}
+condiciones_ascenso = []
+
+[sub_resource type="Resource" id="Nivel1"]
+script = ExtResource("2_niv")
+nombre = "Titular"
+tier = 3
+modificadores_atributo = {
+&"logro_atletico": 6.00,
+&"resiliencia": 4.00,
+&"liderazgo": 4.00,
+&"bienestar": 3.00
+}
+condiciones_ascenso = [{
+"palanca": "anios_continuidad",
+"valor": 1.0
+}, {
+"palanca": "reconocimiento_externo",
+"valor": &"escolar"
+}]
+
+[sub_resource type="Resource" id="Nivel2"]
+script = ExtResource("2_niv")
+nombre = "Capitán / nivel estatal"
+tier = 2
+modificadores_atributo = {
+&"logro_atletico": 8.00,
+&"resiliencia": 6.00,
+&"liderazgo": 6.00,
+&"bienestar": 4.00
+}
+condiciones_ascenso = [{
+"palanca": "anios_continuidad",
+"valor": 2.0
+}, {
+"palanca": "reconocimiento_externo",
+"valor": &"estatal"
+}, {
+"palanca": "rol_liderazgo",
+"valor": &"miembro"
+}]
+
+[sub_resource type="Resource" id="Nivel3"]
+script = ExtResource("2_niv")
+nombre = "Nivel de reclutamiento (nacional)"
+tier = 1
+modificadores_atributo = {
+&"logro_atletico": 12.00,
+&"resiliencia": 9.00,
+&"liderazgo": 9.00,
+&"bienestar": 6.00
+}
+condiciones_ascenso = [{
+"palanca": "anios_continuidad",
+"valor": 3.0
+}, {
+"palanca": "reconocimiento_externo",
+"valor": &"nacional"
+}, {
+"palanca": "rol_liderazgo",
+"valor": &"oficial"
+}]
+
+[resource]
+script = ExtResource("1_act")
+id = &"atletismo"
+nombre_display = "Atletismo"
+descripcion = "Pista y campo, con marcas oficiales."
+categoria = &"deporte"
+tier_techo = 1
+costo_horas_semana = 14
+niveles = [SubResource("Nivel0"), SubResource("Nivel1"), SubResource("Nivel2"), SubResource("Nivel3")]
+carreras_afinidad = {}
+es_deporte = true
+umbral_reclutamiento = 4
+academic_index_minimo = 176
