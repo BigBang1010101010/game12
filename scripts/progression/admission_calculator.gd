@@ -38,23 +38,30 @@ extends Node
 ##      it was sustained (continuity). An activity unrelated to the career
 ##      applied to contributes nothing here - it already paid in attributes.
 ##
-##   6. atletico = B_a, but ONLY for an athlete who is actually recruitable:
+##   6. universal = W_u * (Sigma boost_i * peso_tier_i * continuidad_i) / ref
+##      Some support does not point at a field. Paid work is the case the real
+##      data shows: in Common Data Set C7 all eight Ivies mark work experience
+##      as CONSIDERED, so it lands identically everywhere. It is therefore a
+##      term of its own rather than an affinity, and any activity can join it
+##      by declaring boost_universal in its own file.
+##
+##   7. atletico = B_a, but ONLY for an athlete who is actually recruitable:
 ##      recognition at or above the sport's own bar AND an Academic Index at
 ##      or above the sport's own floor. Both gates, always. A state champion
 ##      with a weak record is not recruited in the Ivy League, and neither is
 ##      a strong student who merely plays. When a gate fails, the term is zero
 ##      and the result says which gate, so the game can tell the player.
 ##
-##   7. penalizacion_indice = P_i * (deficit_indice) ^ E_i
+##   8. penalizacion_indice = P_i * (deficit_indice) ^ E_i
 ##      Distance below the floor that applies to THIS applicant - the athletic
 ##      floor when recruited, the competitive one otherwise - as a fraction of
 ##      the scale, raised to a power. Same convex shape as the attribute
 ##      thresholds, for the same reason.
 ##
-##   8. S = fit + ensayo + carrera + actividades + atletico
+##   9. S = fit + ensayo + carrera + actividades + universal + atletico
 ##          - umbrales - penalizacion_indice
 ##
-##   9. odds = (base / (1 - base)) * exp(K * (S - S_ref))
+##  10. odds = (base / (1 - base)) * exp(K * (S - S_ref))
 ##      p    = odds / (1 + odds)
 ##      An odds-ratio (logistic) model on top of the school's REAL published
 ##      rate. A player exactly at S_ref gets exactly the published rate, which
@@ -68,7 +75,7 @@ extends Node
 ##   real difference between the two rates at that specific school.
 
 ## Bump when the formula changes shape, so past calibrations stay comparable.
-const FORMULA_VERSION := 2
+const FORMULA_VERSION := 3
 
 var _config: AdmissionConfig = null
 
@@ -210,7 +217,33 @@ func calcular_probabilidad(universidad_id: StringName, carrera_id: StringName, e
 	resultado.efecto_actividades = _config.peso_actividades * normalizada
 	resultado.aportes_actividad = aportes
 
-	# --- 6. The athletic route ----------------------------------------------
+	# --- 6. Support that lands the same everywhere --------------------------
+	var fuerza_universal := 0.0
+	var universales: Array[Dictionary] = []
+	for entrada in actividades:
+		var actividad_u: ActivityData = ActivityRegistry.obtener(entrada.get("actividad_id", &""))
+		if not actividad_u or is_zero_approx(actividad_u.boost_universal):
+			continue
+		var tier_u: int = int(entrada.get("tier", 5))
+		if tier_u > 4:
+			continue
+		var aporte_u: float = (actividad_u.boost_universal * (float(5 - tier_u) / 4.0)
+			* float(entrada.get("continuidad", 1.0)))
+		fuerza_universal += aporte_u
+		universales.append({
+			"actividad_id": actividad_u.id,
+			"nombre": actividad_u.nombre_display,
+			"tier": tier_u,
+			"boost": actividad_u.boost_universal,
+			"aporte": aporte_u,
+		})
+	universales.sort_custom(func(a, b): return a["aporte"] > b["aporte"])
+	resultado.fuerza_universal = fuerza_universal
+	resultado.aportes_universales = universales
+	resultado.efecto_universal = _config.peso_boost_universal * clampf(
+		fuerza_universal / maxf(_config.boost_universal_referencia, 0.0001), 0.0, 1.5)
+
+	# --- 7. The athletic route ----------------------------------------------
 	var reclutado := false
 	var fallidos: Array[Dictionary] = []
 	for entrada in actividades:
@@ -237,7 +270,7 @@ func calcular_probabilidad(universidad_id: StringName, carrera_id: StringName, e
 	resultado.efecto_atletico = _config.bonus_atletico if reclutado else 0.0
 	resultado.deportes_no_reclutables = fallidos
 
-	# --- 7. Academic Index floor --------------------------------------------
+	# --- 8. Academic Index floor --------------------------------------------
 	var umbral_indice: float = _config.umbral_indice_atletico if reclutado else _config.umbral_indice_competitivo
 	resultado.umbral_indice = umbral_indice
 	var penalizacion_indice := 0.0
@@ -247,13 +280,13 @@ func calcular_probabilidad(universidad_id: StringName, carrera_id: StringName, e
 		penalizacion_indice = _config.peso_indice * pow(deficit, _config.exponente_indice)
 	resultado.penalizacion_indice = penalizacion_indice
 
-	# --- 8. Combined score --------------------------------------------------
+	# --- 9. Combined score --------------------------------------------------
 	var puntaje: float = (fit + efecto_ensayo + resultado.efecto_carrera + resultado.efecto_ajuste_carrera
-		+ resultado.efecto_actividades + resultado.efecto_atletico
+		+ resultado.efecto_actividades + resultado.efecto_universal + resultado.efecto_atletico
 		- penalizacion - penalizacion_indice)
 	resultado.puntaje_final = puntaje
 
-	# --- 9. Odds-ratio mapping onto the school's real published rate --------
+	# --- 10. Odds-ratio mapping onto the school's real published rate --------
 	var base: float = universidad.tasa_admision_early if es_early else universidad.tasa_admision_base
 	base = clampf(base, 0.0001, 0.9999)
 	resultado.tasa_base = base

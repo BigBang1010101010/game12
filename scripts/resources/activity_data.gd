@@ -36,6 +36,18 @@ class_name ActivityData
 ## for that field.
 @export var carreras_afinidad: Dictionary = {}
 
+## Support this activity gives EVERY application equally, regardless of career
+## and identical at every school. 0.0 for almost everything: an activity that
+## speaks to a field belongs in carreras_afinidad, not here.
+##
+## This exists because one thing in the real data behaves that way. In Common
+## Data Set section C7 all eight Ivies mark work experience as CONSIDERED -
+## none raises it, none drops it - so paid work is not evidence for a field,
+## it is evidence about the person, and it lands the same everywhere. Declaring
+## it as a number here keeps that a content decision: another activity that
+## turns out to behave the same way sets this field, and no script changes.
+@export var boost_universal: float = 0.0
+
 ## --- The parallel athletic route -------------------------------------------
 @export var es_deporte: bool = false
 ## Index into ActivityScales.RECONOCIMIENTO that the player must reach before

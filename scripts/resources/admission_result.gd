@@ -45,6 +45,14 @@ class_name AdmissionResult
 ## much each activity was worth at each school.
 @export var aportes_actividad: Array[Dictionary] = []
 
+## Support that lands the same at every school and for every career - paid
+## work being the case the real data actually shows. Kept apart from the
+## career term precisely because it does NOT depend on the career.
+@export var efecto_universal: float = 0.0
+@export var fuerza_universal: float = 0.0
+## [{actividad_id, nombre, tier, boost, aporte}]
+@export var aportes_universales: Array[Dictionary] = []
+
 ## The athletic route, kept as its own term precisely so it can be shown - or
 ## shown as zero, with the reason attached.
 @export var es_reclutado: bool = false
@@ -74,8 +82,8 @@ class_name AdmissionResult
 
 ## One-line human summary for logs and tooltips.
 func resumen() -> String:
-	return "%s%s: %.1f%% (base %.1f%%, fit %.3f, ensayo %+.3f, carrera %+.3f, actividades %+.3f, atletico %+.3f, umbrales -%.3f, indice %.0f -%.3f)" % [
+	return "%s%s: %.1f%% (base %.1f%%, fit %.3f, ensayo %+.3f, carrera %+.3f, actividades %+.3f, universal %+.3f, atletico %+.3f, umbrales -%.3f, indice %.0f -%.3f)" % [
 		universidad_id, " [early]" if es_early else "", probabilidad * 100.0,
 		tasa_base * 100.0, fit_score, efecto_ensayo,
-		efecto_carrera + efecto_ajuste_carrera, efecto_actividades, efecto_atletico,
+		efecto_carrera + efecto_ajuste_carrera, efecto_actividades, efecto_universal, efecto_atletico,
 		penalizacion_umbrales, academic_index, penalizacion_indice]

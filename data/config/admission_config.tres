@@ -37,3 +37,5 @@ umbral_indice_atletico = 176.0
 umbral_indice_competitivo = 210.0
 peso_indice = 0.45
 exponente_indice = 1.6
+peso_boost_universal = 0.09
+boost_universal_referencia = 1.5

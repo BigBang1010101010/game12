@@ -78,6 +78,13 @@ class_name AdmissionConfig
 @export var peso_actividades: float = 0.14
 @export var actividad_afinidad_referencia: float = 4.0
 
+## Maximum fit contribution from activities that support any application
+## equally (see boost_universal on ActivityData), and the summed strength that
+## counts as full. Deliberately smaller than the career-specific term: being
+## responsible helps everywhere, but it is not a reason to admit anyone.
+@export var peso_boost_universal: float = 0.09
+@export var boost_universal_referencia: float = 1.5
+
 ## What being a recruitable athlete is worth, as a fit term of its own. Large
 ## on purpose: recruitment is the single biggest lever in Ivy admissions, and
 ## it is also the most gated - see academic_index_minimo on each sport.
