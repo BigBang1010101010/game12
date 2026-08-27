@@ -6,7 +6,11 @@
 ; Para recalibrar el juego entero se edita este archivo, nunca un .gd.
 [resource]
 script = ExtResource("1_cfg")
-fit_referencia = 0.55
+; Recalibrado de 0.55 a 0.95: a 0.55 un perfil equilibrado sacaba 16-28% contra
+; tasas reales de 3.2-7.5%. S_ref significa "el puntaje que devuelve exactamente
+; la tasa publicada", y los perfiles equilibrados puntuan cerca de 0.95, no de
+; 0.55, asi que 0.95 es el valor que hace que la frase sea cierta.
+fit_referencia = 0.95
 sensibilidad = 4.2
 penalizacion_umbral = 2.6
 exponente_umbral = 1.5
