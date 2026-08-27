@@ -67,6 +67,15 @@ sleep={
 ; sprint: Left Ctrl is the primary binding, plus Q as a second binding -
 ; in the Web export Ctrl+W is a browser shortcut that closes the tab and W
 ; is "move_forward", so sprinting forward on Ctrl alone would kill the game.
+; toggle_activities: T de "tiempo". Libre en el mapa de teclas (E interactuar,
+; I inventario, Z dormir, Ctrl/Q correr, F1 laboratorio) y sin conflicto con
+; atajos del navegador en la exportacion Web.
+toggle_activities={
+"deadzone": 0.5,
+"events": [Object(InputEventKey,"resource_local_to_scene":false,"resource_name":"","device":-1,"window_id":0,"alt_pressed":false,"shift_pressed":false,"ctrl_pressed":false,"meta_pressed":false,"pressed":false,"keycode":0,"physical_keycode":84,"key_label":0,"unicode":0,"location":0,"echo":false,"script":null)
+]
+}
+
 sprint={
 "deadzone": 0.5,
 "events": [Object(InputEventKey,"resource_local_to_scene":false,"resource_name":"","device":-1,"window_id":0,"alt_pressed":false,"shift_pressed":false,"ctrl_pressed":false,"meta_pressed":false,"pressed":false,"keycode":0,"physical_keycode":4194326,"key_label":0,"unicode":0,"location":1,"echo":false,"script":null), Object(InputEventKey,"resource_local_to_scene":false,"resource_name":"","device":-1,"window_id":0,"alt_pressed":false,"shift_pressed":false,"ctrl_pressed":false,"meta_pressed":false,"pressed":false,"keycode":0,"physical_keycode":81,"key_label":0,"unicode":0,"location":0,"echo":false,"script":null)]
@@ -120,6 +129,7 @@ Wallet="*res://scripts/progression/wallet.gd"
 FamilyCredit="*res://scripts/progression/family_credit.gd"
 InfoPolicy="*res://scripts/progression/information_policy.gd"
 ConsultingService="*res://scripts/progression/consulting_service.gd"
+; La pantalla de actividades necesita HUD para esconderlo, asi que va al final.
 AdmissionsLab="*res://scripts/debug/admissions_lab_toggle.gd"
 Inventory="*res://scripts/inventory.gd"
 PlayerStats="*res://scripts/player_stats.gd"
@@ -127,6 +137,7 @@ InteractionUI="*res://scripts/interaction_ui.gd"
 InventoryUI="*res://scripts/inventory_ui.gd"
 HUD="*res://scripts/hud.gd"
 SleepController="*res://scripts/sleep_controller.gd"
+ActivitiesScreen="*res://scripts/ui/activities_ui_toggle.gd"
 
 [rendering]
 
