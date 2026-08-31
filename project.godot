@@ -138,6 +138,7 @@ InventoryUI="*res://scripts/inventory_ui.gd"
 HUD="*res://scripts/hud.gd"
 SleepController="*res://scripts/sleep_controller.gd"
 ActivitiesScreen="*res://scripts/ui/activities_ui_toggle.gd"
+GiftShopScreen="*res://scripts/ui/gift_shop_screen.gd"
 
 [rendering]
 

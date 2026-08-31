@@ -33,6 +33,15 @@ var _panel_slots: RichTextLabel
 var _bitacora: RichTextLabel
 var _lineas_bitacora: Array[String] = []
 
+## --- Pestaña de dinero ---
+var _saldo: RichTextLabel
+var _contexto_credito: RichTextLabel
+var _a_quien: OptionButton
+var _monto: SpinBox
+var _prevision: RichTextLabel
+var _resultado_prestamo: RichTextLabel
+var _boton_pedir: Button
+
 ## actividad_id -> semana en la que ya se le dieron sus horas.
 var _invertido_en_semana: Dictionary = {}
 
@@ -108,10 +117,18 @@ func _construir() -> void:
 	acciones.add_child(cerrar)
 
 	# --- Cuerpo: actividades a la izquierda, aplicación a la derecha --------
+	# Two tabs behind one key: the week you spend and the money you spend it
+	# with are the same decision, and splitting them across two screens would
+	# hide the trade-off that makes both interesting.
+	var pestanas := TabContainer.new()
+	pestanas.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	raiz.add_child(pestanas)
+
 	var columnas := HBoxContainer.new()
+	columnas.name = "Tiempo"
 	columnas.add_theme_constant_override("separation", 16)
 	columnas.size_flags_vertical = Control.SIZE_EXPAND_FILL
-	raiz.add_child(columnas)
+	pestanas.add_child(columnas)
 
 	var scroll := ScrollContainer.new()
 	scroll.size_flags_horizontal = Control.SIZE_EXPAND_FILL
@@ -139,6 +156,81 @@ func _construir() -> void:
 	_bitacora.add_theme_stylebox_override("normal", _caja())
 	derecha.add_child(_bitacora)
 
+	pestanas.add_child(_panel_dinero())
+
+## The money tab: what you have, what your family might lend, and the ask.
+func _panel_dinero() -> Control:
+	var raiz := HBoxContainer.new()
+	raiz.name = "Dinero"
+	raiz.add_theme_constant_override("separation", 16)
+
+	var izquierda := VBoxContainer.new()
+	izquierda.custom_minimum_size = Vector2(520, 0)
+	izquierda.add_theme_constant_override("separation", 10)
+	raiz.add_child(izquierda)
+
+	_saldo = RichTextLabel.new()
+	_saldo.bbcode_enabled = true
+	_saldo.fit_content = true
+	_saldo.custom_minimum_size = Vector2(0, 30)
+	izquierda.add_child(_saldo)
+
+	_contexto_credito = RichTextLabel.new()
+	_contexto_credito.bbcode_enabled = true
+	_contexto_credito.fit_content = true
+	_contexto_credito.custom_minimum_size = Vector2(0, 90)
+	_contexto_credito.add_theme_stylebox_override("normal", _caja())
+	izquierda.add_child(_contexto_credito)
+
+	var fila_padre := HBoxContainer.new()
+	izquierda.add_child(fila_padre)
+	var etiqueta_padre := Label.new()
+	etiqueta_padre.text = "¿A quién le pides?"
+	etiqueta_padre.custom_minimum_size = Vector2(160, 0)
+	fila_padre.add_child(etiqueta_padre)
+	_a_quien = OptionButton.new()
+	for padre_res in ParentRegistry.obtener_todos():
+		var padre: ParentData = padre_res
+		_a_quien.add_item(padre.nombre_display)
+		_a_quien.set_item_metadata(_a_quien.item_count - 1, padre.id)
+	_a_quien.item_selected.connect(func(_i): _refrescar_dinero())
+	fila_padre.add_child(_a_quien)
+
+	var fila_monto := HBoxContainer.new()
+	izquierda.add_child(fila_monto)
+	var etiqueta_monto := Label.new()
+	etiqueta_monto.text = "¿Cuánto?"
+	etiqueta_monto.custom_minimum_size = Vector2(160, 0)
+	fila_monto.add_child(etiqueta_monto)
+	_monto = SpinBox.new()
+	_monto.min_value = 25.0
+	_monto.max_value = 5000.0
+	_monto.step = 25.0
+	_monto.value = 200.0
+	_monto.custom_minimum_size = Vector2(130, 0)
+	_monto.value_changed.connect(func(_v): _refrescar_dinero())
+	fila_monto.add_child(_monto)
+
+	_prevision = RichTextLabel.new()
+	_prevision.bbcode_enabled = true
+	_prevision.fit_content = true
+	_prevision.custom_minimum_size = Vector2(0, 76)
+	izquierda.add_child(_prevision)
+
+	_boton_pedir = Button.new()
+	_boton_pedir.text = "Pedir el préstamo"
+	_boton_pedir.pressed.connect(_pedir_prestamo)
+	izquierda.add_child(_boton_pedir)
+
+	_resultado_prestamo = RichTextLabel.new()
+	_resultado_prestamo.bbcode_enabled = true
+	_resultado_prestamo.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	_resultado_prestamo.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	_resultado_prestamo.add_theme_stylebox_override("normal", _caja())
+	_resultado_prestamo.text = "[i]Todavía no has pedido nada.[/i]"
+	raiz.add_child(_resultado_prestamo)
+	return raiz
+
 func _caja() -> StyleBoxFlat:
 	var caja := StyleBoxFlat.new()
 	caja.bg_color = Color(0.11, 0.12, 0.15)
@@ -153,6 +245,7 @@ func _refrescar() -> void:
 	_refrescar_lista()
 	_refrescar_slots()
 	_refrescar_bitacora()
+	_refrescar_dinero()
 
 func _refrescar_presupuesto() -> void:
 	var comprometidas: float = TimeBudget.horas_comprometidas()
@@ -449,3 +542,132 @@ func _unhandled_input(evento: InputEvent) -> void:
 	if evento.is_action_pressed("toggle_activities") or evento.is_action_pressed("ui_cancel"):
 		get_viewport().set_input_as_handled()
 		ActivitiesScreen.cerrar()
+
+# --- Money ------------------------------------------------------------------
+
+func _padre_elegido() -> StringName:
+	if _a_quien and _a_quien.selected >= 0:
+		return _a_quien.get_selected_metadata()
+	return FamilyCredit.mejor_pariente()
+
+func _refrescar_dinero() -> void:
+	if not _saldo:
+		return
+	_saldo.text = "[b]Tu dinero:[/b] %d propio   ·   %d de familia" % [
+		int(Wallet.dinero_personal()), int(Wallet.dinero_familia())]
+
+	var ubicacion: LocationData = PlayerOrigin.obtener_ubicacion()
+	var padre_id: StringName = _padre_elegido()
+	var maximo: float = FamilyCredit.monto_maximo(padre_id)
+	_monto.max_value = maxf(maximo * 1.5, 100.0)
+
+	var rechazos: int = FamilyCredit.rechazos_recientes()
+	var t := PackedStringArray()
+	if ubicacion:
+		t.append("[b]%s[/b]: tu familia presta con %d%% de disposición base." % [
+			ubicacion.nombre_display, int(round(ubicacion.facilidad_credito_familiar * 100.0))])
+	else:
+		t.append("[color=#ff8f8f]Sin lugar de nacimiento: no hay familia que pueda prestar.[/color]")
+	t.append("Máximo que te darían ahora: [b]%d[/b]   ·   relación contigo: %s" % [
+		int(maximo), InfoPolicy.describir_atributo(FamilyRelationship.obtener_nivel_relacion(padre_id))])
+	if rechazos > 0:
+		t.append("[color=#ffcc80]Te dijeron que no %d %s hace poco: la siguiente petición es más difícil.[/color]" % [
+			rechazos, "vez" if rechazos == 1 else "veces"])
+	_contexto_credito.text = "\n".join(t)
+
+	# Live forecast straight from the engine's own evaluation, which is the
+	# same object the real request returns - no second implementation.
+	var prevision: LoanResult = FamilyCredit.evaluar(_monto.value, padre_id)
+	_boton_pedir.disabled = prevision.motivo != &""
+	if prevision.motivo != &"":
+		_prevision.text = "[color=#ff8f8f]%s[/color]" % prevision.mensaje
+		return
+	var recorte := ""
+	if prevision.recortado:
+		recorte = "  [color=#ffcc80](te ofrecerían %d, no %d)[/color]" % [
+			int(prevision.monto_evaluado), int(prevision.monto_solicitado)]
+	_prevision.text = ("Probabilidad de que digan que sí: [b]%.0f%%[/b]%s\n" +
+		"[color=#9aa0aa]responsabilidad %.2f · relación %+.2f · monto %+.2f · rechazos %.2f[/color]") % [
+		prevision.probabilidad * 100.0, recorte, prevision.fit_responsabilidad,
+		prevision.efecto_relacion, prevision.efecto_monto, -prevision.penalizacion_rechazos]
+
+func _pedir_prestamo() -> void:
+	var padre_id: StringName = _padre_elegido()
+	var resultado: LoanResult = FamilyCredit.solicitar_prestamo(_monto.value, padre_id)
+	_resultado_prestamo.text = _formatear_prestamo(resultado)
+	var padre: ParentData = ParentRegistry.obtener(padre_id)
+	var nombre: String = padre.nombre_display if padre else String(padre_id)
+	if resultado.aprobado:
+		_anotar("[color=#88ddaa][b]%s te prestó %d.[/b][/color]" % [nombre, int(resultado.monto_aprobado)])
+	else:
+		_anotar("[color=#ff8f8f]%s te dijo que no.[/color]" % nombre)
+	_refrescar()
+
+func _formatear_prestamo(r: LoanResult) -> String:
+	var padre: ParentData = ParentRegistry.obtener(r.padre_id)
+	var nombre: String = padre.nombre_display if padre else String(r.padre_id)
+	var t := PackedStringArray()
+	if r.motivo != &"":
+		return "[color=#ff8f8f]%s[/color]" % r.mensaje
+
+	if r.aprobado:
+		t.append("[color=#88ddaa][b]%s dijo que sí: %d.[/b][/color]" % [nombre, int(r.monto_aprobado)])
+		if r.recortado:
+			t.append("Pediste %d y te dieron lo que había: %d." % [
+				int(r.monto_solicitado), int(r.monto_aprobado)])
+	else:
+		t.append("[color=#ff8f8f][b]%s dijo que no.[/b][/color]" % nombre)
+	t.append("")
+	t.append("Tenías [b]%.0f%%[/b] de probabilidad y salió %.2f." % [r.probabilidad * 100.0, r.tirada])
+	t.append("")
+	t.append("[b]De dónde salió ese %.0f%%[/b]" % (r.probabilidad * 100.0))
+	var ubicacion: LocationData = LocationRegistry.obtener(r.ubicacion_id)
+	t.append("  disposición de tu familia en %s: %.2f" % [
+		ubicacion.nombre_display if ubicacion else String(r.ubicacion_id), r.base_ubicacion])
+	t.append("  responsabilidad que te ven:    %+.3f" % r.fit_responsabilidad)
+	for atributo_id in r.contribuciones_atributo:
+		var c: Dictionary = r.contribuciones_atributo[atributo_id]
+		var definicion: AttributeDefinition = AttributeRegistry.get_definition(atributo_id)
+		t.append("      [color=#9aa0aa]%-22s %s[/color]" % [
+			definicion.nombre_display if definicion else String(atributo_id),
+			InfoPolicy.describir_atributo(c["valor"])])
+	t.append("  tu relación con %s:            %+.3f" % [nombre, r.efecto_relacion])
+	t.append("  lo que pediste (%d de %d):     %+.3f" % [
+		int(r.monto_evaluado), int(r.monto_maximo), r.efecto_monto])
+	if r.penalizacion_rechazos > 0.0:
+		t.append("  %d negativas recientes:        -%.3f" % [r.rechazos_recientes, r.penalizacion_rechazos])
+
+	if not r.aprobado:
+		t.append("")
+		t.append("[b][color=#ffcc80]Qué te faltó[/color][/b]")
+		for motivo in _diagnostico(r, nombre):
+			t.append("  [color=#ffcc80]· %s[/color]" % motivo)
+	return "\n".join(t)
+
+## Turns a refusal into the two or three things the player could actually
+## change, biggest first. A "no" that does not say why is a dead end.
+func _diagnostico(r: LoanResult, nombre: String) -> Array[String]:
+	var causas: Array = []
+	if r.efecto_relacion < 0.0:
+		causas.append([absf(r.efecto_relacion),
+			"Tu relación con %s está por debajo de lo normal. Cena en casa, acuérdate de su cumpleaños." % nombre])
+	if r.penalizacion_rechazos > 0.0:
+		causas.append([r.penalizacion_rechazos,
+			"Ya te dijeron que no %d %s hace poco. Deja pasar unas semanas." % [
+				r.rechazos_recientes, "vez" if r.rechazos_recientes == 1 else "veces"]])
+	var config: CreditConfig = FamilyCredit.obtener_config()
+	if r.fit_responsabilidad < config.fit_referencia:
+		causas.append([config.fit_referencia - r.fit_responsabilidad,
+			"No te ven lo bastante responsable todavía: pesan tus notas, tu organización y tu carácter."])
+	if absf(r.efecto_monto) > 0.15:
+		causas.append([absf(r.efecto_monto),
+			"Pediste %d de los %d que pueden dar. Pedir menos es mucho más fácil." % [
+				int(r.monto_evaluado), int(r.monto_maximo)]])
+	causas.sort_custom(func(a, b): return a[0] > b[0])
+	var salida: Array[String] = []
+	for causa in causas.slice(0, 3):
+		salida.append(causa[1])
+	if salida.is_empty():
+		salida.append("Nada en particular: tenías %.0f%% y la suerte no acompañó. Vuelve a intentarlo." % [
+			r.probabilidad * 100.0])
+	return salida

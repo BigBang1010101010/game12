@@ -45,6 +45,10 @@ func _ready() -> void:
 		return
 	_interactable.prompt_text = texto_prompt
 	_interactable.interacted.connect(_on_interacted)
+	# The shop announces itself; the counter UI is what listens. Keeping the
+	# world node ignorant of the screen means a second kind of shop opens the
+	# same counter without touching either file.
+	tienda_abierta.connect(GiftShopScreen.abrir)
 	# The Interactable already tracks the player entering and leaving; this
 	# mirrors that into the static list rather than duplicating the detection.
 	_interactable.body_entered.connect(func(cuerpo: Node3D):
