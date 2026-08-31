@@ -15,6 +15,8 @@ signal relacion_cambiada(padre_id: StringName, nivel: float)
 signal cumpleanos_olvidado(padre_id: StringName)
 
 const FUENTE := &"familia"
+## Gifts are paid for out of the player's own pocket - see data/spending/.
+const CATEGORIA_GASTO := &"regalos"
 const RUTA_CONFIG := "res://data/config/family_config.tres"
 
 ## Ledger key for a parent: relacion_<id>. Kept as a prefix so a query can ask
@@ -112,12 +114,14 @@ func obtener_desglose(padre_id: StringName) -> Dictionary:
 
 # --- The three ways up ------------------------------------------------------
 
-## Buys a gift. Refuses, with a reason, when the player is not standing in a
-## gift shop or when either id is unknown - the caller gets something it can
-## show, never a silent no-op.
+## Buys a gift: charges it and applies it. Refuses, with a reason, when the
+## player is not standing in a gift shop, when either id is unknown, or when
+## they cannot pay - the caller gets something it can show, never a silent
+## no-op.
 ##
-## The cost is REPORTED, not charged: there is no wallet yet. When the expense
-## system lands it charges `costo` from this same result.
+## The charge goes against the &"regalos" spending category, which family money
+## is NOT allowed to cover: asking your mother for the money to buy your mother
+## a present does not work, and that rule lives in the category's own file.
 func comprar_regalo(padre_id: StringName, regalo_id: StringName) -> Dictionary:
 	var regalo: GiftData = GiftRegistry.obtener(regalo_id)
 	if not _niveles.has(padre_id):
@@ -126,6 +130,13 @@ func comprar_regalo(padre_id: StringName, regalo_id: StringName) -> Dictionary:
 		return _fallo("regalo_desconocido", "No existe el regalo '%s'" % regalo_id)
 	if not GiftShop.hay_tienda_cerca():
 		return _fallo("sin_tienda", "Los regalos se compran en una tienda de regalos.")
+
+	if regalo.costo > 0.0:
+		var pago: Dictionary = Wallet.gastar(regalo.costo, CATEGORIA_GASTO, regalo.id, {
+			"regalo": regalo.id, "para": padre_id,
+		})
+		if not pago["exito"]:
+			return _fallo(pago["motivo"], pago["mensaje"])
 
 	var es_cumpleanos: bool = es_su_cumpleanos(padre_id)
 	var puntos: float = regalo.puntos_relacion

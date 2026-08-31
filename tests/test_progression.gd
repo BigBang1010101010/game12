@@ -591,6 +591,22 @@ func _relacion_familiar_sube_baja_y_decae() -> void:
 
 	var tienda := GiftShop.new()
 	GiftShop.registrar_disponibilidad(tienda, true)
+	# Gifts are paid for now, so the refusal for lack of money is checked
+	# BEFORE funding the wallet: it has to be a distinct, explained failure.
+	var sin_dinero: Dictionary = FamilyRelationship.comprar_regalo(
+		padre.id, (GiftRegistry.obtener_por_nivel()[2] as GiftData).id)
+	# Two legitimate refusals here, and which one comes back is informative:
+	# with an empty personal purse but family money on the table it is
+	# "esa categoria no acepta dinero de familia", and with nothing anywhere
+	# it is "no te alcanza". Either is a refusal with a reason; what must
+	# never happen is the gift going through.
+	_verificar(not sin_dinero["exito"] and sin_dinero["motivo"] in [
+			"fondos_insuficientes", "categoria_no_permite_familia"],
+		"se compro un regalo sin dinero propio (motivo: %s)" % sin_dinero.get("motivo", "-"))
+	_verificar(is_equal_approx(FamilyRelationship.obtener_nivel_relacion(padre.id),
+			FamilyRelationship.obtener_nivel_relacion(padre.id)),
+		"la relacion cambio pese al rechazo")
+	Wallet.ingresar(1000.0, Wallet.CLAVE_PERSONAL, &"test", &"fondos")
 	var por_nivel: Array[Resource] = GiftRegistry.obtener_por_nivel()
 	var barato: Dictionary = FamilyRelationship.comprar_regalo(padre.id, (por_nivel[0] as GiftData).id)
 	var caro: Dictionary = FamilyRelationship.comprar_regalo(
@@ -599,6 +615,13 @@ func _relacion_familiar_sube_baja_y_decae() -> void:
 	_verificar(caro["puntos"] > barato["puntos"],
 		"el regalo caro (%.2f) no vale mas que el barato (%.2f)" % [caro["puntos"], barato["puntos"]])
 	_verificar(caro["costo"] > barato["costo"], "el regalo caro no cuesta mas")
+	# And the money actually left the personal purse, never the family one.
+	var pagos: Array[Dictionary] = PlayerState.consultar_ledger({
+		"atributo": Wallet.CLAVE_PERSONAL, "fuente_id": FamilyRelationship.CATEGORIA_GASTO})
+	_verificar(pagos.size() == 2, "los regalos no se cobraron del bolsillo personal (%d cobros)" % pagos.size())
+	_verificar(PlayerState.consultar_ledger({
+		"atributo": Wallet.CLAVE_FAMILIA, "fuente_id": FamilyRelationship.CATEGORIA_GASTO}).is_empty(),
+		"un regalo se pago con dinero de la familia")
 	GiftShop.registrar_disponibilidad(tienda, false)
 	tienda.free()
 	_verificar(not GiftShop.hay_tienda_cerca(), "la tienda sigue disponible tras salir de ella")
