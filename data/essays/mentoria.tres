@@ -13,5 +13,6 @@ modificadores_atributo = {
 &"liderazgo": 10,
 &"red_social": 6
 }
+resalta = "Resalta la paciencia de enseñar y el impacto en otros."
 narrativa_tipo = &"mentoria"
 requisitos_desbloqueo = [{"tipo": "atributo_minimo", "atributo": &"impacto_comunitario", "valor": 30.0}]

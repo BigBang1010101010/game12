@@ -16,6 +16,17 @@ class_name EssayNarrative
 ## admissions. Not a change to the attribute itself: it is framing.
 @export var modificadores_atributo: Dictionary = {}
 
+## One short line saying what kind of strength this essay puts forward, in the
+## player's language. It exists so the UI never has to print the raw numbers
+## below: the game hides exact attribute values everywhere else, and an essay
+## card leaking "liderazgo +20" would be the one place it did not.
+##
+## Written per essay because it IS content - deriving it from narrativa_tipo
+## would mean a table of narrative types inside a script, which is exactly
+## what this project does not do. Left empty, the UI falls back to naming the
+## attributes it moves most, still without the numbers.
+@export var resalta: String = ""
+
 ## Archetype key that universities reference in afinidad_narrativas.
 @export var narrativa_tipo: StringName = &""
 

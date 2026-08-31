@@ -42,6 +42,10 @@ var _prevision: RichTextLabel
 var _resultado_prestamo: RichTextLabel
 var _boton_pedir: Button
 
+## --- Pestaña de ensayo ---
+var _lista_ensayos: VBoxContainer
+var _mensaje_ensayo: RichTextLabel
+
 ## actividad_id -> semana en la que ya se le dieron sus horas.
 var _invertido_en_semana: Dictionary = {}
 
@@ -157,6 +161,35 @@ func _construir() -> void:
 	derecha.add_child(_bitacora)
 
 	pestanas.add_child(_panel_dinero())
+	pestanas.add_child(_panel_ensayo())
+
+## The essay tab: ten cards, one of them chosen, and no raw numbers anywhere.
+func _panel_ensayo() -> Control:
+	var raiz := VBoxContainer.new()
+	raiz.name = "Ensayo"
+	raiz.add_theme_constant_override("separation", 10)
+
+	var explicacion := Label.new()
+	explicacion.text = ("Un solo ensayo va con tu solicitud, y cada universidad lo lee distinto. " +
+		"Puedes cambiarlo cuando quieras.")
+	explicacion.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	explicacion.add_theme_color_override("font_color", COLOR_TENUE)
+	raiz.add_child(explicacion)
+
+	_mensaje_ensayo = RichTextLabel.new()
+	_mensaje_ensayo.bbcode_enabled = true
+	_mensaje_ensayo.fit_content = true
+	_mensaje_ensayo.custom_minimum_size = Vector2(0, 28)
+	raiz.add_child(_mensaje_ensayo)
+
+	var scroll := ScrollContainer.new()
+	scroll.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	raiz.add_child(scroll)
+	_lista_ensayos = VBoxContainer.new()
+	_lista_ensayos.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	_lista_ensayos.add_theme_constant_override("separation", 8)
+	scroll.add_child(_lista_ensayos)
+	return raiz
 
 ## The money tab: what you have, what your family might lend, and the ask.
 func _panel_dinero() -> Control:
@@ -246,6 +279,7 @@ func _refrescar() -> void:
 	_refrescar_slots()
 	_refrescar_bitacora()
 	_refrescar_dinero()
+	_refrescar_ensayos()
 
 func _refrescar_presupuesto() -> void:
 	var comprometidas: float = TimeBudget.horas_comprometidas()
@@ -671,3 +705,141 @@ func _diagnostico(r: LoanResult, nombre: String) -> Array[String]:
 		salida.append("Nada en particular: tenías %.0f%% y la suerte no acompañó. Vuelve a intentarlo." % [
 			r.probabilidad * 100.0])
 	return salida
+
+# --- Essays -------------------------------------------------------------------
+
+## The context the unlock conditions are read against - the same one the essay
+## registry has always taken, built from live state.
+func _contexto_ensayos() -> Dictionary:
+	var tiempo: Dictionary = {}
+	for actividad_id in ActivityTracker.actividades_activas():
+		tiempo[actividad_id] = ActivityTracker.obtener_estado(actividad_id)["horas_totales"]
+	return {"tiempo_por_actividad": tiempo, "hitos": SaveSystem.hitos}
+
+func _ensayo_elegido() -> StringName:
+	return StringName(String(SaveSystem.obtener_eleccion(AdmissionCalculator.CLAVE_ENSAYO, "")))
+
+func _refrescar_ensayos() -> void:
+	if not _lista_ensayos:
+		return
+	for hijo in _lista_ensayos.get_children():
+		hijo.queue_free()
+	var elegido: StringName = _ensayo_elegido()
+	for ensayo_res in EssayRegistry.obtener_todos():
+		_lista_ensayos.add_child(_tarjeta_ensayo(ensayo_res as EssayNarrative, elegido))
+
+func _tarjeta_ensayo(ensayo: EssayNarrative, elegido: StringName) -> Control:
+	var contexto: Dictionary = _contexto_ensayos()
+	var faltantes: Array[Dictionary] = RequirementChecker.faltantes(ensayo.requisitos_desbloqueo, contexto)
+	var desbloqueado: bool = faltantes.is_empty()
+	var seleccionado: bool = ensayo.id == elegido
+
+	var panel := PanelContainer.new()
+	var caja := _caja()
+	if seleccionado:
+		caja.bg_color = Color(0.12, 0.18, 0.14)
+		caja.border_color = Color(0.35, 0.7, 0.45)
+		caja.set_border_width_all(2)
+	panel.add_theme_stylebox_override("panel", caja)
+
+	var fila := HBoxContainer.new()
+	fila.add_theme_constant_override("separation", 14)
+	panel.add_child(fila)
+
+	var texto := VBoxContainer.new()
+	texto.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	fila.add_child(texto)
+
+	var titulo := Label.new()
+	titulo.text = ensayo.titulo
+	titulo.add_theme_font_size_override("font_size", 18)
+	if not desbloqueado:
+		titulo.add_theme_color_override("font_color", COLOR_TENUE)
+	texto.add_child(titulo)
+
+	var preview := Label.new()
+	preview.text = ensayo.texto_preview
+	preview.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	preview.custom_minimum_size = Vector2(600, 0)
+	preview.add_theme_color_override("font_color", COLOR_TENUE)
+	texto.add_child(preview)
+
+	# What it puts forward, in words. Never the modifiers: the game hides exact
+	# values everywhere, and this card is not the exception.
+	var fuerza := Label.new()
+	fuerza.text = _resalta_de(ensayo)
+	fuerza.add_theme_color_override("font_color", Color(0.55, 0.75, 1.0))
+	texto.add_child(fuerza)
+
+	var estado := Label.new()
+	if seleccionado:
+		estado.text = "SELECCIONADO — es el que va con tu solicitud."
+		estado.add_theme_color_override("font_color", COLOR_OK)
+	elif desbloqueado:
+		estado.text = "DISPONIBLE"
+		estado.add_theme_color_override("font_color", COLOR_OK)
+	else:
+		estado.text = "BLOQUEADO — %s" % _texto_requisito(faltantes[0])
+		estado.add_theme_color_override("font_color", COLOR_FALTA)
+	texto.add_child(estado)
+
+	var boton := Button.new()
+	boton.custom_minimum_size = Vector2(170, 0)
+	if seleccionado:
+		boton.text = "Elegido"
+		boton.disabled = true
+	elif not desbloqueado:
+		boton.text = "Bloqueado"
+		boton.disabled = true
+		boton.tooltip_text = _texto_requisito(faltantes[0])
+	else:
+		boton.text = "Elegir este"
+		boton.pressed.connect(_elegir_ensayo.bind(ensayo.id))
+	fila.add_child(boton)
+	return panel
+
+## The essay's own line if it has one; otherwise the attributes it leans on,
+## named and never numbered.
+func _resalta_de(ensayo: EssayNarrative) -> String:
+	if not ensayo.resalta.is_empty():
+		return ensayo.resalta
+	var ordenados: Array = []
+	for atributo_id in ensayo.modificadores_atributo:
+		ordenados.append([float(ensayo.modificadores_atributo[atributo_id]), atributo_id])
+	ordenados.sort_custom(func(a, b): return a[0] > b[0])
+	var nombres: Array = []
+	for par in ordenados.slice(0, 2):
+		var definicion: AttributeDefinition = AttributeRegistry.get_definition(par[1])
+		if definicion:
+			nombres.append(definicion.nombre_display.to_lower())
+	return "Resalta %s." % " y ".join(nombres) if not nombres.is_empty() else ""
+
+func _texto_requisito(requisito: Dictionary) -> String:
+	match String(requisito.get("tipo", "")):
+		"atributo_minimo":
+			var definicion: AttributeDefinition = AttributeRegistry.get_definition(requisito.get("atributo", &""))
+			var nombre: String = definicion.nombre_display if definicion else String(requisito.get("atributo", ""))
+			# The threshold is stated as a band, not a number, so the card does
+			# not become the back door to reading your own stats.
+			return "necesitas %s en %s (vas en %s)" % [
+				InfoPolicy.describir_atributo(float(requisito.get("valor", 0.0))), nombre,
+				InfoPolicy.describir_atributo(PlayerState.obtener_valor(requisito.get("atributo", &"")))]
+		"tiempo_minimo":
+			var actividad: ActivityData = ActivityRegistry.obtener(requisito.get("actividad", &""))
+			return "necesitas más horas en %s" % [
+				actividad.nombre_display if actividad else String(requisito.get("actividad", ""))]
+		"hito":
+			return "te falta un hito de la historia"
+	return "requisito no cumplido"
+
+func _elegir_ensayo(ensayo_id: StringName) -> void:
+	var ensayo: EssayNarrative = EssayRegistry.obtener(ensayo_id)
+	if not EssayRegistry.esta_desbloqueada(ensayo,
+			_contexto_ensayos()["tiempo_por_actividad"], SaveSystem.hitos):
+		_mensaje_ensayo.text = "[color=#ff8f8f]Ese ensayo todavía está bloqueado.[/color]"
+		_refrescar_ensayos()
+		return
+	SaveSystem.fijar_eleccion(AdmissionCalculator.CLAVE_ENSAYO, String(ensayo_id))
+	_mensaje_ensayo.text = "[color=#88ddaa]Tu ensayo ahora es «%s».[/color]" % ensayo.titulo
+	_anotar("Elegiste el ensayo «%s»." % ensayo.titulo)
+	_refrescar()

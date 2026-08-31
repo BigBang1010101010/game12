@@ -13,5 +13,6 @@ modificadores_atributo = {
 &"red_social": 10,
 &"resiliencia": 8
 }
+resalta = "Resalta iniciativa, organización y riesgo asumido."
 narrativa_tipo = &"emprendimiento"
 requisitos_desbloqueo = [{"tipo": "atributo_minimo", "atributo": &"gestion_tiempo", "valor": 35.0}]

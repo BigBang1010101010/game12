@@ -291,7 +291,16 @@ func _construir() -> void:
 	_ensayo.clip_text = true
 	_ensayo.custom_minimum_size = Vector2(255, 0)
 	_ensayo.size_flags_horizontal = Control.SIZE_SHRINK_BEGIN
-	_ensayo.item_selected.connect(func(_i): _recalcular())
+	# Kept in sync with the essay screen in both directions: the lab is a
+	# window onto the same choice, not a second one.
+	var elegido: StringName = StringName(String(SaveSystem.obtener_eleccion(AdmissionCalculator.CLAVE_ENSAYO, "")))
+	for i in range(_ensayo.item_count):
+		if _ensayo.get_item_metadata(i) == elegido:
+			_ensayo.selected = i
+			break
+	_ensayo.item_selected.connect(func(indice):
+		SaveSystem.fijar_eleccion(AdmissionCalculator.CLAVE_ENSAYO, String(_ensayo.get_item_metadata(indice)))
+		_recalcular())
 	elecciones2.add_child(_ensayo)
 
 	_early = CheckBox.new()

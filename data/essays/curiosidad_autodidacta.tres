@@ -12,5 +12,6 @@ modificadores_atributo = {
 &"aptitud_investigacion": 8,
 &"aptitud_verbal": 6
 }
+resalta = "Resalta curiosidad intelectual y aprendizaje por cuenta propia."
 narrativa_tipo = &"curiosidad_autodidacta"
 requisitos_desbloqueo = [{"tipo": "atributo_minimo", "atributo": &"curiosidad_intelectual", "valor": 45.0}]

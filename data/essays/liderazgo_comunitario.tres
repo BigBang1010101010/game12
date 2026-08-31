@@ -12,5 +12,6 @@ modificadores_atributo = {
 &"impacto_comunitario": 12,
 &"red_social": 6
 }
+resalta = "Resalta liderazgo y compromiso con tu comunidad."
 narrativa_tipo = &"liderazgo_comunitario"
 requisitos_desbloqueo = [{"tipo": "atributo_minimo", "atributo": &"liderazgo", "valor": 40.0}]

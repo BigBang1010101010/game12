@@ -77,6 +77,10 @@ extends Node
 ## Bump when the formula changes shape, so past calibrations stay comparable.
 const FORMULA_VERSION := 3
 
+## Where the player's chosen essay is persisted, through the save system's
+## existing `elecciones` table.
+const CLAVE_ENSAYO := &"ensayo_seleccionado"
+
 var _config: AdmissionConfig = null
 
 func _ready() -> void:
@@ -117,6 +121,12 @@ func calcular_probabilidad(universidad_id: StringName, carrera_id: StringName, e
 	var perfil_real: bool = valores.is_empty()
 	if perfil_real:
 		valores = PlayerState.obtener_todos_los_valores()
+	# An empty essay on the live player means "whatever they chose on the essay
+	# screen": the choice is player state, so the caller should not have to
+	# carry it. A hypothetical profile gets no essay unless it names one.
+	if ensayo_id == &"" and perfil_real:
+		ensayo_id = StringName(String(SaveSystem.obtener_eleccion(CLAVE_ENSAYO, "")))
+		resultado.ensayo_id = ensayo_id
 	var indice: float = AcademicIndex.calcular_desde(valores)
 	resultado.academic_index = indice
 	if actividades.is_empty() and perfil_real:

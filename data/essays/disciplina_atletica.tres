@@ -12,5 +12,6 @@ modificadores_atributo = {
 &"resiliencia": 12,
 &"gestion_tiempo": 8
 }
+resalta = "Resalta disciplina física y constancia bajo entrenamiento."
 narrativa_tipo = &"disciplina_atletica"
 requisitos_desbloqueo = [{"tipo": "atributo_minimo", "atributo": &"logro_atletico", "valor": 45.0}]

@@ -12,5 +12,6 @@ modificadores_atributo = {
 &"logro_atletico": 8,
 &"gestion_tiempo": 6
 }
+resalta = "Resalta resiliencia y lo que construiste después del golpe."
 narrativa_tipo = &"superacion_adversidad"
 requisitos_desbloqueo = [{"tipo": "atributo_minimo", "atributo": &"resiliencia", "valor": 35.0}]

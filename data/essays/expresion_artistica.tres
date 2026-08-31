@@ -12,5 +12,6 @@ modificadores_atributo = {
 &"curiosidad_intelectual": 8,
 &"profundidad_extracurricular": 10
 }
+resalta = "Resalta sensibilidad artística y voz propia."
 narrativa_tipo = &"expresion_artistica"
 requisitos_desbloqueo = [{"tipo": "atributo_minimo", "atributo": &"habilidad_artistica", "valor": 45.0}]

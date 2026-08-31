@@ -12,5 +12,6 @@ modificadores_atributo = {
 &"curiosidad_intelectual": 12,
 &"rigor_academico": 6
 }
+resalta = "Resalta obsesión intelectual sostenida en el tiempo."
 narrativa_tipo = &"pasion_investigativa"
 requisitos_desbloqueo = [{"tipo": "atributo_minimo", "atributo": &"aptitud_investigacion", "valor": 40.0}]

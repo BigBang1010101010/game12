@@ -12,5 +12,6 @@ modificadores_atributo = {
 &"resiliencia": 8,
 &"red_social": 6
 }
+resalta = "Resalta servicio constante sin nada a cambio."
 narrativa_tipo = &"servicio"
 requisitos_desbloqueo = [{"tipo": "atributo_minimo", "atributo": &"impacto_comunitario", "valor": 35.0}]

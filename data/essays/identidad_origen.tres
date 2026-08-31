@@ -12,5 +12,6 @@ modificadores_atributo = {
 &"resiliencia": 10,
 &"curiosidad_intelectual": 8
 }
+resalta = "Resalta de dónde vienes y cómo eso te formó."
 narrativa_tipo = &"identidad_origen"
 requisitos_desbloqueo = []
