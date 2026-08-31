@@ -1,4 +1,4 @@
-[gd_scene load_steps=61 format=4]
+[gd_scene load_steps=72 format=4]
 
 [ext_resource type="Script" path="res://scripts/player.gd" id="1_player"]
 [ext_resource type="Script" path="res://scripts/camera_controller.gd" id="2_camera"]
@@ -11,6 +11,9 @@
 [ext_resource type="PackedScene" path="res://assets/environment/tree.glb" id="5_l25mh"]
 [ext_resource type="Script" path="res://scripts/gift_shop.gd" id="9_shop"]
 [ext_resource type="Script" path="res://scripts/consulting_office.gd" id="10_office"]
+[ext_resource type="Script" path="res://scripts/minigame_spot.gd" id="11_spot"]
+[ext_resource type="Script" path="res://scripts/minigames/baseball_batting.gd" id="12_bat"]
+[ext_resource type="Script" path="res://scripts/minigames/basketball_freethrow.gd" id="13_ft"]
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_grass"]
 albedo_color = Color(0.290196, 0.486275, 0.227451, 1)
@@ -268,6 +271,38 @@ radius = 0.2
 [sub_resource type="CylinderShape3D" id="CylinderShape3D_r7q28"]
 height = 1.6
 radius = 0.2
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_diamante"]
+albedo_color = Color(0.678431, 0.478431, 0.313726, 1)
+roughness = 0.9
+
+[sub_resource type="CylinderMesh" id="CylinderMesh_diamante"]
+material = SubResource("StandardMaterial3D_diamante")
+top_radius = 3.4
+bottom_radius = 3.4
+height = 0.16
+
+[sub_resource type="CylinderShape3D" id="CylinderShape3D_diamante"]
+radius = 3.4
+height = 0.16
+
+[sub_resource type="CylinderShape3D" id="CylinderShape3D_diamante_range"]
+radius = 5.0
+height = 4.0
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_cancha"]
+albedo_color = Color(0.815686, 0.454902, 0.223529, 1)
+roughness = 0.85
+
+[sub_resource type="BoxMesh" id="BoxMesh_cancha"]
+material = SubResource("StandardMaterial3D_cancha")
+size = Vector3(7, 0.16, 5)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_cancha"]
+size = Vector3(7, 0.16, 5)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_cancha_range"]
+size = Vector3(10, 4, 8)
 
 [node name="Main" type="Node3D"]
 
@@ -750,3 +785,41 @@ prompt_text = "Presiona E para entrar a la asesoría"
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="ConsultingOffice/Area3D"]
 shape = SubResource("BoxShape3D_office_range")
+
+[node name="BaseballDiamond" type="StaticBody3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 30, 0.08, 36)
+script = ExtResource("11_spot")
+minijuego = ExtResource("12_bat")
+deporte_id = &"beisbol"
+texto_prompt = "Presiona E para batear"
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="BaseballDiamond"]
+mesh = SubResource("CylinderMesh_diamante")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="BaseballDiamond"]
+shape = SubResource("CylinderShape3D_diamante")
+
+[node name="Area3D" type="Area3D" parent="BaseballDiamond"]
+script = ExtResource("3_interactable")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="BaseballDiamond/Area3D"]
+shape = SubResource("CylinderShape3D_diamante_range")
+
+[node name="BasketballCourt" type="StaticBody3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 40, 0.08, 34)
+script = ExtResource("11_spot")
+minijuego = ExtResource("13_ft")
+deporte_id = &"baloncesto"
+texto_prompt = "Presiona E para tirar libres"
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="BasketballCourt"]
+mesh = SubResource("BoxMesh_cancha")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="BasketballCourt"]
+shape = SubResource("BoxShape3D_cancha")
+
+[node name="Area3D" type="Area3D" parent="BasketballCourt"]
+script = ExtResource("3_interactable")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="BasketballCourt/Area3D"]
+shape = SubResource("BoxShape3D_cancha_range")

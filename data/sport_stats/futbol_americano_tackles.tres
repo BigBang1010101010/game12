@@ -12,4 +12,5 @@ deporte_id = &"futbol_americano"
 nombre_display = "Tackles"
 unidad = "tackles"
 es_mejor_mayor = true
+acumulativa = true
 orden = 30

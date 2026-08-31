@@ -45,6 +45,8 @@ func _run() -> void:
 	_estadisticas_deportivas_son_coherentes()
 	_benchmarks_derivan_reconocimiento_en_los_extremos()
 	_reconocimiento_deportivo_se_deriva_de_los_numeros()
+	_stats_acumulativas_suman_y_las_demas_guardan_la_mejor()
+	_minijuegos_solo_reportan_categorias_de_su_deporte()
 	_ledger_conserva_totales()
 
 	print("")
@@ -199,6 +201,67 @@ func _early_nunca_perjudica() -> void:
 	print("early decision: nunca perjudica en ninguna universidad")
 
 ## Consolidation must never lose or invent points.
+## Two kinds of statistic, one door: a season total adds up session after
+## session, a personal best only moves when it is beaten. Iterates the
+## registry, so a new .tres of either kind is covered without touching this.
+func _stats_acumulativas_suman_y_las_demas_guardan_la_mejor() -> void:
+	SportStatsTracker.reiniciar()
+	var acumulativas := 0
+	var de_mejor_marca := 0
+	for categoria_id in SportStatRegistry.obtener_ids():
+		var categoria: SportStatCategory = SportStatRegistry.obtener(categoria_id)
+		var benchmark: StatBenchmark = StatBenchmarkRegistry.obtener(categoria_id)
+		var deporte: StringName = categoria.deporte_id
+		# Scale taken from the category's own bands, so this never hard-codes a
+		# number for any sport.
+		var base: float = float(benchmark.bandas[0]["valor"])
+		var paso: float = absf(float(benchmark.bandas[1]["valor"]) - base) * 0.5
+		SportStatsTracker.registrar_resultado_minijuego(deporte, categoria_id, base)
+		SportStatsTracker.registrar_resultado_minijuego(deporte, categoria_id, base)
+		var tras_dos: float = SportStatsTracker.obtener_valor(deporte, categoria_id)
+		if categoria.acumulativa:
+			acumulativas += 1
+			_verificar(is_equal_approx(tras_dos, base * 2.0),
+				"'%s' es acumulativa: dos sesiones de %s deberian dar %s, dieron %s" % [
+					categoria_id, base, base * 2.0, tras_dos])
+			# An empty session must not subtract from a season total.
+			SportStatsTracker.registrar_resultado_minijuego(deporte, categoria_id, 0.0)
+			_verificar(is_equal_approx(SportStatsTracker.obtener_valor(deporte, categoria_id), tras_dos),
+				"'%s': una sesion en cero movio el total de temporada" % categoria_id)
+		else:
+			de_mejor_marca += 1
+			_verificar(is_equal_approx(tras_dos, base),
+				"'%s' no es acumulativa: repetir la misma marca no deberia sumar" % categoria_id)
+			var peor: float = base - paso if categoria.es_mejor_mayor else base + paso
+			SportStatsTracker.registrar_resultado_minijuego(deporte, categoria_id, peor)
+			_verificar(is_equal_approx(SportStatsTracker.obtener_valor(deporte, categoria_id), base),
+				"'%s': una sesion peor sobrescribio la mejor marca" % categoria_id)
+	_verificar(acumulativas > 0 and de_mejor_marca > 0,
+		"se esperaban categorias de los dos tipos, hay %d acumulativas y %d de mejor marca" % [
+			acumulativas, de_mejor_marca])
+	SportStatsTracker.reiniciar()
+	print("acumulativas:   %d totales de temporada que suman y %d mejores marcas que no retroceden" % [
+		acumulativas, de_mejor_marca])
+
+## The single door in SportMinigame refuses statistics that do not belong to
+## the sport being played, so a minigame cannot write on another sport's ficha.
+func _minijuegos_solo_reportan_categorias_de_su_deporte() -> void:
+	SportStatsTracker.reiniciar()
+	var ajena: Dictionary = SportStatsTracker.registrar_resultado_minijuego(
+		&"baloncesto", &"beisbol_jonrones", 5.0)
+	_verificar(not ajena.get("exito", false),
+		"un minijuego de baloncesto pudo escribir en una categoria de beisbol")
+	var inventada: Dictionary = SportStatsTracker.registrar_resultado_minijuego(
+		&"baloncesto", &"categoria_que_no_existe", 5.0)
+	_verificar(not inventada.get("exito", false),
+		"se acepto una categoria que no esta en el registro")
+	var propia: Dictionary = SportStatsTracker.registrar_resultado_minijuego(
+		&"baloncesto", &"baloncesto_puntos_por_juego", 12.0)
+	_verificar(propia.get("exito", false),
+		"se rechazo una categoria que si es del deporte")
+	SportStatsTracker.reiniciar()
+	print("puerta unica:   la categoria ajena y la inventada se rechazan, la propia entra")
+
 func _ledger_conserva_totales() -> void:
 	PlayerState.reiniciar()
 	var atributo: StringName = AttributeRegistry.get_all_ids()[0]

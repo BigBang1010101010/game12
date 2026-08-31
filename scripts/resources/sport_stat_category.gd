@@ -28,6 +28,16 @@ class_name SportStatCategory
 ## it flips how the benchmark bands are read.
 @export var es_mejor_mayor: bool = true
 
+## Whether repeated performances ADD UP instead of replacing each other.
+##
+## The distinction is the difference between a season total and a rate: home
+## runs, yards and goals accumulate game after game, while a batting average,
+## an ERA or points per game are the best figure you have posted. Without it,
+## playing ten games and hitting one home run in each would leave the player
+## with one home run, and the season thresholds would be unreachable by
+## actually playing.
+@export var acumulativa: bool = false
+
 ## Ordering hint inside its sport.
 @export_range(1, 99) var orden: int = 50
 

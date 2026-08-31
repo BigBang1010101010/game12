@@ -44,19 +44,22 @@ func registrar_resultado_minijuego(deporte_id: StringName, categoria_id: StringN
 
 	var anterior: float = obtener_valor(deporte_id, categoria_id)
 	var tenia: bool = _valores.get(deporte_id, {}).has(categoria_id)
-	var mejoro: bool = not tenia or (valor > anterior if categoria.es_mejor_mayor else valor < anterior)
+	# A counting statistic adds to the season; a rate keeps the best figure.
+	var acumulado: float = anterior + valor if categoria.acumulativa else valor
+	var mejoro: bool = (valor > 0.0 if categoria.acumulativa
+		else (not tenia or (valor > anterior if categoria.es_mejor_mayor else valor < anterior)))
 	if not mejoro:
 		return {"exito": true, "mejoro": false, "valor": anterior, "anterior": anterior,
 			"reconocimiento_antes": reconocimiento_derivado(deporte_id),
 			"reconocimiento_despues": reconocimiento_derivado(deporte_id)}
 
 	var antes: StringName = reconocimiento_derivado(deporte_id)
-	_fijar(deporte_id, categoria_id, valor, anterior if tenia else 0.0, FUENTE)
+	_fijar(deporte_id, categoria_id, acumulado, anterior if tenia else 0.0, FUENTE)
 	var despues: StringName = reconocimiento_derivado(deporte_id)
-	stat_registrada.emit(deporte_id, categoria_id, valor, true)
+	stat_registrada.emit(deporte_id, categoria_id, acumulado, true)
 	if antes != despues:
 		reconocimiento_cambiado.emit(deporte_id, antes, despues)
-	return {"exito": true, "mejoro": true, "valor": valor, "anterior": anterior,
+	return {"exito": true, "mejoro": true, "valor": acumulado, "anterior": anterior,
 		"reconocimiento_antes": antes, "reconocimiento_despues": despues}
 
 ## Sets a value outright, beating or not. Used by the calibration lab and by
